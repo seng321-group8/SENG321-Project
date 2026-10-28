@@ -26,6 +26,8 @@ Detailed responsibilities per activity: [RACI matrix](docs/raci.md).
 - [Git-Flow policy](docs/git-flow.md)
 - [Product backlog](docs/backlog.md)
 - [OpenAPI contract](openapi.yaml)
+- [Stand-up records](docs/standups.md)
+- [Sprint 1 retrospective](docs/retrospective.md)
 
 ## Repository workflow
 

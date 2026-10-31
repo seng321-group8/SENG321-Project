@@ -36,13 +36,13 @@
 | BR-4 | Matching candidates share at least one keyword with the student and are below capacity. |
 | BR-5 | Score = 2 × shared keywords + 1 (same department) + 1 (advisor serves the student's class). Highest score wins; ties → fewer assigned students → lowest advisor ID. GPA is not used. |
 | BR-6 | No candidate → student status WAITING_FOR_MATCH, visible to the administrator. |
-| BR-7 | An office-hour slot is 30 minutes, cannot start in the past, and holds at most one active appointment. |
+| BR-7 | Advisors define weekly recurring office hours divided into fixed 30-minute slots. Each dated occurrence of a slot holds at most one active appointment; past occurrences cannot be booked. |
 | BR-8 | A student books only their assigned advisor's slots and has at most one active (BOOKED) appointment. |
 | BR-9 | A student may cancel a BOOKED appointment until 2 hours before its start. |
 | BR-10 | Appointment statuses: BOOKED → COMPLETED / CANCELLED / NO_SHOW. Only the advisor marks COMPLETED or NO_SHOW, after the start time. |
 | BR-11 | Advisor change request: reason category (TIME_CONFLICT, FIELD_MISMATCH, COMMUNICATION, OTHER) + explanation of at least 20 characters; at most one PENDING request per student. |
 | BR-12 | On approval, the student is re-matched excluding the previous advisor; future BOOKED appointments with the previous advisor are cancelled and that advisor is e-mailed. |
-| BR-13 | GPA is visible only to the student and the assigned advisor. Change-request reasons are visible only to the student and administrators. |
+| BR-13 | GPA is visible only to the student and the assigned advisor. Change-request explanations are visible only to the student and administrators. |
 
 ## 3. Epics and features
 
@@ -59,21 +59,21 @@
 
 | Order | ID | Feature | Story (short) | Priority | SP | Depends on | Owner | Proposed API operations |
 |---:|---|---|---|---|---:|---|---|---|
-| 1 | US-01 | F-01 | Sign in and see role-based screens | P1 | 3 | — | Emine | `login`, `getCurrentUser` |
+| 1 | US-01 | F-01 | Sign in and see role-based screens | P1 | 3 | — | Emine | `getCurrentUser` |
 | 2 | US-04 | F-04 | Admin manages keyword list | P1 | 3 | US-01 | Emine | `listKeywords`, `createKeyword`, `updateKeyword` |
-| 3 | US-05 | F-05 | Admin creates advisor accounts and capacity | P1 | 3 | US-01 | Emine | `createAdvisor`, `updateAdvisor` |
+| 3 | US-05 | F-05 | Admin registers advisors and sets capacity | P1 | 3 | US-01 | Emine | `createAdvisor`, `updateAdvisor` |
 | 4 | US-03 | F-03 | Advisor sets keywords and classes served | P1 | 2 | US-04, US-05 | Emine | `updateMyAdvisorProfile` |
 | 5 | US-02 | F-02 | Student completes profile | P1 | 3 | US-01, US-04 | Emine | `updateMyStudentProfile` |
 | 6 | US-06 | F-06 | System assigns an advisor automatically | P1 | 5 | US-02, US-03 | Fatima Zehra | `requestMatch` |
 | 7 | US-08 | F-06 | Student sees assigned advisor | P1 | 2 | US-06 | Emine | `getMyAdvisor` |
-| 8 | US-09 | F-08 | Advisor manages office-hour slots | P1 | 3 | US-03 | Emine | `listMySlots`, `createSlot`, `deleteSlot` |
+| 8 | US-09 | F-08 | Advisor defines weekly office hours | P1 | 3 | US-03 | Emine | `listMySlots`, `createSlot`, `deleteSlot` |
 | 9 | US-10 | F-09 | Student books a slot | P1 | 5 | US-08, US-09 | Fatima Zehra | `listAdvisorSlots`, `createAppointment` |
 | 10 | US-13 | F-11 | Advisor receives booking e-mail | P1 | 3 | US-10 | Yağız | (internal; triggered by `createAppointment`) |
 | 11 | US-11 | F-09 | Student views and cancels appointments | P2 | 3 | US-10 | Emine | `listMyAppointments`, `cancelAppointment` |
 | 12 | US-12 | F-10 | Advisor views appointments and marks outcome | P2 | 3 | US-10 | Emine | `listMyAppointments`, `updateAppointmentStatus` |
 | 13 | US-07 | F-07 | Admin sees students waiting for a match | P2 | 2 | US-06 | Emine | `listUnmatchedStudents` |
 | 14 | US-14 | F-12 | Calendar file in e-mail and "Add to calendar" | P2 | 2 | US-13 | Yağız | `getAppointmentCalendarFile` |
-| 15 | US-15 | F-13 | Student requests advisor change with reason | P2 | 3 | US-08 | Emine | `createAdvisorChangeRequest` |
+| 15 | US-15 | F-13 | Student requests advisor change with explanation | P2 | 3 | US-08 | Emine | `createAdvisorChangeRequest` |
 | 16 | US-16 | F-14 | Admin decides on change request; re-matching | P2 | 5 | US-15, US-06 | Fatima Zehra | `listAdvisorChangeRequests`, `decideAdvisorChangeRequest` |
 | | | | **Total** | | **50** | | | |
 
@@ -91,9 +91,11 @@ Owner draft and are completed and approved together with Ebrar (QA).
 
 ### US-01 — Sign in and see role-based screens
 As a **user (student, advisor or administrator)**, I want to **sign in with my
-e-mail and password**, so that **I only see the functions of my role**.
-- **AC1** Given a registered student, when they sign in with correct credentials, then they are signed in and see the student home page.
-- **AC2** Given wrong credentials, when signing in, then the response is 401 and no session is created.
+institutional identity**, so that **I only see the functions of my role**.
+*(The university identity provider is replaced by a documented local identity
+stub with the same boundary — decision D-10.)*
+- **AC1** Given a valid student identity issued by the identity stub, when the user signs in, then the student home page is shown and `getCurrentUser` returns role STUDENT.
+- **AC2** Given a missing, expired or invalid token, when calling any operation, then the response is 401.
 - **AC3** Given a signed-in student, when they call an administrator operation, then the response is 403.
 
 ### US-02 — Student completes profile
@@ -116,12 +118,12 @@ that **students and advisors describe needs with the same words**.
 - **AC2** Given a keyword that already exists (case-insensitive), when adding it, then the response is 409.
 - **AC3** Given a deactivated keyword, then it is no longer offered for new selections but existing profiles keep it.
 
-### US-05 — Admin creates advisor accounts and capacity
-As an **administrator**, I want to **create advisor accounts and set their
-capacity**, so that **only authorised faculty members advise students and
+### US-05 — Admin registers advisors and sets capacity
+As an **administrator**, I want to **register faculty members as advisors and
+set their capacity**, so that **only authorised faculty members advise students and
 workload stays fair**.
-- **AC1** Given a name, e-mail and capacity 25, when the admin creates an advisor, then the account exists with capacity 25.
-- **AC2** Given an e-mail already in use, then the response is 409.
+- **AC1** Given a name, institutional e-mail, office location and capacity 25, when the admin registers an advisor, then the advisor exists with capacity 25.
+- **AC2** Given an e-mail already registered as an advisor, then the response is 409.
 - **AC3** Given capacity 0 or negative, then the response is 400.
 
 ### US-06 — System assigns an advisor automatically
@@ -146,17 +148,18 @@ assigned**, so that **I know whom to meet**.
 - **AC1** Given a matched student, when opening "My advisor", then the advisor's name, shared keywords and office location are shown.
 - **AC2** Given an unmatched student, then the page states that a match is pending.
 
-### US-09 — Advisor manages office-hour slots
-As an **advisor**, I want to **add and remove 30-minute office-hour slots**, so
-that **students can book times when I am available**.
-- **AC1** Given a future start time, when the advisor adds a slot, then a 30-minute slot is created.
-- **AC2** Given a start time in the past, or overlapping an existing slot of the same advisor, then the response is 400 or 409 respectively.
-- **AC3** Given a slot that is already booked, when the advisor deletes it, then the response is 409.
+### US-09 — Advisor defines weekly office hours
+As an **advisor**, I want to **define my weekly recurring office hours in
+30-minute slots**, so that **students can book times when I am available every
+week** *(decision D-08)*.
+- **AC1** Given Tuesday 10:00–11:00, when the advisor saves, then two weekly 30-minute slots (10:00 and 10:30) are created and their occurrences appear for the coming weeks.
+- **AC2** Given a start time that is not on a 30-minute boundary, then the response is 400; given an overlap with an existing weekly slot of the same advisor, then the response is 409.
+- **AC3** Given a weekly slot with a future booked occurrence, when the advisor deletes it, then the response is 409.
 
 ### US-10 — Student books a slot
 As a **student**, I want to **book a free office-hour slot of my advisor**, so
 that **I can meet them without exchanging e-mails**.
-- **AC1** Given a matched student with no active appointment and a free slot of their advisor, when booking, then the response is 201 and the appointment is BOOKED.
+- **AC1** Given a matched student with no active appointment and a free future occurrence of their advisor's slot (e.g. Tuesday 4 November, 10:30), when booking, then the response is 201, the appointment is BOOKED and a confirmation is shown on the page.
 - **AC2** Given a slot that is already booked, then the response is 409.
 - **AC3** Given a slot belonging to another advisor, then the response is 403.
 - **AC4** Given the student already has a BOOKED appointment, then the response is 409.
@@ -191,7 +194,7 @@ so that **I do not forget it**.
 - **AC2** Given a BOOKED appointment, when the user selects "Add to calendar", then the same .ics file is downloaded.
 - **AC3** Given an appointment of another user, when requesting its file, then the response is 403.
 
-### US-15 — Student requests advisor change with reason
+### US-15 — Student requests advisor change with explanation
 As a **student**, I want to **ask the administrator for a different advisor and
 explain why**, so that **I can get guidance that fits me better**.
 - **AC1** Given a matched student, a reason category and a 40-character explanation, when submitting, then a PENDING request is created.

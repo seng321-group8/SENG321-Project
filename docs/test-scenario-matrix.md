@@ -30,10 +30,9 @@ The purpose is to verify the advisor matching rules, appointment booking constra
 | AT-03 | A student attempts to create a second active appointment while already having one active appointment. | The request is rejected according to the appointment rules. |
 | AT-04 | A student attempts to book an office-hour slot belonging to another advisor. | The request is rejected because the student can only book their assigned advisor's slots. |
 | AT-05 | A student attempts to book an office-hour slot in the past. | The request is rejected. |
-| AT-06 | A student cancels their own booked appointment. | The appointment status changes to Cancelled. |
+| AT-06 | A student cancels their own Booked appointment that starts in 2 hours or more. | The appointment status changes to Cancelled. |
 | AT-07 | An advisor marks an appointment as completed. | The appointment status changes to Completed. |
-| AT-08 | Student tries to cancel a Booked appointment starting in less than 2 hours. | Cancellation is rejected, status remains Booked. |
-| AT-09 | Student cancels a Booked appointment starting in 2 hours or more. | Status changes to Cancelled. |
+| AT-08 | A student attempts to cancel a Booked appointment that starts in less than 2 hours. | The cancellation is rejected and the appointment status remains Booked. |
 
 ## 4. Input Validation Tests
 
@@ -148,6 +147,19 @@ This section provides detailed test cases for the main functional requirements o
 - **Expected Result:**
   - The system rejects the second active appointment.
   - The student cannot have more than one active appointment at a time.
+ 
+**DTC-AT-03: Reject Cancellation Within 2 Hours**
+
+- **Preconditions:**
+  - The student has an appointment with Booked status.
+  - The appointment starts in less than 2 hours.
+- **Test Steps:**
+  1. Log in as the student.
+  2. Attempt to cancel the appointment.
+  3. Check the result and the appointment status.
+- **Expected Result:**
+  - The cancellation is rejected.
+  - The appointment status remains Booked.
 
 ### 7.3 Input Validation Tests
 

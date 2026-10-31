@@ -2,7 +2,7 @@
 
 ## 1. Purpose
 
-This document defines the planned test scenarios for the Career Counseling Matching and Appointment System.
+This document defines the planned test scenarios for the Career Advisor Matching and Appointment System.
 
 The purpose is to verify the advisor matching rules, appointment booking constraints, input validation, authorization, and privacy requirements.
 
@@ -32,6 +32,8 @@ The purpose is to verify the advisor matching rules, appointment booking constra
 | AT-05 | A student attempts to book an office-hour slot in the past. | The request is rejected. |
 | AT-06 | A student cancels their own booked appointment. | The appointment status changes to Cancelled. |
 | AT-07 | An advisor marks an appointment as completed. | The appointment status changes to Completed. |
+| AT-08 | Student tries to cancel a Booked appointment starting in less than 2 hours. | Cancellation is rejected, status remains Booked. |
+| AT-09 | Student cancels a Booked appointment starting in 2 hours or more. | Status changes to Cancelled. |
 
 ## 4. Input Validation Tests
 

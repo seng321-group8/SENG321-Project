@@ -87,6 +87,7 @@ with the instructor before Sprint 2.
 | Administrator (career center or department staff) | Operational user | Maintain the keyword list and advisor accounts; handle advisor-change requests fairly | High | Manage keywords and advisors, review students waiting for a match, decide on change requests |
 | Department / university | Sponsor and governance | Organised career support; protection of student data | High | Sets policy on data use and advisor participation |
 | Course instructor | Assessor and stakeholder proxy | Evidence of sound software engineering | High | Reviews each sprint; acts as stakeholder proxy where real stakeholders are unavailable |
+| University identity provider | External system | Authenticates users and supplies identity and role | High (interface constraint) | Replaced by a documented local identity stub in development and demo |
 | E-mail service | External provider | Delivers notification messages | Medium (interface constraint) | Sends booking and cancellation e-mails requested by the system |
 | Users' calendar applications | External (indirect) | Import meeting details | Low | Open the calendar file (.ics) attached to e-mails |
 
@@ -97,11 +98,12 @@ with the instructor before Sprint 2.
 A web application with three roles: **student**, **advisor** and **administrator**.
 
 1. The administrator maintains a fixed list of **keywords** (for example *CV,
-   Internship, Interview, Software, Data Science, Graduate Study*) and creates
-   advisor accounts.
+   Internship, Interview, Software, Data Science, Graduate Study*) and registers
+   advisors. Users sign in through the identity-provider boundary (a local
+   identity stub in development and demo).
 2. Each advisor selects the keywords that describe their experience, the
-   **classes (years 1–4)** they prefer to advise, and publishes **office-hour
-   slots**.
+   **classes (years 1–4)** they prefer to advise, and defines **weekly recurring
+   office hours** divided into 30-minute slots.
 3. A student signs in and completes a profile: **class**, **department**,
    **grade point average (GPA)** and 1–5 **keywords** from the list.
 4. The system **automatically assigns** the most suitable advisor using a
@@ -109,9 +111,9 @@ A web application with three roles: **student**, **advisor** and **administrator
    career advisor.
 5. The student books one of the advisor's free office-hour slots.
 6. The advisor receives an **e-mail** with the booking details and a **calendar
-   file (.ics)**.
+   file (.ics)**; the student sees a confirmation on the page.
 7. A student who needs a different advisor submits a **change request with a
-   reason** to the administrator, who approves or rejects it.
+   explanation** to the administrator, who approves or rejects it.
 
 ### 3.2 Solution hypothesis
 
@@ -148,7 +150,7 @@ Targets are design goals, not measured results.
 | SC-3 | Correct matching | 100 % of assignments in the automated test set follow the matching rule, including tie and no-candidate cases | Unit tests, Sprint 3 |
 | SC-4 | No double booking | When two students request the same slot concurrently, exactly one succeeds and the other receives a conflict response | Integration test, Sprint 3 |
 | SC-5 | Advisor informed | The advisor's notification e-mail is sent within 1 minute of booking or cancellation | Integration test with a test mail server |
-| SC-6 | Data protection | A student's GPA and change-request reason are visible only to the authorised roles defined in Section 6 | Authorisation tests |
+| SC-6 | Data protection | A student's GPA and change-request explanation are visible only to the authorised roles defined in Section 6 | Authorisation tests |
 | SC-7 | Course quality gates | ≥ 50 % unit-test coverage; product starts with one docker-compose command | CI report and final demo |
 
 ## 4. Feasibility assessment
@@ -156,24 +158,24 @@ Targets are design goals, not measured results.
 | Dimension | Assessment |
 |---|---|
 | Data | The system creates its own data (profiles, keywords, slots, appointments). No access to university student-information systems is required; GPA is entered by the student. Demo data will be seeded. |
-| Integration | One external service is required: an e-mail (SMTP) service. A local test mail server is used in development and a free SMTP service in the demo. Calendar integration uses a standard .ics file, so no calendar account access is needed. |
+| Integration | Authentication uses a documented local identity stub that replaces the university identity provider and keeps the same boundary, so the real provider can be connected later. One further external service is required: an e-mail (SMTP) service. A local test mail server is used in development and a free SMTP service in the demo. Calendar integration uses a standard .ics file, so no calendar account access is needed. |
 | Skills | The required techniques — web user interface, REST API, relational database, role-based authorisation, unit and integration testing — are covered by the course and within the team's reach. The matching rule is a small, testable function. *(Technology stack to be confirmed by the Architect in Sprint 2.)* |
 | Schedule | The core journey (sign in → profile → matching → booking → e-mail) is planned for the Sprint 3 MVP. Advisor change requests and calendar files follow before the final submission. Video meetings and CV upload are deferred. |
-| Legal and ethical | GPA and change-request reasons are personal data. Access is limited to the roles that need them, and only the data needed for the service is stored. The team will follow university policy and the Turkish Personal Data Protection Law (KVKK) principles of purpose limitation and data minimisation. The matching rule is transparent so that students can understand why an advisor was assigned. |
+| Legal and ethical | GPA and change-request explanations are personal data. Access is limited to the roles that need them, and only the data needed for the service is stored. The team will follow university policy and the Turkish Personal Data Protection Law (KVKK) principles of purpose limitation and data minimisation. The matching rule is transparent so that students can understand why an advisor was assigned. |
 | Operational | Real advisors may not participate during the semester. The product will be demonstrated with seeded advisor accounts; the instructor acts as stakeholder proxy. All tools used are free. |
 
 ## 5. Initial project scope
 
 ### 5.1 Included in the first release
 
-1. Sign-in and role-based access (student, advisor, administrator).
+1. Sign-in through the identity-provider boundary (local identity stub) and role-based access (student, advisor, administrator).
 2. Administrator management of the keyword list and advisor accounts (including capacity).
 3. Student profile: class, department, GPA, 1–5 keywords.
-4. Advisor profile: keywords, classes served; office-hour slot management.
+4. Advisor profile: keywords, classes served; weekly recurring office hours in 30-minute slots.
 5. Automatic advisor matching and the "waiting for match" state.
 6. Booking and cancelling office-hour appointments; advisor marks an appointment as completed or no-show.
-7. E-mail notification to the advisor on booking and cancellation, with an .ics calendar file.
-8. Advisor change request with a reason; administrator approval or rejection and re-matching.
+7. E-mail notification to the advisor on booking and cancellation, with an .ics calendar file; on-page confirmation for the student.
+8. Advisor change request with an explanation; administrator approval or rejection and re-matching.
 
 ### 5.2 Outside the first release (deferred or excluded)
 
@@ -186,7 +188,7 @@ Targets are design goals, not measured results.
 | SMS and in-app messaging | Excluded. |
 | Automatic import of grades from university systems | Excluded; students enter their own GPA. |
 | Machine-learning-based matching | Excluded; a transparent rule is used. |
-| Single sign-on with the university identity system | Excluded; the system manages its own accounts in the first release. |
+| Implementation of the university identity provider | Excluded; a documented local identity stub with the same interface is used. |
 
 ## 6. Assumptions, risks and validation
 
@@ -199,7 +201,7 @@ Targets are design goals, not measured results.
 | AS-5 | Assumption | Students accept being assigned an advisor automatically. | Supported by the survey: 76 % yes, 0 % no; the advisor-change request covers students who disagree. | Aybüke |
 | RK-1 | Risk | Two students book the same slot at the same moment. | Database-level uniqueness on the slot; conflict response; concurrency test (SC-4). | Fatima Zehra, Ebrar |
 | RK-2 | Risk | Unfair load: popular advisors receive too many students. | Capacity limit and "fewer students" tie-break. | Fatima Zehra |
-| RK-3 | Risk | Personal data (GPA, reasons) is exposed to the wrong users. | Role and ownership checks; authorisation tests (SC-6). | Ebrar |
+| RK-3 | Risk | Personal data (GPA, change-request explanations) is exposed to the wrong users. | Role and ownership checks; authorisation tests (SC-6). | Ebrar |
 | RK-4 | Risk | E-mails are not delivered or are marked as spam. | Test mail server in development; failures logged and retried; booking is not lost if e-mail fails. | Yağız |
 | RK-5 | Risk | No real advisors participate during the semester. | Seeded demo data; instructor as stakeholder proxy. | Aybüke |
 | RK-6 | Risk | Scope grows (video, CV, mobile) and threatens the MVP. | Deferred items listed in Section 5.2; changes go through the decision log. | Aybüke, Nil |

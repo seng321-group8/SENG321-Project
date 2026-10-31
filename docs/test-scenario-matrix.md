@@ -62,3 +62,134 @@ The purpose is to verify the advisor matching rules, appointment booking constra
 - HTTP 409 Conflict is expected when a student attempts to book an already occupied appointment slot.
 - Other authorization and appointment rejection status codes should be confirmed in the OpenAPI contract.
 - These scenarios will be used as a basis for future acceptance testing and API testing with Postman.
+
+## 7. Detailed Test Cases
+
+This section provides detailed test cases for the main functional requirements of the system. These test cases define the preconditions, test data, execution steps, and expected results. All tests are currently planned and have not yet been executed.
+
+### 7.1 Advisor Matching Tests
+
+**DTC-MT-01: Select the Advisor with the Highest Matching Score**
+
+- **Preconditions:**
+  - At least two advisors are registered and available.
+  - Both advisors have available capacity.
+- **Test Data:**
+  - Student department: Computer Engineering
+  - Student grade: 2
+  - Student keywords: Java, Data Science
+  - Advisor A: Computer Engineering, serves grade 2, keywords Java and Data Science
+  - Advisor B: Different department, does not serve grade 2, keyword Java
+- **Test Steps:**
+  1. Create a student profile using the specified information.
+  2. Run the advisor matching process.
+  3. Check the matching scores of both advisors.
+  4. Check which advisor is assigned.
+- **Expected Result:**
+  - Advisor A receives a higher score and is assigned to the student.
+
+**DTC-MT-02: Apply the Tie-Breaking Rule**
+
+- **Preconditions:**
+  - Two eligible advisors have the same matching score.
+  - Both advisors have available capacity.
+- **Test Data:**
+  - Student keyword: Java
+  - Advisor A: Java keyword, 10 currently assigned students
+  - Advisor B: Java keyword, 5 currently assigned students
+- **Test Steps:**
+  1. Create the student profile.
+  2. Run the matching process.
+  3. Compare the advisors' matching scores.
+  4. Check their current student counts.
+- **Expected Result:**
+  - Both advisors have the same score.
+  - Advisor B is assigned because they have fewer assigned students.
+
+**DTC-MT-03: Exclude an Advisor at Full Capacity**
+
+- **Preconditions:**
+  - One advisor has reached the default capacity of 30 students.
+  - Another eligible advisor has available capacity.
+- **Test Steps:**
+  1. Prepare a student profile that matches both advisors' expertise keywords.
+  2. Run the matching process.
+  3. Check advisor eligibility.
+- **Expected Result:**
+  - The advisor with 30 assigned students is excluded.
+  - The student is matched with the eligible advisor who has available capacity.
+
+### 7.2 Appointment Tests
+
+**DTC-AT-01: Prevent Double Booking of an Office-Hour Slot**
+
+- **Preconditions:**
+  - An advisor has an available office-hour slot.
+  - Student A has already booked this slot.
+- **Test Steps:**
+  1. Log in as Student B.
+  2. Attempt to book the same office-hour slot.
+  3. Check the server response.
+- **Expected Result:**
+  - The booking is rejected.
+  - The system returns HTTP 409 Conflict.
+  - The existing appointment remains unchanged.
+
+**DTC-AT-02: Prevent Multiple Active Appointments**
+
+- **Preconditions:**
+  - The student already has an appointment with Booked status.
+- **Test Steps:**
+  1. Log in as the same student.
+  2. Attempt to book another appointment.
+  3. Check the result.
+- **Expected Result:**
+  - The system rejects the second active appointment.
+  - The student cannot have more than one active appointment at a time.
+
+### 7.3 Input Validation Tests
+
+**DTC-VT-01: Validate GPA Boundary Values**
+
+- **Test Data:**
+  - Valid GPA values: 0.0 and 4.0
+  - Invalid GPA values: -0.1 and 4.1
+- **Test Steps:**
+  1. Submit a student profile with GPA 0.0.
+  2. Submit a student profile with GPA 4.0.
+  3. Submit a student profile with GPA -0.1.
+  4. Submit a student profile with GPA 4.1.
+- **Expected Result:**
+  - GPA values between 0.0 and 4.0, including boundaries, are accepted.
+  - Values outside this range are rejected with HTTP 400 Bad Request.
+
+**DTC-VT-02: Validate Student Grade**
+
+- **Test Data:**
+  - Valid grades: 1 and 4
+  - Invalid grades: 0 and 5
+- **Test Steps:**
+  1. Submit profiles with grades 1 and 4.
+  2. Submit profiles with grades 0 and 5.
+- **Expected Result:**
+  - Grades 1 through 4 are accepted.
+  - Grades outside this range are rejected with HTTP 400 Bad Request.
+
+**DTC-VT-03: Validate Keyword Selection Limits**
+
+- **Test Data:**
+  - Valid keyword counts: 1 and 5
+  - Invalid keyword counts: 0 and 6
+- **Test Steps:**
+  1. Submit a profile with one keyword.
+  2. Submit a profile with five keywords.
+  3. Submit a profile without any keywords.
+  4. Submit a profile with six keywords.
+- **Expected Result:**
+  - Profiles containing between 1 and 5 keywords are accepted.
+  - Profiles containing zero or more than five keywords are rejected with HTTP 400 Bad Request.
+
+### 7.4 Test Execution Status
+
+All detailed test cases in this section are planned test cases. They will be executed after the corresponding system features and API endpoints are implemented.
+

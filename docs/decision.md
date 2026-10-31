@@ -1,87 +1,95 @@
 # Decision Log
 
-Status values: Proposed, Accepted, Rejected.
+Status values: Proposed, Accepted, Rejected, Superseded.
+Process: The team proposes a decision at a meeting. The Product Owner confirms it during pull request review and changes the status to Accepted.
 
 ## D-01 Platform
 - Status: Proposed
-- Date: 2026-10-27
-- Owner: Team
-- Decision: The first release is a web application accessible via mobile browsers. A mobile application is deferred.
-- Rationale: One interface keeps the scope small, simplifies Docker deployment, and provides a single API for future mobile integration.
+- Meeting date: October 27, 2026
+- Proposed by: Team
+- Owner: Aybüke
+- Decision: The first release is a web application that also works on mobile browsers. A native mobile application is not part of the first release.
+- Rationale: A single code base, an easy demonstration and compliance with the Docker requirement. The same API can support a mobile application later.
 
 ## D-02 Video meetings
 - Status: Proposed
-- Date: 2026-10-27
-- Owner: Team
-- Decision: Not included in the first release. The advisor and student meet in the way they agree on; the system does not store meeting links.
-- Rationale: Keeps the first release focused on matching and booking.
+- Meeting date: October 27, 2026
+- Proposed by: Team
+- Owner: Aybüke
+- Decision: Not included in the first release. Deferred.
+- Rationale: The team finishes the core flow first. In a later release an advisor can add a meeting link to an appointment.
 
 ## D-03 CV upload
 - Status: Proposed
-- Date: 2026-10-27
-- Owner: Team
-- Decision: Not included in the first release.
-- Rationale: Avoids file storage and the privacy and security work it requires.
+- Meeting date: October 27, 2026
+- Proposed by: Team
+- Owner: Aybüke
+- Decision: Not included in the first release. Deferred.
+- Rationale: File security and personal data handling add extra work. A later release may add PDF-only upload with a size limit.
 
 ## D-04 Advisor student quota
 - Status: Proposed
-- Date: 2026-10-27
-- Owner: Team
-- Decision: The default quota is 30 students per advisor. The administrator can change it for each advisor.
-- Rationale: Matches the existing business rule and needs little extra work.
+- Meeting date: October 27, 2026
+- Proposed by: Team
+- Owner: Aybüke
+- Decision: The default quota is 30 students per advisor. The administrator can change the quota for each advisor.
+- Rationale: Distributes the workload fairly between advisors.
 
-## D-05 Office hour slots
+## D-05 Open-source license
 - Status: Proposed
-- Date: 2026-10-27
-- Owner: Team
+- Meeting date: October 27, 2026
+- Proposed by: Team
+- Owner: Aybüke
+- Decision: Apache License 2.0 for the original project code.
+- Rationale: Permits use, modification and redistribution, and includes an explicit patent grant. The LICENSE file is in the repository. Dependency licenses will be checked and recorded as risks if incompatible.
+
+## D-06 Project name
+- Status: Proposed
+- Meeting date: October 27, 2026
+- Proposed by: Team
+- Owner: Aybüke
+- Decision: The project name is "Career Advisor Matching and Appointment System".
+
+## D-07 Appointment cancellation rule
+- Status: Proposed
+- Meeting date: October 27, 2026
+- Proposed by: Team
+- Owner: Aybüke
+- Decision: A student cannot cancel an appointment that starts in less than 2 hours.
+- Rationale: Protects the advisor's time and prevents last-minute cancellations.
+
+## D-08 Office hour slots
+- Status: Proposed
+- Owner: Aybüke
 - Decision: Advisors define weekly recurring slots with a fixed duration of 30 minutes.
 - Rationale: Simple to model and to check for conflicts (409).
 
-## D-06 Appointment outcome marking
+## D-09 Appointment outcome marking
 - Status: Proposed
-- Date: 2026-10-27
-- Owner: Team
+- Owner: Aybüke
 - Decision: The advisor marks an appointment as Completed or No-show.
-- Rationale: The advisor is the person who knows whether the student attended.
+- Rationale: The advisor knows whether the student attended.
 
-## D-07 Authentication
+## D-10 Authentication
 - Status: Proposed
-- Date: 2026-10-27
-- Owner: Team
+- Owner: Fatima
 - Decision: A documented local stub replaces the university identity provider and keeps the same boundary.
 - Rationale: The real identity provider is outside the project scope.
 
-## D-08 Notifications
+## D-11 Notifications
 - Status: Proposed
-- Date: 2026-10-27
-- Owner: Team
+- Owner: Aybüke
 - Decision: The advisor receives the appointment email with the .ics file. The student receives a confirmation on the page.
 - Rationale: Matches the requirement and limits email work.
 
-## D-09 Matching tie-break
+## D-12 Matching tie-break
 - Status: Proposed
-- Date: 2026-10-27
-- Owner: Team
+- Owner: Fatima
 - Decision: Highest score first, then the advisor with fewer students, then the lowest advisor ID.
 - Rationale: Makes the result deterministic and testable.
 
-## D-10 Terminology
+## D-13 Terminology
 - Status: Proposed
-- Date: 2026-10-27
-- Owner: Team
+- Owner: Aybüke
 - Decision: Use "explanation" for the free text in advisor change requests everywhere.
 - Rationale: The source text uses two different terms for it.
-
-## D-11 License Selection
-- Status: Proposed
-- Date: 2026-10-27
-- Owner: Team
-- Decision: Adopt the Apache 2.0 License for the repository.
-- Rationale: Provides clear open-source legal terms and liability protection for team members.
-
-## D-12 Cancellation Deadline Rule
-- Status: Proposed
-- Date: 2026-10-27
-- Owner: Team
-- Decision: Students cannot cancel appointments if there are fewer than 2 hours remaining until the scheduled slot.
-- Rationale: Prevents last-minute cancellations and respects advisor schedule planning.

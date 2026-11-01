@@ -1,0 +1,1634 @@
+openapi: 3.1.0
+info:
+  title: Kariyer Danışmanlığı Eşleştirme ve Randevu Sistemi API
+  version: 0.3.0
+  description: |
+    Öğrenci profilini doldurur, sistem kural tabanlı olarak kalıcı bir kariyer
+    danışmanı atar. Öğrenci danışmanının 30 dakikalık ofis saati
+    dilimlerinden birini (online veya yüz yüze) seçerek randevu TALEBİ gönderir;
+    danışman kabul ettiğinde randevu kesinleşir.
+
+    **İstemci:** React web uygulaması (mobil uyumlu arayüz).
+
+    **Karar özeti**
+    - Randevu süresi sabit 30 dakikadır. Danışman ofis saati aralığı girer,
+      sistem bunu 30 dakikalık dilimlere böler.
+    - Randevu akışı: `pending` (talep) -> `confirmed` (danışman kabul etti) ->
+      `completed` / `no_show`. Danışman reddederse `rejected`; öğrenci veya
+      danışman gerekçe yazarak iptal ederse `cancelled`.
+    - Bekleyen (`pending`) talep de dilimi tutar ve öğrencinin tek aktif
+      randevu hakkını kullanır. Aktif randevu = `pending` veya `confirmed`.
+    - Görüşme türü: `online` veya `in_person`. Online randevu kabul edilirken,
+      danışmanın Google Calendar hesabı bağlıysa Google Meet bağlantısı otomatik
+      oluşturulur; bağlı değilse danışman Zoom/Meet/Teams bağlantısını elle girer.
+    - CV: yalnızca PDF, en fazla 2 MB. Yalnızca öğrenci ve atanmış danışmanı
+      erişir.
+    - Danışman kontenjanı varsayılan 30'dur; yönetici değiştirebilir.
+    - Sistem yalnızca Ankara Bilim Üniversitesi içindir. Öğrenci kendi
+      hesabını açar (`/auth/register`). Öğrenci e-postası okul numarası
+      biçimindedir: `s` harfi + rakamlar + `@ankarabilim.edu.tr`
+      (örn. `s2212345@ankarabilim.edu.tr`). Alan adı tam eşleşme ile
+      denetlenir; alt alan adları ve `evilankarabilim.edu.tr` gibi benzer
+      adresler reddedilir. Hesap, e-postaya gelen doğrulama bağlantısı
+      kullanılmadan aktif olmaz.
+    - Danışman hesaplarını yalnızca yönetici oluşturur; danışman e-postası
+      `@ankarabilim.edu.tr` alan adında olmalıdır (öğrenci numarası biçimi
+      aranmaz). Yönetici ilk kurulumda elle eklenir.
+    - Danışman değişikliği onaylanır ama uygun başka danışman yoksa öğrenci
+      mevcut danışmanında kalır; hiçbir randevu iptal edilmez.
+
+    **Eşleştirme puanı:** ortak anahtar kelime x 2 + aynı bölüm (+1) + danışman
+    öğrencinin sınıfına hizmet veriyorsa (+1). Eşitlikte daha az öğrencisi olan
+    danışman seçilir. Not ortalaması puana katılmaz.
+
+    **Gizlilik:** `gpa` yalnızca öğrenci ve danışmanına döner. Değişiklik
+    talebindeki `explanation` yalnızca öğrenci ve yöneticiye döner. CV
+    yalnızca öğrenci ve atanmış danışmanına açıktır.
+
+    Tüm tarih/saatler ISO 8601 (RFC 3339); saat dilimi Europe/Istanbul.
+servers:
+  - url: http://localhost:3000/api/v1
+    description: Yerel geliştirme
+tags:
+  - name: Auth
+  - name: Reference
+    description: Anahtar kelime ve bölüm listeleri
+  - name: Student
+  - name: Advisor
+  - name: Appointments
+  - name: ChangeRequests
+  - name: Admin
+security:
+  - bearerAuth: []
+
+paths:
+  /auth/register:
+    post:
+      tags: [Auth]
+      summary: Öğrenci kaydı (yalnızca @ankarabilim.edu.tr)
+      description: |
+        Yalnızca öğrenci rolü açılır; danışman ve yönetici hesapları bu
+        uç noktadan açılamaz. E-posta okul numarası biçiminde olmalıdır:
+        `s` + rakamlar + `@ankarabilim.edu.tr`. Başarılı olursa hesap `doğrulanmamış`
+        durumda oluşur ve e-postaya doğrulama bağlantısı gider.
+        Hesap numaralandırmayı önlemek için, e-posta zaten kayıtlıysa da
+        kayıt yanıtı bu bilgiyi sızdırmamalıdır; ancak bu API sürümünde
+        açıklık için 409 döner.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: Hesap oluşturuldu, doğrulama e-postası gönderildi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegisterResponse'
+        '400':
+          description: |
+            Doğrulama hatası: geçersiz e-posta, zayıf şifre veya e-posta
+            `s<okul no>@ankarabilim.edu.tr` biçiminde değil.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                wrongDomain:
+                  summary: Okul dışı e-posta
+                  value:
+                    code: EMAIL_DOMAIN_NOT_ALLOWED
+                    message: Yalnızca ankarabilim.edu.tr uzantılı e-posta adresleriyle kayıt olunabilir.
+                wrongFormat:
+                  summary: Okul alan adı ama öğrenci numarası biçimi yok
+                  value:
+                    code: STUDENT_EMAIL_FORMAT_INVALID
+                    message: Öğrenci e-postası s2212345@ankarabilim.edu.tr biçiminde olmalıdır.
+                weakPassword:
+                  summary: Zayıf şifre
+                  value:
+                    code: VALIDATION_ERROR
+                    message: İstek doğrulanamadı.
+                    details:
+                      - field: password
+                        message: Şifre en az 8 karakter olmalıdır.
+        '409':
+          description: Bu e-posta ile zaten bir hesap var
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: EMAIL_ALREADY_REGISTERED
+                message: Bu e-posta adresiyle zaten bir hesap var.
+
+  /auth/verify-email:
+    post:
+      tags: [Auth]
+      summary: E-posta doğrulama bağlantısını onayla
+      description: Doğrulama e-postasındaki tek kullanımlık jeton gönderilir.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VerifyEmailRequest'
+      responses:
+        '200':
+          description: E-posta doğrulandı, hesap aktif
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VerifyEmailResponse'
+        '400':
+          description: Jeton geçersiz veya süresi dolmuş
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: VERIFICATION_TOKEN_INVALID
+                message: Doğrulama bağlantısı geçersiz veya süresi dolmuş.
+        '409':
+          description: E-posta zaten doğrulanmış
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /auth/resend-verification:
+    post:
+      tags: [Auth]
+      summary: Doğrulama e-postasını yeniden gönder
+      description: |
+        Hesabın varlığı sızmaması için, e-posta kayıtlı olsun olmasın aynı
+        yanıt döner. Kötüye kullanımı önlemek için hız sınırı uygulanır.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResendVerificationRequest'
+      responses:
+        '202':
+          description: Hesap varsa ve doğrulanmamışsa e-posta gönderildi
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '429':
+          description: Çok sık deneme
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: Giriş yap
+      description: |
+        Öğrenci hesabı e-posta doğrulanmadan giriş yapamaz.
+        Danışman ve yönetici hesaplarını yönetici açar.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Giriş başarılı
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: E-posta henüz doğrulanmamış
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: EMAIL_NOT_VERIFIED
+                message: Giriş yapmadan önce e-posta adresinizi doğrulamalısınız.
+
+  /departments:
+    get:
+      tags: [Reference]
+      summary: Bölüm listesi
+      responses:
+        '200':
+          description: Bölümler
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Department'
+
+  /keywords:
+    get:
+      tags: [Reference]
+      summary: Hazır anahtar kelime listesi
+      responses:
+        '200':
+          description: Anahtar kelimeler
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Keyword'
+
+  /students/me/profile:
+    get:
+      tags: [Student]
+      summary: Kendi profilimi getir
+      responses:
+        '200':
+          description: Öğrenci profili
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentProfile'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      tags: [Student]
+      summary: Profili kaydet ve (ilk kez ise) otomatik eşleştir
+      description: |
+        Profil ilk kez doldurulduğunda eşleştirme çalışır. Uygun danışman
+        varsa `matchStatus=matched` ve `advisorId` döner; yoksa
+        `matchStatus=waiting` olur ve yönetici listesinde görünür.
+        Danışman atandıktan sonra profil güncellemesi danışmanı değiştirmez;
+        değişiklik yalnızca değişiklik talebiyle yapılır.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StudentProfileInput'
+      responses:
+        '200':
+          description: Profil kaydedildi, eşleşme sonucu ile birlikte
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentProfile'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /students/me/advisor:
+    get:
+      tags: [Student]
+      summary: Atanan kariyer danışmanımı getir
+      responses:
+        '200':
+          description: Danışman bilgisi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Advisor'
+        '404':
+          description: Öğrenci henüz eşleşmedi (eşleşme bekliyor)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /students/me/cv:
+    put:
+      tags: [Student]
+      summary: CV yükle veya değiştir (PDF, en fazla 2 MB)
+      description: |
+        Öğrenci başına tek CV tutulur; yeni yükleme eskisinin yerine geçer.
+        Dosya türü sunucuda içerikten (magic bytes) de doğrulanır.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: "`application/pdf`, en fazla 2 MB (2.097.152 bayt)."
+      responses:
+        '200':
+          description: CV kaydedildi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CvInfo'
+        '400':
+          description: PDF değil veya 2 MB sınırı aşıldı
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                notPdf:
+                  summary: Yanlış dosya türü
+                  value:
+                    code: CV_INVALID_TYPE
+                    message: Yalnızca PDF dosyaları yüklenebilir.
+                tooLarge:
+                  summary: Boyut aşımı
+                  value:
+                    code: CV_TOO_LARGE
+                    message: CV en fazla 2 MB olabilir.
+    get:
+      tags: [Student]
+      summary: Kendi CV'mi indir
+      responses:
+        '200':
+          description: CV dosyası
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      tags: [Student]
+      summary: CV'mi sil
+      responses:
+        '204':
+          description: Silindi
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /students/{studentId}/cv:
+    get:
+      tags: [Advisor]
+      summary: Öğrencinin CV'sini indir (yalnızca atanmış danışman)
+      description: |
+        Yalnızca öğrencinin şu anki atanmış danışmanı erişebilir. Danışman
+        değişince eski danışmanın erişimi sona erer. Diğer herkese 403.
+      parameters:
+        - name: studentId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: CV dosyası
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /advisors/me/profile:
+    get:
+      tags: [Advisor]
+      summary: Danışman profilim
+      responses:
+        '200':
+          description: Danışman profili
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Advisor'
+    put:
+      tags: [Advisor]
+      summary: Uzmanlık anahtar kelimelerini ve hizmet verilen sınıfları güncelle
+      description: |
+        Mevcut öğrencilerin eşleşmesi bu değişiklikten etkilenmez; yalnızca
+        sonraki eşleştirmeler yeni değerleri kullanır. Kontenjan buradan
+        değiştirilemez (yönetici yetkisi).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdvisorProfileInput'
+      responses:
+        '200':
+          description: Güncellendi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Advisor'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /advisors/me/students:
+    get:
+      tags: [Advisor]
+      summary: Danışmanın öğrencileri (not ortalaması bilgi olarak görünür)
+      responses:
+        '200':
+          description: Öğrenci listesi
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StudentProfile'
+
+  /advisors/me/google-calendar:
+    get:
+      tags: [Advisor]
+      summary: Google Calendar bağlantı durumu
+      responses:
+        '200':
+          description: Durum
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCalendarStatus'
+    delete:
+      tags: [Advisor]
+      summary: Google Calendar bağlantısını kaldır
+      description: Sonraki online randevularda bağlantı elle girilmelidir.
+      responses:
+        '204':
+          description: Bağlantı kaldırıldı
+
+  /advisors/me/google-calendar/connect:
+    post:
+      tags: [Advisor]
+      summary: Google OAuth yetkilendirme adresini al
+      description: Dönen adres kullanıcıya yönlendirilir; Google `callback` adresine döner.
+      responses:
+        '200':
+          description: Yetkilendirme adresi
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [authUrl]
+                properties:
+                  authUrl:
+                    type: string
+                    format: uri
+        '409':
+          description: Hesap zaten bağlı
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /advisors/me/google-calendar/callback:
+    get:
+      tags: [Advisor]
+      summary: Google OAuth dönüşü
+      parameters:
+        - name: code
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: state
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Bağlandı
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCalendarStatus'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /advisors/me/office-hours:
+    get:
+      tags: [Advisor]
+      summary: Kendi ofis saati dilimlerim (dolu/boş)
+      responses:
+        '200':
+          description: Dilimler
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/OfficeHourSlot'
+    post:
+      tags: [Advisor]
+      summary: Ofis saati aralığı ekle (30 dakikalık dilimlere bölünür)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OfficeHourInput'
+      responses:
+        '201':
+          description: Oluşturulan 30 dakikalık dilimler
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/OfficeHourSlot'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          description: Aynı danışmanın mevcut bir dilimiyle çakışıyor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: OFFICE_HOUR_OVERLAP
+                message: Bu zaman aralığı mevcut bir ofis saatiyle çakışıyor.
+
+  /advisors/me/office-hours/{slotId}:
+    delete:
+      tags: [Advisor]
+      summary: Boş bir ofis saati dilimini sil
+      parameters:
+        - name: slotId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Silindi
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Dilimde bekleyen veya onaylı randevu var; önce iptal edilmeli
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /advisors/{advisorId}/office-hours:
+    get:
+      tags: [Student]
+      summary: Danışmanın ofis saati dilimlerini listele
+      description: Öğrenci yalnızca kendi danışmanının dilimlerini görebilir (aksi halde 403).
+      parameters:
+        - $ref: '#/components/parameters/AdvisorId'
+        - name: from
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: to
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: onlyAvailable
+          in: query
+          schema:
+            type: boolean
+            default: true
+      responses:
+        '200':
+          description: Dilimler
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/OfficeHourSlot'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /appointments:
+    get:
+      tags: [Appointments]
+      summary: Randevularım (öğrenci ise kendi, danışman ise kendisine gelenler)
+      parameters:
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/AppointmentStatus'
+      responses:
+        '200':
+          description: Randevu listesi
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Appointment'
+    post:
+      tags: [Appointments]
+      summary: Randevu talebi gönder (öğrenci)
+      description: |
+        Kurallar: yalnızca kendi danışmanının dilimine; dilim başına tek
+        talep/randevu; öğrencinin aynı anda en fazla 1 aktif (`pending` veya
+        `confirmed`) randevusu. Başarılı olursa randevu `pending` olur, dilim
+        tutulur ve danışmana talep e-postası gider. Takvim dosyası (.ics)
+        ve bağlantı, danışman kabul edince oluşur.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AppointmentCreate'
+      responses:
+        '201':
+          description: Talep oluşturuldu (`pending`)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Appointment'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          description: Dilim öğrencinin danışmanına ait değil
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Dilim dolu veya öğrencinin zaten aktif randevusu var
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                slotTaken:
+                  summary: Dilim dolu
+                  value:
+                    code: SLOT_ALREADY_BOOKED
+                    message: Bu ofis saati dilimi için zaten bir randevu alınmış.
+                activeExists:
+                  summary: Aktif randevu var
+                  value:
+                    code: ACTIVE_APPOINTMENT_EXISTS
+                    message: Aynı anda en fazla 1 aktif randevunuz olabilir.
+
+  /appointments/{appointmentId}:
+    get:
+      tags: [Appointments]
+      summary: Randevu detayı
+      parameters:
+        - $ref: '#/components/parameters/AppointmentId'
+      responses:
+        '200':
+          description: Randevu
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Appointment'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    patch:
+      tags: [Appointments]
+      summary: Danışman görüşme sonucunu işaretler (Tamamlandı / Gelmedi)
+      description: Yalnızca `confirmed` randevular ve başlangıç saatinden sonra.
+      parameters:
+        - $ref: '#/components/parameters/AppointmentId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status]
+              properties:
+                status:
+                  type: string
+                  enum: [completed, no_show]
+      responses:
+        '200':
+          description: Güncellendi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Appointment'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          description: Randevu onaylı değil veya zaten sonuçlanmış
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /appointments/{appointmentId}/confirm:
+    post:
+      tags: [Appointments]
+      summary: Randevu talebini kabul et (danışman)
+      description: |
+        Randevuyu `confirmed` yapar ve öğrenciye .ics ekli onay e-postası gönderir.
+        Online randevuda bağlantı şöyle belirlenir:
+        - Danışmanın Google Calendar hesabı bağlıysa Google Meet bağlantısı
+          otomatik oluşturulur (`meetingLinkSource=google_meet`). Bu durumda
+          `meetingLink` gönderilmesi gerekmez.
+        - Bağlı değilse `meetingLink` zorunludur (Zoom/Meet/Teams, `manual`).
+        Yüz yüze randevuda `meetingLink` yok sayılır.
+      parameters:
+        - $ref: '#/components/parameters/AppointmentId'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                meetingLink:
+                  type: string
+                  format: uri
+      responses:
+        '200':
+          description: Randevu kesinleşti
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Appointment'
+        '400':
+          description: Online randevu, Google bağlı değil ve geçerli `meetingLink` yok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: MEETING_LINK_REQUIRED
+                message: Google Calendar bağlı değil; bir görüşme bağlantısı girmelisiniz.
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          description: Talep artık beklemede değil (iptal edilmiş, reddedilmiş veya onaylanmış)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /appointments/{appointmentId}/reject:
+    post:
+      tags: [Appointments]
+      summary: Randevu talebini reddet (danışman)
+      description: Dilim yeniden boşalır; öğrenci aktif randevu hakkını geri kazanır.
+      parameters:
+        - $ref: '#/components/parameters/AppointmentId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReasonInput'
+      responses:
+        '200':
+          description: Reddedildi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Appointment'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          description: Talep artık beklemede değil
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /appointments/{appointmentId}/cancel:
+    post:
+      tags: [Appointments]
+      summary: Randevuyu gerekçe belirterek iptal et (öğrenci veya danışman)
+      description: |
+        Hem öğrenci hem danışman `pending` veya `confirmed` randevuyu iptal
+        edebilir; gerekçe zorunludur. Karşı tarafa gerekçeli iptal e-postası
+        gider. Dilim yeniden boşalır. Onaylı randevuda Google takvim
+        etkinliği de silinir.
+      parameters:
+        - $ref: '#/components/parameters/AppointmentId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReasonInput'
+      responses:
+        '200':
+          description: İptal edildi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Appointment'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          description: Randevu zaten iptal/reddedilmiş/tamamlanmış durumda
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /appointments/{appointmentId}/calendar.ics:
+    get:
+      tags: [Appointments]
+      summary: '"Takvime ekle" dosyası (.ics)'
+      description: Yalnızca `confirmed` randevular için üretilir.
+      parameters:
+        - $ref: '#/components/parameters/AppointmentId'
+      responses:
+        '200':
+          description: iCalendar dosyası
+          content:
+            text/calendar:
+              schema:
+                type: string
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Randevu henüz onaylanmadı
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /advisor-change-requests:
+    get:
+      tags: [ChangeRequests]
+      summary: Taleplerim (öğrenci) / tüm talepler (yönetici)
+      parameters:
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/ChangeRequestStatus'
+      responses:
+        '200':
+          description: Talep listesi
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AdvisorChangeRequest'
+    post:
+      tags: [ChangeRequests]
+      summary: Danışman değişikliği talebi gönder
+      description: Aynı anda yalnızca 1 bekleyen talep olabilir.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdvisorChangeRequestInput'
+      responses:
+        '201':
+          description: Talep oluşturuldu (Beklemede)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdvisorChangeRequest'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          description: Zaten bekleyen bir talep var
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: PENDING_REQUEST_EXISTS
+                message: Zaten bekleyen bir danışman değişikliği talebiniz var.
+
+  /admin/advisor-change-requests/{requestId}/decision:
+    post:
+      tags: [Admin]
+      summary: Talebi onayla / reddet
+      description: |
+        Onaylanırsa eski danışman hariç tutularak yeniden eşleştirme yapılır.
+        - Uygun yeni danışman bulunursa: öğrenci ona atanır
+          (`outcome=reassigned`), eski danışmanla gelecekteki randevular iptal
+          edilir ve eski danışmana e-posta gider; eski danışmanın CV erişimi
+          sona erer.
+        - Uygun başka danışman bulunamazsa: öğrenci mevcut danışmanında kalır
+          (`outcome=kept_current_advisor`), randevulara dokunulmaz ve öğrenciye
+          bilgi e-postası gider.
+        Reddedilirse `decisionNote` zorunludur.
+      parameters:
+        - name: requestId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChangeRequestDecision'
+      responses:
+        '200':
+          description: Karar kaydedildi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdvisorChangeRequest'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          description: Talep zaten karara bağlanmış
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /admin/students/waiting:
+    get:
+      tags: [Admin]
+      summary: Eşleşme bekleyen öğrenciler
+      responses:
+        '200':
+          description: Bekleyen öğrenciler
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StudentProfile'
+
+  /admin/keywords:
+    post:
+      tags: [Admin]
+      summary: Anahtar kelime ekle
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name:
+                  type: string
+                  minLength: 2
+                  maxLength: 50
+      responses:
+        '201':
+          description: Eklendi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Keyword'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          description: Aynı anahtar kelime zaten var
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /admin/advisors:
+    get:
+      tags: [Admin]
+      summary: Danışman hesaplarını listele
+      responses:
+        '200':
+          description: Danışmanlar
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Advisor'
+    post:
+      tags: [Admin]
+      summary: Danışman hesabı oluştur (yalnızca yönetici)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdvisorAccountInput'
+      responses:
+        '201':
+          description: Oluşturuldu
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Advisor'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          description: E-posta zaten kayıtlı
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /admin/advisors/{advisorId}/capacity:
+    patch:
+      tags: [Admin]
+      summary: Danışman kontenjanını değiştir
+      parameters:
+        - $ref: '#/components/parameters/AdvisorId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [capacity]
+              properties:
+                capacity:
+                  type: integer
+                  minimum: 1
+                  maximum: 500
+      responses:
+        '200':
+          description: Güncellendi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Advisor'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          description: Yeni kontenjan mevcut öğrenci sayısından küçük
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: CAPACITY_BELOW_STUDENT_COUNT
+                message: Kontenjan, danışmanın mevcut öğrenci sayısından az olamaz.
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    AdvisorId:
+      name: advisorId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    AppointmentId:
+      name: appointmentId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+
+  responses:
+    BadRequest:
+      description: Geçersiz istek (doğrulama hatası)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: VALIDATION_ERROR
+            message: İstek doğrulanamadı.
+            details:
+              - field: gpa
+                message: Not ortalaması 0.00 ile 4.00 arasında olmalıdır.
+    Unauthorized:
+      description: Kimlik doğrulama gerekli veya geçersiz
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Forbidden:
+      description: Bu kaynağa erişim yetkiniz yok
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFound:
+      description: Kaynak bulunamadı
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+  schemas:
+    Error:
+      type: object
+      required: [code, message]
+      properties:
+        code:
+          type: string
+          example: SLOT_ALREADY_BOOKED
+        message:
+          type: string
+        details:
+          type: array
+          items:
+            type: object
+            properties:
+              field:
+                type: string
+              message:
+                type: string
+
+    ReasonInput:
+      type: object
+      required: [reason]
+      properties:
+        reason:
+          type: string
+          minLength: 5
+          maxLength: 500
+          description: İptal veya ret gerekçesi.
+
+    RegisterRequest:
+      type: object
+      required: [email, password, fullName]
+      properties:
+        email:
+          type: string
+          format: email
+          pattern: '^s[0-9]+@ankarabilim\.edu\.tr$'
+          example: s2212345@ankarabilim.edu.tr
+          description: |
+            Okul numarası biçiminde: `s` + rakamlar + `@ankarabilim.edu.tr`.
+            Kayıtta küçük harfe çevrilip normalize edilir. Rakam sayısı
+            belli ise (örn. tam 7 rakam) desen `^s[0-9]{7}@…` olarak
+            sıkılaştırılabilir.
+        password:
+          type: string
+          format: password
+          minLength: 8
+          maxLength: 128
+        fullName:
+          type: string
+          minLength: 2
+          maxLength: 100
+
+    RegisterResponse:
+      type: object
+      required: [email, verificationRequired]
+      properties:
+        email:
+          type: string
+          format: email
+        verificationRequired:
+          type: boolean
+          example: true
+
+    VerifyEmailRequest:
+      type: object
+      required: [token]
+      properties:
+        token:
+          type: string
+          description: Doğrulama e-postasındaki tek kullanımlık jeton.
+
+    VerifyEmailResponse:
+      type: object
+      required: [verified]
+      properties:
+        verified:
+          type: boolean
+          example: true
+
+    ResendVerificationRequest:
+      type: object
+      required: [email]
+      properties:
+        email:
+          type: string
+          format: email
+
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+
+    LoginResponse:
+      type: object
+      required: [token, user]
+      properties:
+        token:
+          type: string
+        user:
+          $ref: '#/components/schemas/User'
+
+    Role:
+      type: string
+      enum: [student, advisor, admin]
+
+    User:
+      type: object
+      required: [id, email, fullName, role]
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        fullName:
+          type: string
+        role:
+          $ref: '#/components/schemas/Role'
+
+    Department:
+      type: object
+      required: [id, name]
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          example: Bilgisayar Mühendisliği
+
+    Keyword:
+      type: object
+      required: [id, name]
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          example: Staj
+
+    MatchStatus:
+      type: string
+      enum: [matched, waiting]
+
+    StudentProfileInput:
+      type: object
+      required: [grade, departmentId, gpa, keywordIds]
+      properties:
+        grade:
+          type: integer
+          minimum: 1
+          maximum: 4
+        departmentId:
+          type: string
+          format: uuid
+        gpa:
+          type: number
+          format: float
+          minimum: 0.00
+          maximum: 4.00
+          example: 3.25
+        keywordIds:
+          type: array
+          description: Hazır listeden 1-5 anahtar kelime (serbest metin yok).
+          minItems: 1
+          maxItems: 5
+          uniqueItems: true
+          items:
+            type: string
+            format: uuid
+
+    StudentProfile:
+      type: object
+      required: [studentId, fullName, grade, department, keywords, matchStatus, hasCv]
+      properties:
+        studentId:
+          type: string
+          format: uuid
+        fullName:
+          type: string
+        grade:
+          type: integer
+          minimum: 1
+          maximum: 4
+        department:
+          $ref: '#/components/schemas/Department'
+        gpa:
+          type: number
+          format: float
+          minimum: 0.00
+          maximum: 4.00
+          description: Yalnızca öğrenci ve danışmanına döner; diğer rollerde alan bulunmaz.
+        keywords:
+          type: array
+          items:
+            $ref: '#/components/schemas/Keyword'
+        matchStatus:
+          $ref: '#/components/schemas/MatchStatus'
+        advisorId:
+          type: [string, 'null']
+          format: uuid
+          description: "`matchStatus=waiting` ise null."
+        hasCv:
+          type: boolean
+
+    CvInfo:
+      type: object
+      required: [fileName, sizeBytes, uploadedAt]
+      properties:
+        fileName:
+          type: string
+          example: ayse-yilmaz-cv.pdf
+        sizeBytes:
+          type: integer
+          maximum: 2097152
+        uploadedAt:
+          type: string
+          format: date-time
+
+    AdvisorProfileInput:
+      type: object
+      required: [keywordIds, servedGrades]
+      properties:
+        keywordIds:
+          type: array
+          minItems: 1
+          uniqueItems: true
+          items:
+            type: string
+            format: uuid
+        servedGrades:
+          type: array
+          minItems: 1
+          uniqueItems: true
+          items:
+            type: integer
+            minimum: 1
+            maximum: 4
+
+    AdvisorAccountInput:
+      type: object
+      required: [email, fullName, departmentId]
+      properties:
+        email:
+          type: string
+          format: email
+          pattern: '^[^@\s]+@ankarabilim\.edu\.tr$'
+          example: ad.soyad@ankarabilim.edu.tr
+          description: "`@ankarabilim.edu.tr` alan adında olmalı (alt alan adı kabul edilmez)."
+        fullName:
+          type: string
+        departmentId:
+          type: string
+          format: uuid
+        capacity:
+          type: integer
+          minimum: 1
+          default: 30
+
+    Advisor:
+      type: object
+      required: [id, fullName, department, keywords, servedGrades, capacity, studentCount]
+      properties:
+        id:
+          type: string
+          format: uuid
+        fullName:
+          type: string
+        email:
+          type: string
+          format: email
+        department:
+          $ref: '#/components/schemas/Department'
+        keywords:
+          type: array
+          items:
+            $ref: '#/components/schemas/Keyword'
+        servedGrades:
+          type: array
+          items:
+            type: integer
+            minimum: 1
+            maximum: 4
+        capacity:
+          type: integer
+          minimum: 1
+          default: 30
+        studentCount:
+          type: integer
+          minimum: 0
+        googleCalendarConnected:
+          type: boolean
+
+    GoogleCalendarStatus:
+      type: object
+      required: [connected]
+      properties:
+        connected:
+          type: boolean
+        googleEmail:
+          type: [string, 'null']
+          format: email
+        connectedAt:
+          type: [string, 'null']
+          format: date-time
+
+    OfficeHourInput:
+      type: object
+      required: [startsAt, endsAt]
+      properties:
+        startsAt:
+          type: string
+          format: date-time
+        endsAt:
+          type: string
+          format: date-time
+          description: |
+            `startsAt` değerinden sonra olmalı; aradaki süre 30 dakikanın
+            katı olmalı (örn. 10:00-12:00 -> 4 dilim).
+        location:
+          type: string
+          example: B Blok, Oda 214
+          description: Yüz yüze görüşmelerin yapılacağı yer.
+
+    OfficeHourSlot:
+      type: object
+      required: [id, advisorId, startsAt, endsAt, isAvailable]
+      properties:
+        id:
+          type: string
+          format: uuid
+        advisorId:
+          type: string
+          format: uuid
+        startsAt:
+          type: string
+          format: date-time
+        endsAt:
+          type: string
+          format: date-time
+          description: Her zaman `startsAt` + 30 dakika.
+        location:
+          type: string
+        isAvailable:
+          type: boolean
+          description: "`pending` veya `confirmed` randevusu yoksa true."
+
+    MeetingType:
+      type: string
+      enum: [online, in_person]
+
+    AppointmentStatus:
+      type: string
+      description: |
+        pending (talep) -> confirmed (danışman kabul etti) -> completed / no_show.
+        Ayrıca rejected (danışman reddetti) ve cancelled (gerekçeli iptal).
+      enum: [pending, confirmed, rejected, cancelled, completed, no_show]
+
+    AppointmentCreate:
+      type: object
+      required: [slotId, meetingType]
+      properties:
+        slotId:
+          type: string
+          format: uuid
+        meetingType:
+          $ref: '#/components/schemas/MeetingType'
+        note:
+          type: string
+          maxLength: 500
+
+    Appointment:
+      type: object
+      required: [id, slotId, studentId, advisorId, startsAt, endsAt, meetingType, status]
+      properties:
+        id:
+          type: string
+          format: uuid
+        slotId:
+          type: string
+          format: uuid
+        studentId:
+          type: string
+          format: uuid
+        advisorId:
+          type: string
+          format: uuid
+        startsAt:
+          type: string
+          format: date-time
+        endsAt:
+          type: string
+          format: date-time
+        meetingType:
+          $ref: '#/components/schemas/MeetingType'
+        status:
+          $ref: '#/components/schemas/AppointmentStatus'
+        location:
+          type: [string, 'null']
+          description: Yüz yüze randevularda ofis yeri.
+        meetingLink:
+          type: [string, 'null']
+          format: uri
+          description: Yalnızca onaylı online randevularda dolu.
+        meetingLinkSource:
+          type: [string, 'null']
+          enum: [google_meet, manual, null]
+        note:
+          type: string
+        cancelledBy:
+          type: [string, 'null']
+          enum: [student, advisor, null]
+        cancellationReason:
+          type: [string, 'null']
+        rejectionReason:
+          type: [string, 'null']
+        calendarUrl:
+          type: [string, 'null']
+          description: Takvime ekle (.ics) bağlantısı; yalnızca `confirmed` iken dolu.
+          example: /appointments/3f2a.../calendar.ics
+
+    ChangeReason:
+      type: string
+      enum: [time_conflict, field_mismatch, communication_issue, other]
+
+    ChangeRequestStatus:
+      type: string
+      description: Beklemede -> Onaylandı / Reddedildi
+      enum: [pending, approved, rejected]
+
+    AdvisorChangeRequestInput:
+      type: object
+      required: [reason, explanation]
+      properties:
+        reason:
+          $ref: '#/components/schemas/ChangeReason'
+        explanation:
+          type: string
+          minLength: 20
+          maxLength: 1000
+
+    AdvisorChangeRequest:
+      type: object
+      required: [id, studentId, currentAdvisorId, reason, status, createdAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+        studentId:
+          type: string
+          format: uuid
+        currentAdvisorId:
+          type: string
+          format: uuid
+        newAdvisorId:
+          type: [string, 'null']
+          format: uuid
+          description: "`outcome=reassigned` ise yeni danışman; aksi halde null."
+        reason:
+          $ref: '#/components/schemas/ChangeReason'
+        explanation:
+          type: string
+          description: Kişisel veri; yalnızca öğrenci ve yöneticiye döner.
+        status:
+          $ref: '#/components/schemas/ChangeRequestStatus'
+        outcome:
+          type: [string, 'null']
+          enum: [reassigned, kept_current_advisor, null]
+          description: Yalnızca `approved` taleplerde dolu.
+        decisionNote:
+          type: [string, 'null']
+          description: Yönetici gerekçesi (reddedilirken zorunlu).
+        createdAt:
+          type: string
+          format: date-time
+        decidedAt:
+          type: [string, 'null']
+          format: date-time
+
+    ChangeRequestDecision:
+      type: object
+      required: [decision]
+      properties:
+        decision:
+          type: string
+          enum: [approved, rejected]
+        decisionNote:
+          type: string
+          minLength: 5
+          maxLength: 500
+          description: "`rejected` ise zorunlu."

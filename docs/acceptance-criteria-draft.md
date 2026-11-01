@@ -198,7 +198,13 @@ These criteria are prepared as a QA contribution to Product Backlog Issue #17. T
 
 **Then** the appointment status should change to `Completed`.
 
-- **AC-AP-08:** Given a student has a Booked appointment starting in less than 2 hours, When the student tries to cancel it, Then the system rejects the cancellation and the status remains Booked.
+### AC-AP-08: Cancellation Deadline
+
+**Given** a student has an appointment starting in less than 2 hours with status `Booked`,
+
+**When** the student attempts to cancel the appointment,
+
+**Then** the system should reject the cancellation and the appointment status should remain `Booked`.
 
 ---
 

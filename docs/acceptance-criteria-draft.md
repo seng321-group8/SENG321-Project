@@ -2,7 +2,7 @@
 
 ## 1. Purpose
 
-This document defines the draft acceptance criteria for the Career Counseling Matching and Appointment System.
+This document defines the draft acceptance criteria for the Career Advisor Matching and Appointment System.
 
 The criteria describe the conditions that each system feature must satisfy to be considered complete and acceptable.
 
@@ -184,7 +184,7 @@ These criteria are prepared as a QA contribution to Product Backlog Issue #17. T
 
 ### AC-AP-06: Appointment Cancellation
 
-**Given** a student has an appointment with status `Booked`,
+**Given** a student has an appointment starting in 2 hours or more with status `Booked`,
 
 **When** the student cancels their own appointment,
 
@@ -197,6 +197,14 @@ These criteria are prepared as a QA contribution to Product Backlog Issue #17. T
 **When** the advisor marks the appointment as completed,
 
 **Then** the appointment status should change to `Completed`.
+
+### AC-AP-08: Cancellation Deadline
+
+**Given** a student has an appointment starting in less than 2 hours with status `Booked`,
+
+**When** the student attempts to cancel the appointment,
+
+**Then** the system should reject the cancellation and the appointment status should remain `Booked`.
 
 ---
 
@@ -248,7 +256,7 @@ These criteria are prepared as a QA contribution to Product Backlog Issue #17. T
 
 **When** the student is assigned a new advisor,
 
-**Then** future appointments with the previous advisor should be cancelled and the student should be notified by email.
+**Then** future appointments with the previous advisor should be cancelled and the previous advisor should be notified by email.
 
 ---
 

@@ -46,3 +46,4 @@ Licensed under the Apache License 2.0. See [LICENSE](LICENSE).
 - Project board: [GitHub Project](https://github.com/orgs/seng321-group8/projects/4)
 - Issues: [GitHub Issues](https://github.com/seng321-group8/SENG321-Project/issues)
 - Pull requests: [GitHub Pull Requests](https://github.com/seng321-group8/SENG321-Project/pulls?q=is%3Apr)
+- Commits: [GitHub Commits](https://github.com/seng321-group8/SENG321-Project/commits/develop/)

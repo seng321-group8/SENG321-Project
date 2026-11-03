@@ -83,4 +83,4 @@ Format: Online (Google Meet)
 - Ebrar: Update acceptance criteria and test matrix to reflect the 30-min cancellation rule, weekly 3-round matching, CV, Google Meet, and email verification.
 - Emine: Map backlog user stories to OpenAPI operations and open a tracking issue for the weekly matching logic.
 - Yağız: Open at least one PR from individual account and assist Nil in making the repo `public` for branch rulesets.
-- Nil: Merge Aybüke's PR #35, update `standups.md` (Nov 1) and `retrospective.md` (Nov 2). Open and merge `develop` -> `main` PR before delivery.
+- Nil: Merge Aybüke's PR #35, update `standups.md` (Nov 1) and `retrospective.md` (Nov 3). Open and merge `develop` -> `main` PR before delivery.

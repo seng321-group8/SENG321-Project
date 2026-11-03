@@ -2,208 +2,73 @@
 
 ## 1. Purpose
 
-This document defines the planned test scenarios for the Career Advisor Matching and Appointment System.
+This document defines the test scenario matrix for the Career Advisor Matching and Appointment System, covering functional, validation, and integration tests mapped to acceptance criteria and backlog stories.
 
-The purpose is to verify the advisor matching rules, appointment booking constraints, input validation, authorization, and privacy requirements.
+---
 
-**Note:** These are planned test scenarios. They have not been executed yet because the application is not implemented.
+## 2. Student Profile Management Tests (Linked to US-01)
 
-## 2. Matching Algorithm Tests
+| Test ID | Scenario Description | Expected Outcome | Associated AC / Story |
+| :--- | :--- | :--- | :--- |
+| **AT-SP-01** | Student enters valid profile details (department, grade, GPA, keywords). | Profile is saved successfully. | AC-SP-01 / US-01 |
+| **AT-SP-02** | Student enters GPA within boundaries (0.0 to 4.0). | GPA is accepted. | AC-SP-02 / US-01 |
+| **AT-SP-03** | Student enters invalid GPA (< 0.0 or > 4.0). | Rejected with HTTP 400 Bad Request. | AC-SP-03 / US-01 |
+| **AT-SP-04** | Student enters valid grade level (1 to 4). | Grade level is accepted. | AC-SP-04 / US-01 |
+| **AT-SP-05** | Student enters invalid grade level outside 1-4. | Rejected with HTTP 400 Bad Request. | AC-SP-05 / US-01 |
+| **AT-SP-06** | Student selects 1 to 5 predefined keywords. | Keywords are accepted. | AC-SP-06 / US-01 |
+| **AT-SP-07** | Student selects 0 or >5 keywords. | Profile submission is rejected. | AC-SP-07 / US-01 |
 
-| Test ID | Test Scenario | Expected Result |
-|---|---|---|
-| MT-01 | A student and an advisor share at least one expertise keyword, and the advisor has available capacity. | The advisor is considered an eligible candidate. |
-| MT-02 | Multiple eligible advisors have different matching scores. | The advisor with the highest score is selected. |
-| MT-03 | The student and advisor belong to the same department. | The matching score increases by 1 point. |
-| MT-04 | The advisor serves the student's grade level. | The matching score increases by 1 point. |
-| MT-05 | Two eligible advisors have the same matching score. | The advisor with fewer assigned students is selected. |
-| MT-06 | An advisor has reached the maximum capacity of 30 students. | The advisor is excluded from matching. |
-| MT-07 | No advisor shares at least one keyword with the student, or no eligible advisor has available capacity. | The student's matching status becomes Pending Matching. |
-| MT-08 | The student's GPA is different from another student's GPA, while their matching criteria are otherwise identical. | GPA does not affect the matching score. |
+---
 
-## 3. Appointment and Conflict Tests
+## 3. Account Security & Email Verification Tests (Linked to US-02)
 
-| Test ID | Test Scenario | Expected Result |
-|---|---|---|
-| AT-01 | A student books an available office-hour slot belonging to their assigned advisor. | The appointment is successfully created. |
-| AT-02 | A student attempts to book a slot that has already been booked by another student. | The request is rejected with HTTP 409 Conflict. |
-| AT-03 | A student attempts to create a second active appointment while already having one active appointment. | The request is rejected according to the appointment rules. |
-| AT-04 | A student attempts to book an office-hour slot belonging to another advisor. | The request is rejected because the student can only book their assigned advisor's slots. |
-| AT-05 | A student attempts to book an office-hour slot in the past. | The request is rejected. |
-| AT-06 | A student cancels their own Booked appointment that starts in 2 hours or more. | The appointment status changes to Cancelled. |
-| AT-07 | An advisor marks an appointment as completed. | The appointment status changes to Completed. |
-| AT-08 | A student attempts to cancel a Booked appointment that starts in less than 2 hours. | The cancellation is rejected and the appointment status remains Booked. |
+| Test ID | Scenario Description | Expected Outcome | Associated AC / Story |
+| :--- | :--- | :--- | :--- |
+| **AT-EV-01** | User registers with a valid email address. | Verification email is sent, status is `Pending Verification`. | AC-EV-01 / US-02 |
+| **AT-EV-02** | User clicks valid email verification link. | Account status becomes `Active` and login is enabled. | AC-EV-02 / US-02 |
 
-## 4. Input Validation Tests
+---
 
-| Test ID | Test Scenario | Expected Result |
-|---|---|---|
-| VT-01 | A student enters GPA = 0. | The input is accepted. |
-| VT-02 | A student enters GPA = 4.0. | The input is accepted. |
-| VT-03 | A student enters GPA = 4.5. | The request is rejected with HTTP 400 Bad Request. |
-| VT-04 | A student enters GPA = -0.5. | The request is rejected with HTTP 400 Bad Request. |
-| VT-05 | A student enters grade = 1. | The input is accepted. |
-| VT-06 | A student enters grade = 4. | The input is accepted. |
-| VT-07 | A student enters grade = 5. | The request is rejected with HTTP 400 Bad Request. |
-| VT-08 | A student selects more than 5 expertise keywords. | The request is rejected with HTTP 400 Bad Request. |
-| VT-09 | A student submits a profile without selecting any expertise keywords. | The request is rejected with HTTP 400 Bad Request. |
+## 4. Weekly & 3-Round Advisor Matching Tests (Linked to US-03)
 
-## 5. Authorization and Privacy Tests
+| Test ID | Scenario Description | Expected Outcome | Associated AC / Story |
+| :--- | :--- | :--- | :--- |
+| **AT-AM-01** | Weekly scheduled matching job runs for pending students. | Executes 3-round CV matching algorithm. | AC-AM-01 / US-03 |
+| **AT-AM-02** | 3-round matching execution sequence. | Follows Round 1 (Dept + Keywords), Round 2 (Grade + Keywords), Round 3 (General Capacity). | AC-AM-02 / US-03 |
+| **AT-AM-03** | Student and advisor share the same department. | Advisor receives +1 bonus score. | AC-AM-03 / US-03 |
+| **AT-AM-04** | Advisor serves student's grade level. | Advisor receives +1 bonus score. | AC-AM-04 / US-03 |
+| **AT-AM-05** | Matching score calculation formula check. | Score correctly totals keywords, department, and grade points. | AC-AM-05 / US-03 |
+| **AT-AM-06** | Tie-breaking rule between advisors with equal scores. | Advisor with fewer assigned students is selected. | AC-AM-06 / US-03 |
+| **AT-AM-07** | Advisor reaches maximum capacity of 30 students. | Advisor is excluded from eligible candidates. | AC-AM-07 / US-03 |
+| **AT-AM-08** | No advisor meets criteria after 3 rounds. | Student status remains `Pending Matching`. | AC-AM-08 / US-03 |
 
-| Test ID | Test Scenario | Expected Result |
-|---|---|---|
-| PT-01 | An unauthorized user attempts to view a student's GPA. | Access is denied. |
-| PT-02 | An advisor attempts to view the private explanation of a student's advisor-change request. | Access is denied. |
-| PT-03 | An advisor views their assigned students. | Only students assigned to that advisor are displayed. |
-| PT-04 | An administrator views pending advisor-change requests. | The administrator can access the requests and their explanations. |
+---
 
-## 6. Testing Notes
+## 5. Appointment Management & Approval Tests (Linked to US-04, US-05)
 
-- HTTP 400 Bad Request is expected for invalid input values.
-- HTTP 409 Conflict is expected when a student attempts to book an already occupied appointment slot.
-- Other authorization and appointment rejection status codes should be confirmed in the OpenAPI contract.
-- These scenarios will be used as a basis for future acceptance testing and API testing with Postman.
+| Test ID | Scenario Description | Expected Outcome | Associated AC / Story |
+| :--- | :--- | :--- | :--- |
+| **AT-AP-01** | Student requests an available office-hour slot. | Appointment is created with status `Pending Approval`. | AC-AP-01 / US-04 |
+| **AT-AP-02** | Advisor approves pending appointment request. | Status changes to `Booked` and notifications are sent. | AC-AP-02 / US-04 |
+| **AT-AP-03** | Advisor rejects appointment request with reason. | Status changes to `Rejected` and slot becomes available. | AC-AP-03 / US-04 |
+| **AT-AP-04** | Approved appointment generates Google Meet link. | Google Meet link is generated and added to invitation. | AC-AP-04 / US-05 |
+| **AT-AP-05** | Student attempts to book already requested/booked slot. | Rejected with HTTP 409 Conflict. | AC-AP-05 / US-04 |
+| **AT-AP-06** | Student attempts to book a past slot. | Booking request is rejected. | AC-AP-06 / US-04 |
+| **AT-AP-07** | Student or advisor cancels appointment $\ge$ 30 minutes prior. | Status changes to `Cancelled`, Meet link is invalidated. | AC-AP-07 / US-04 |
+| **AT-AP-08** | User attempts to cancel appointment $<$ 30 minutes prior. | Cancellation is rejected, status remains `Booked`. | AC-AP-08 / US-04 |
+| **AT-AP-09** | Advisor marks appointment as completed. | Status changes to `Completed`. | AC-AP-09 / US-04 |
 
-## 7. Detailed Test Cases
+---
 
-This section provides detailed test cases for the main functional requirements of the system. These test cases define the preconditions, test data, execution steps, and expected results. All tests are currently planned and have not yet been executed.
+## 6. Advisor Change Requests Tests (Linked to US-06)
 
-### 7.1 Advisor Matching Tests
-
-**DTC-MT-01: Select the Advisor with the Highest Matching Score**
-
-- **Preconditions:**
-  - At least two advisors are registered and available.
-  - Both advisors have available capacity.
-- **Test Data:**
-  - Student department: Computer Engineering
-  - Student grade: 2
-  - Student keywords: Java, Data Science
-  - Advisor A: Computer Engineering, serves grade 2, keywords Java and Data Science
-  - Advisor B: Different department, does not serve grade 2, keyword Java
-- **Test Steps:**
-  1. Create a student profile using the specified information.
-  2. Run the advisor matching process.
-  3. Check the matching scores of both advisors.
-  4. Check which advisor is assigned.
-- **Expected Result:**
-  - Advisor A receives a higher score and is assigned to the student.
-
-**DTC-MT-02: Apply the Tie-Breaking Rule**
-
-- **Preconditions:**
-  - Two eligible advisors have the same matching score.
-  - Both advisors have available capacity.
-- **Test Data:**
-  - Student keyword: Java
-  - Advisor A: Java keyword, 10 currently assigned students
-  - Advisor B: Java keyword, 5 currently assigned students
-- **Test Steps:**
-  1. Create the student profile.
-  2. Run the matching process.
-  3. Compare the advisors' matching scores.
-  4. Check their current student counts.
-- **Expected Result:**
-  - Both advisors have the same score.
-  - Advisor B is assigned because they have fewer assigned students.
-
-**DTC-MT-03: Exclude an Advisor at Full Capacity**
-
-- **Preconditions:**
-  - One advisor has reached the default capacity of 30 students.
-  - Another eligible advisor has available capacity.
-- **Test Steps:**
-  1. Prepare a student profile that matches both advisors' expertise keywords.
-  2. Run the matching process.
-  3. Check advisor eligibility.
-- **Expected Result:**
-  - The advisor with 30 assigned students is excluded.
-  - The student is matched with the eligible advisor who has available capacity.
-
-### 7.2 Appointment Tests
-
-**DTC-AT-01: Prevent Double Booking of an Office-Hour Slot**
-
-- **Preconditions:**
-  - An advisor has an available office-hour slot.
-  - Student A has already booked this slot.
-- **Test Steps:**
-  1. Log in as Student B.
-  2. Attempt to book the same office-hour slot.
-  3. Check the server response.
-- **Expected Result:**
-  - The booking is rejected.
-  - The system returns HTTP 409 Conflict.
-  - The existing appointment remains unchanged.
-
-**DTC-AT-02: Prevent Multiple Active Appointments**
-
-- **Preconditions:**
-  - The student already has an appointment with Booked status.
-- **Test Steps:**
-  1. Log in as the same student.
-  2. Attempt to book another appointment.
-  3. Check the result.
-- **Expected Result:**
-  - The system rejects the second active appointment.
-  - The student cannot have more than one active appointment at a time.
- 
-**DTC-AT-03: Reject Cancellation Within 2 Hours**
-
-- **Preconditions:**
-  - The student has an appointment with Booked status.
-  - The appointment starts in less than 2 hours.
-- **Test Steps:**
-  1. Log in as the student.
-  2. Attempt to cancel the appointment.
-  3. Check the result and the appointment status.
-- **Expected Result:**
-  - The cancellation is rejected.
-  - The appointment status remains Booked.
-
-### 7.3 Input Validation Tests
-
-**DTC-VT-01: Validate GPA Boundary Values**
-
-- **Test Data:**
-  - Valid GPA values: 0.0 and 4.0
-  - Invalid GPA values: -0.1 and 4.1
-- **Test Steps:**
-  1. Submit a student profile with GPA 0.0.
-  2. Submit a student profile with GPA 4.0.
-  3. Submit a student profile with GPA -0.1.
-  4. Submit a student profile with GPA 4.1.
-- **Expected Result:**
-  - GPA values between 0.0 and 4.0, including boundaries, are accepted.
-  - Values outside this range are rejected with HTTP 400 Bad Request.
-
-**DTC-VT-02: Validate Student Grade**
-
-- **Test Data:**
-  - Valid grades: 1 and 4
-  - Invalid grades: 0 and 5
-- **Test Steps:**
-  1. Submit profiles with grades 1 and 4.
-  2. Submit profiles with grades 0 and 5.
-- **Expected Result:**
-  - Grades 1 through 4 are accepted.
-  - Grades outside this range are rejected with HTTP 400 Bad Request.
-
-**DTC-VT-03: Validate Keyword Selection Limits**
-
-- **Test Data:**
-  - Valid keyword counts: 1 and 5
-  - Invalid keyword counts: 0 and 6
-- **Test Steps:**
-  1. Submit a profile with one keyword.
-  2. Submit a profile with five keywords.
-  3. Submit a profile without any keywords.
-  4. Submit a profile with six keywords.
-- **Expected Result:**
-  - Profiles containing between 1 and 5 keywords are accepted.
-  - Profiles containing zero or more than five keywords are rejected with HTTP 400 Bad Request.
-
-### 7.4 Test Execution Status
-
+| Test ID | Scenario Description | Expected Outcome | Associated AC / Story |
+| :--- | :--- | :--- | :--- |
+| **AT-CR-01** | Student submits advisor change request with valid explanation ($\ge$ 20 chars). | Request is accepted. | AC-CR-01 / US-06 |
+| **AT-CR-02** | Student submits change request with short explanation ($<$ 20 chars). | Request is rejected. | AC-CR-02 / US-06 |
+| **AT-CR-03** | Student with active pending request tries to submit another. | System prevents duplicate pending request. | AC-CR-03 / US-06 |
+| **AT-CR-04** | Admin approves advisor change request. | Triggers new weekly matching cycle excluding previous advisor. | AC-CR-04 / US-06 |
+| **AT-CR-05** | Admin rejects advisor change request with reason. | Request is marked as rejected, reason recorded. | AC-CR-05 / US-06 |
+| **AT-CR-06** | Approved change request cancels future appointments & notifies old advisor. | Future appointments cancelled, email sent to previous advisor. | AC-CR-06 / US-06 |
 All detailed test cases in this section are planned test cases. They will be executed after the corresponding system features and API endpoints are implemented.
 

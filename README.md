@@ -61,14 +61,14 @@ Release tag: [sprint-1](https://github.com/seng321-group8/SENG321-Project/releas
 | Deliverable | File | Issue | Pull requests |
 |---|---|---|---|
 | Project proposal | docs/proposal.md | #14 | #39 |
-| System vision and boundary | docs/vision-boundary.md | #15 | #31 |
-| OpenAPI draft | api/openapi.yaml | #16 | #32, #33, #43 |
+| System vision and boundary | docs/vision-boundary.md | #15 | #31, #48, #51 |
+| OpenAPI draft | openapi.yaml | #16 | #32, #33, #43, #49 |
 | Roles and RACI matrix | docs/raci.md | #9 | #10, #11, #21 |
 | Git-Flow workflow and README | docs/git-flow.md | #18 | #12, #20, #22, #23, #24, #26, #27, #30, #44 |
 | Product backlog | docs/backlog.md | #17 | #32, #41 |
 | Decision log | docs/decision.md | #13 | #19, #25, #35 |
 | Acceptance criteria and test matrix | docs/acceptance-criteria-draft.md, docs/test-scenario-matrix.md | #17 | #34, #38, #40, #42, #46 |
-| Stand-up records and retrospective | docs/standups.md, docs/retrospective.md | | #13 | #28, #29, #45, #47 |
+| Stand-up records and retrospective | docs/standups.md, docs/retrospective.md | #13 | #28, #29, #45, #47 |
 
 ### Evidence
 - Release tag: `sprint-1`

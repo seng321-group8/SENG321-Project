@@ -8,7 +8,26 @@
 
 ## Vision
 
-<!-- To be filled by Aybüke: who it is for, which need it meets, what value it gives, what the first release supports. -->
+> **For** Ankara Science University students who need career guidance and the
+> faculty members who advise them, the **Career Advisor Matching and
+> Appointment System** is a responsive web application that **assigns each
+> student a permanent career advisor through a transparent, rule-based weekly
+> matching run** and lets the student **request that advisor's office hours
+> directly**. Unlike informal e-mail and word-of-mouth arrangements, the system
+> shows students why they were matched, gives advisors control over their
+> requests and meeting type, prevents double bookings, and keeps both sides
+> informed by e-mail with a calendar file.
+>
+> The first release supports three roles — student, advisor and administrator.
+> It covers registration with an institutional e-mail address and e-mail
+> verification, student and advisor profiles, weekly three-round matching,
+> office-hour requests with advisor approval and cancellation, in-person or
+> online meetings (with automatic Google Meet links for advisors who connect
+> Google Calendar), e-mail notifications with .ics files, CV upload for the
+> assigned advisor, and advisor change requests decided by an administrator.
+> A native mobile application, own video infrastructure and AI-based matching
+> are outside the first release.
+
 
 ## System Boundary
 

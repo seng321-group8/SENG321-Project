@@ -40,8 +40,37 @@ Detailed responsibilities per activity: [RACI matrix](docs/raci.md).
 
 Licensed under the Apache License 2.0. See [LICENSE](LICENSE).
 
-## Sprint 1 submission
+## Sprint 1 Submission
 
+Team: Group 8
+Project: Career Advisor Matching and Appointment System
+Repository: https://github.com/seng321-group8/SENG321-Project
+Release tag: [sprint-1](https://github.com/seng321-group8/SENG321-Project/releases/tag/sprint-1)
+
+### Team members
+| Name | Role | GitHub |
+|---|---|---|
+| Aybüke BALÇIK | Product Owner and Requirements Engineer | @aybuke9 |
+| Şevval Nil UÇAR | Scrum Master and Agile Process Coach | @niluccr |
+| Fatima Zehra ÖKTEM | Lead Software Architect and Technical Lead | @fatimazhroktem |
+| Sümeyye Ebrar COMART | QA and Test Automation Engineer | @ebrarcomart |
+| Yağız Efe DERE | DevOps and CI/CD Infrastructure Engineer | @yagizder |
+| Emine BARAN | Implementation and Integration Engineer | @Eminebaran |
+
+### Deliverables
+| Deliverable | File | Issue | Pull requests |
+|---|---|---|---|
+| Project proposal | docs/proposal.md | #14 | #39 |
+| System vision and boundary | docs/vision-boundary.md | #15 | #31 |
+| OpenAPI draft | api/openapi.yaml | #16 | #32, #33, #43 |
+| Roles and RACI matrix | docs/raci.md | #9 | #10, #11, #21 |
+| Git-Flow workflow and README | docs/git-flow.md | #18 | #12, #20, #22, #23, #24, #26, #27, #30, #44 |
+| Product backlog | docs/backlog.md | #17 | #32, #41 |
+| Decision log | docs/decision.md | #13 | #19, #25, #35 |
+| Acceptance criteria and test matrix | docs/acceptance-criteria-draft.md, docs/test-scenario-matrix.md | #17 | #34, #38, #40, #42, #46 |
+| Stand-up records and retrospective | docs/standups.md, docs/retrospective.md | | #13 | #28, #29, #45, #47 |
+
+### Evidence
 - Release tag: `sprint-1`
 - Project board: [GitHub Project](https://github.com/orgs/seng321-group8/projects/4)
 - Issues: [GitHub Issues](https://github.com/seng321-group8/SENG321-Project/issues)

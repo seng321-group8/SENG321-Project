@@ -64,7 +64,7 @@ the right column `→` means information leaving the system toward the service.
 
 | # | Direction | Information | Purpose |
 |---|---|---|---|
-| 1 | Student → System | Registration data, profile (grade, department, GPA, 1-5 keywords), CV (PDF, at most 2 MB), appointment request and cancellation, advisor change request | To get an advisor assignment and book appointments |
+| 1 | Student → System | Registration data, profile (grade, department, GPA, at least 1 keyword), CV (PDF, at most 2 MB), appointment request and cancellation, advisor change request | To get an advisor assignment and book appointments |
 | 2 | System → Student | Assigned advisor with bio, why they were matched, next assignment date, free office hours, appointment status, meeting link, calendar file (.ics) | So the student sees their advisor and appointment and can add it to a calendar |
 | 3 | Advisor → System | Interest keywords, served grades, short bio, online-meeting preference, office hours, appointment accept/reject/cancel decision, meeting link, Google account consent | To be eligible for matching and to manage appointments |
 | 4 | System → Advisor | Students (including GPA, shown as information only), appointment requests, student's CV | To prepare for meetings and decide on requests |
@@ -80,7 +80,7 @@ the right column `→` means information leaving the system toward the service.
 - Student registration, `@ankarabilim.edu.tr` e-mail verification, and role
   assignment from the e-mail format (student: `s` + 9 digits; advisor accounts
   are created only by an administrator)
-- Student profile (grade, department, GPA, 1-5 keywords from a predefined
+- Student profile (grade, department, GPA, at least 1 keyword from a predefined
   list; the maximum is configurable)
 - Advisor profile: interest keywords, served grades, short self-introduction,
   online-meeting preference, office hours (30-minute slots)

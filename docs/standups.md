@@ -27,33 +27,6 @@ Project kick-off, role assignment, and initial product brainstorming.
 
 ---
 
-## Meeting 1 – October 27, 2026
-Attendees: Aybüke BALÇIK, Şevval Nil UÇAR, Fatima Zehra ÖKTEM, Sümeyye Ebrar COMART, Yağız Efe DERE, Emine BARAN
-Format: Online (Google Meet)
-
-### Meeting Purpose
-Project kick-off, role assignment, and initial product brainstorming.
-
-### Decisions and Topics Discussed
-- **Role Assignments:** The six team roles were distributed among the members. It was agreed that the Scrum Master will formalize these into a RACI matrix.
-- **Project Topic:** "Career Advisor Matching and Appointment System".
-- **Problem & Solution Brainstorming:** Discussed the core issue of students struggling to find the right career advisor. Proposed an automated, rule-based matching system based on department, year, and keywords (no AI).
-- **System Actors:** Identified Students, Career Advisors (faculty members), and System Administrators as the primary users.
-- **Matching & Business Rules:** Discussed the initial algorithm (scoring based on shared keywords and department) and constraints (e.g., maximum one active appointment per student, no overlapping office hours).
-- **Open Decisions (To be resolved next meeting):** 
-  1. Platform choice (web vs. mobile).
-  2. Integration of video meeting links (Zoom/Meet/Teams).
-  3. Feasibility of CV uploads (PDF only, max 2MB).
-  4. Default student quota for advisors.
-
-### Action Items & Next Steps
-- **Nil (Scrum Master):** Set up the GitHub organization, repository, and project board. Create the initial Git-Flow rules and prepare the `docs/raci.md` file based on today's role distribution.
-- **Aybüke (Product Owner):** Draft the Project Proposal (problem definition, intended outcome) based on today's brainstormed scope.
-- **Fatima & Emine:** Review the proposed matching flow to start thinking about the system boundary and OpenAPI structure.
-- **All Members:** Evaluate the "Open Decisions" to finalize the Sprint 1 scope in the next meeting.
-
----
-
 ## Meeting 2 – November 1, 2026
 Attendees: Aybüke BALÇIK, Şevval Nil UÇAR, Fatima Zehra ÖKTEM, Sümeyye Ebrar COMART, Yağız Efe DERE, Emine BARAN
 Format: Online (Google Meet)

@@ -8,7 +8,26 @@
 
 ## Vision
 
-<!-- To be filled by Aybüke: who it is for, which need it meets, what value it gives, what the first release supports. -->
+> **For** Ankara Science University students who need career guidance and the
+> faculty members who advise them, the **Career Advisor Matching and
+> Appointment System** is a responsive web application that **assigns each
+> student a permanent career advisor through a transparent, rule-based weekly
+> matching run** and lets the student **request that advisor's office hours
+> directly**. Unlike informal e-mail and word-of-mouth arrangements, the system
+> shows students why they were matched, gives advisors control over their
+> requests and meeting type, prevents double bookings, and keeps both sides
+> informed by e-mail with a calendar file.
+>
+> The first release supports three roles — student, advisor and administrator.
+> It covers registration with an institutional e-mail address and e-mail
+> verification, student and advisor profiles, weekly three-round matching,
+> office-hour requests with advisor approval and cancellation, in-person or
+> online meetings (with automatic Google Meet links for advisors who connect
+> Google Calendar), e-mail notifications with .ics files, CV upload for the
+> assigned advisor, and advisor change requests decided by an administrator.
+> A native mobile application, own video infrastructure and AI-based matching
+> are outside the first release.
+
 
 ## System Boundary
 
@@ -45,7 +64,7 @@ the right column `→` means information leaving the system toward the service.
 
 | # | Direction | Information | Purpose |
 |---|---|---|---|
-| 1 | Student → System | Registration data, profile (grade, department, GPA, 1-5 keywords), CV (PDF, at most 2 MB), appointment request and cancellation, advisor change request | To get an advisor assignment and book appointments |
+| 1 | Student → System | Registration data, profile (grade, department, GPA, at least 1 keyword), CV (PDF, at most 2 MB), appointment request and cancellation, advisor change request | To get an advisor assignment and book appointments |
 | 2 | System → Student | Assigned advisor with bio, why they were matched, next assignment date, free office hours, appointment status, meeting link, calendar file (.ics) | So the student sees their advisor and appointment and can add it to a calendar |
 | 3 | Advisor → System | Interest keywords, served grades, short bio, online-meeting preference, office hours, appointment accept/reject/cancel decision, meeting link, Google account consent | To be eligible for matching and to manage appointments |
 | 4 | System → Advisor | Students (including GPA, shown as information only), appointment requests, student's CV | To prepare for meetings and decide on requests |
@@ -61,7 +80,7 @@ the right column `→` means information leaving the system toward the service.
 - Student registration, `@ankarabilim.edu.tr` e-mail verification, and role
   assignment from the e-mail format (student: `s` + 9 digits; advisor accounts
   are created only by an administrator)
-- Student profile (grade, department, GPA, 1-5 keywords from a predefined
+- Student profile (grade, department, GPA, at least 1 keyword from a predefined
   list; the maximum is configurable)
 - Advisor profile: interest keywords, served grades, short self-introduction,
   online-meeting preference, office hours (30-minute slots)

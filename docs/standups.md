@@ -63,6 +63,6 @@ Format: Online (Google Meet)
 ## Meeting 3 - November 3, 2026
 Format:  Face-to-face
 
-**## Notes and Decisions**
+**### Notes and Decisions**
 - Şevval Nil and Fatima Zehra consulted the course instructor regarding the advisor student quota (following up on the open question from Meeting 2).
 - The instructor recommended an admin-configurable quota; default 20, cannot go below the current student count (D-17).

@@ -1,105 +1,149 @@
 <!--
-  Bu dosya Sprint 1'de iki kişinin ortak dosyasıdır (Kural 6).
-  Önce sistem sınırı bölümü (Fatima, #15) merge edilir.
-  "Vizyon" bölümü bu PR merge olduktan sonra Aybüke tarafından eklenir.
+  This file is shared by two people in Sprint 1 (Rule 6).
+  The System Boundary part (Fatima, #15) is merged first.
+  The "Vision" section is added by Aybüke after this PR is merged.
 -->
 
-# Vizyon ve Sistem Sınırı
+# System Vision and Boundary
 
-## Sistem Sınırı
+## Vision
 
-Bu bölüm, **Kariyer Danışmanlığı Eşleştirme ve Randevu Sistemi**'nin neyin
-içinde olduğunu, neyin dışında kaldığını ve dış sistemlerle hangi bilgiyi
-hangi amaçla paylaştığını gösterir.
+<!-- To be filled by Aybüke: who it is for, which need it meets, what value it gives, what the first release supports. -->
 
-### Sınır diyagramı
+## System Boundary
+
+This section shows what is inside the **Career Advisor Matching and
+Appointment System**, what is outside it, and which information it shares
+with external systems and for what purpose.
+
+### Boundary diagram
 
 ```mermaid
 flowchart LR
-    OGR["Student"]
-    DAN["Career Advisor"]
-    YON["Administrator"]
+    STU["Student"]
+    ADV["Career Advisor"]
+    ADM["Administrator"]
 
-    SIS["CAREER ADVISOR MATCHING<br/>AND APPOINTMENT SYSTEM<br/><br/>React web app<br/>REST API<br/>Database and CV storage"]
+    SYS["CAREER ADVISOR MATCHING<br/>AND APPOINTMENT SYSTEM<br/><br/>React web app<br/>Django REST API<br/>PostgreSQL and CV storage"]
 
     MAIL["Email service<br/>(external; delivers email<br/>to users)"]
     GCAL["Google Calendar API<br/>(external)"]
 
-    OGR <-->|"→ Profile, CV, appointment request<br/>← Advisor, free slots, appointment status, .ics"| SIS
-    DAN <-->|"→ Expertise, office hours, appointment decision<br/>← Students, appointment requests, CV"| SIS
-    YON <-->|"→ Keywords, accounts, quota, request decision<br/>← Waiting students, change requests"| SIS
-    SIS -->|"→ Recipient, verification link,<br/>appointment summary, .ics"| MAIL
-    SIS <-->|"→ OAuth consent, event details<br/>← Meet link, event ID"| GCAL
+    STU <-->|"→ Profile, CV, appointment request<br/>← Advisor and match reasons, free slots, appointment status, .ics"| SYS
+    ADV <-->|"→ Interests, served grades, bio, office hours, appointment decision<br/>← Students, appointment requests, CV"| SYS
+    ADM <-->|"→ Keywords, accounts, capacity, request decision, run assignment<br/>← Waiting students, change requests, run history"| SYS
+    SYS -->|"→ Recipient, verification link,<br/>appointment summary, .ics"| MAIL
+    SYS <-->|"→ OAuth consent, event details<br/>← Meet link, event ID"| GCAL
 ```
 
-Okuma kuralı: oklar iki yönlüdür. `→` soldan sağa, `←` sağdan sola akan
-bilgiyi gösterir. Sol sütundaki kullanıcılar için `→` bilginin sisteme
-girdiğini, sağ sütundaki dış servisler için `→` sistemden servise çıktığını
-anlatır.
+How to read it: arrows are two-way. `→` is information flowing left to right
+and `←` is information flowing right to left. For the users in the left
+column `→` means information entering the system. For the external services in
+the right column `→` means information leaving the system toward the service.
 
-### İlişkiler: hangi bilgi, hangi amaç
+### Relationships: what information, for what purpose
 
-| # | Yön | Bilgi | Amaç |
+| # | Direction | Information | Purpose |
 |---|---|---|---|
-| 1 | Öğrenci → Sistem | Kayıt bilgisi, profil (sınıf, bölüm, GNO, 1-5 anahtar kelime), CV (PDF, en fazla 2 MB), randevu talebi ve iptali, danışman değişikliği talebi | Danışman ataması almak ve randevu almak |
-| 2 | Sistem → Öğrenci | Atanan danışman, boş ofis saatleri, randevu durumu, görüşme bağlantısı, takvim dosyası (.ics) | Öğrencinin danışmanını ve randevusunu görmesi, takvime eklemesi |
-| 3 | Danışman → Sistem | Uzmanlık anahtar kelimeleri, hizmet verilen sınıflar, ofis saatleri, randevu kabul/red/iptal kararı, görüşme bağlantısı, Google hesabı bağlama izni | Eşleşmeye uygun olmak ve randevuları yönetmek |
-| 4 | Sistem → Danışman | Öğrenciler (GNO dahil), randevu talepleri, öğrencinin CV'si | Görüşmeye hazırlanmak ve talepleri karara bağlamak |
-| 5 | Yönetici → Sistem | Anahtar kelime listesi, danışman hesapları, kontenjan, değişiklik talebi kararı ve gerekçesi | Sistemi yönetmek |
-| 6 | Sistem → Yönetici | Eşleşme bekleyen öğrenciler, değişiklik talepleri (açıklama dahil) | Karar vermek ve eşleşmeyen öğrenciyi fark etmek |
-| 7 | Sistem → E-posta servisi | Alıcı adresi, doğrulama bağlantısı, randevu özeti, .ics eki | Doğrulama ve bildirim e-postası göndermek |
-| 8 | E-posta servisi → Kullanıcılar | E-postanın teslimi (doğrulama, randevu talebi, onay, iptal) | Kullanıcıları bilgilendirmek (sistem dışında gerçekleşir) |
-| 9 | Sistem → Google Calendar API | Danışmanın OAuth yetkisi, etkinlik bilgisi (başlık, saat, katılımcı e-postası) | Onaylı online randevu için Meet bağlantısı oluşturmak |
-| 10 | Google Calendar API → Sistem | Google Meet bağlantısı, etkinlik kimliği | Bağlantıyı randevuya eklemek, iptalde etkinliği silmek |
+| 1 | Student → System | Registration data, profile (grade, department, GPA, 1-5 keywords), CV (PDF, at most 2 MB), appointment request and cancellation, advisor change request | To get an advisor assignment and book appointments |
+| 2 | System → Student | Assigned advisor with bio, why they were matched, next assignment date, free office hours, appointment status, meeting link, calendar file (.ics) | So the student sees their advisor and appointment and can add it to a calendar |
+| 3 | Advisor → System | Interest keywords, served grades, short bio, online-meeting preference, office hours, appointment accept/reject/cancel decision, meeting link, Google account consent | To be eligible for matching and to manage appointments |
+| 4 | System → Advisor | Students (including GPA, shown as information only), appointment requests, student's CV | To prepare for meetings and decide on requests |
+| 5 | Administrator → System | Keyword list (add, rename, deactivate), advisor accounts, capacity, change-request decision and reason, manual assignment run | To manage the system |
+| 6 | System → Administrator | Students waiting for a match, change requests (with explanation), assignment run history | To decide and to notice unmatched students |
+| 7 | System → Email service | Recipient address, verification link, appointment summary, .ics attachment | To send verification and notification e-mails |
+| 8 | Email service → Users | Delivery of the e-mail (verification, request, confirmation, cancellation) | To inform users (happens outside the system) |
+| 9 | System → Google Calendar API | Advisor's OAuth consent, event details (title, time, attendee e-mail) | To create a Meet link for a confirmed online appointment |
+| 10 | Google Calendar API → System | Google Meet link, event ID | To attach the link to the appointment and delete the event on cancellation |
 
-### Sistemin sorumluluğundaki yetenekler (ilk sürüm)
+### Responsibilities of the system (first release)
 
-- Öğrenci kaydı, `@ankarabilim.edu.tr` e-posta doğrulaması ve e-posta
-  biçimine göre rol atama
-- Öğrenci profili (sınıf, bölüm, GNO, hazır listeden 1-5 anahtar kelime)
-- Kural tabanlı danışman eşleştirme (yapay zekâ yok) ve eşleşme bekleyen
-  öğrencilerin yöneticiye gösterilmesi
-- Danışman ofis saatleri (30 dakikalık dilimler)
-- Randevu talebi → danışman onayı/reddi → gerekçeli iptal; dilim başına tek
-  randevu, öğrenci başına tek aktif randevu
-- Hibrit görüşme: online veya yüz yüze; danışman Google hesabını bağlarsa
-  otomatik Google Meet, bağlamazsa elle girilen Zoom/Meet/Teams bağlantısı
-- E-posta bildirimleri ve takvime ekleme dosyası (.ics)
-- CV yükleme (PDF, en fazla 2 MB; yalnızca öğrenci ve atanmış danışman görür)
-- Danışman değişikliği talebi ve yönetici kararı
-- Yönetici: anahtar kelime listesi, danışman hesapları, kontenjan
+- Student registration, `@ankarabilim.edu.tr` e-mail verification, and role
+  assignment from the e-mail format (student: `s` + 9 digits; advisor accounts
+  are created only by an administrator)
+- Student profile (grade, department, GPA, 1-5 keywords from a predefined
+  list; the maximum is configurable)
+- Advisor profile: interest keywords, served grades, short self-introduction,
+  online-meeting preference, office hours (30-minute slots)
+- Rule-based advisor matching (no AI), run **weekly (every Sunday 22:00,
+  Europe/Istanbul)** or manually by an administrator; students who cannot be
+  matched are shown to the administrator
+- Showing each student **why** they were matched and when the next assignment
+  runs
+- Appointment request → advisor confirmation or rejection → cancellation with a
+  reason (not allowed within 30 minutes of the start); one booking per slot,
+  one active appointment per student
+- Hybrid meetings: online or in person. Online meetings depend on the
+  advisor's preference; with a connected Google account a Google Meet link is
+  created automatically, otherwise a Zoom/Meet/Teams link is entered by hand
+- E-mail notifications and an add-to-calendar file (.ics)
+- CV upload (PDF, at most 2 MB; visible only to the student and the assigned
+  advisor)
+- Advisor change request (including the optional `grade_change` reason) and
+  administrator decision
+- Administrator functions: keyword list, advisor accounts, advisor capacity
+  (new advisors start at 20)
 
-### Kapsam dışı veya ertelenen konular
+### Out of scope or postponed
 
-| Konu | Durum | Neden |
+| Topic | Status | Reason |
 |---|---|---|
-| Kendi video görüşme altyapısı | Kapsam dışı | Yalnızca harici bağlantı kullanılır; video sistemi yapılmaz |
-| Yapay zekâ ile eşleştirme | Kapsam dışı | Eşleştirme kural tabanlıdır |
-| Mobil uygulama (iOS/Android) | Ertelendi | İlk sürüm mobil uyumlu web uygulamasıdır |
-| Üniversite SSO / kimlik sistemi entegrasyonu | Kapsam dışı | Kimlik, okul e-postası ve doğrulama bağlantısıyla sağlanır |
-| Zoom ve Teams ile otomatik bağlantı oluşturma | Ertelendi | Yalnızca Google Meet otomatik; diğerleri elle girilir |
-| Randevu hatırlatma ve süresi dolan talebin otomatik iptali | Karar bekliyor (Aybüke) | Henüz kararlaştırılmadı |
+| Own video-meeting infrastructure | Out of scope | Only external links are used; no video system is built |
+| AI-based matching | Out of scope | Matching is rule-based |
+| Mobile app (iOS/Android) | Postponed | The first release is a mobile-friendly web app |
+| University SSO / identity integration | Out of scope | Identity comes from the school e-mail and the verification link |
+| Automatic Zoom and Teams link creation | Postponed | Only Google Meet is automatic; others are entered by hand |
+| Appointment reminders and auto-cancelling expired requests | Decision pending (Aybüke) | Not decided yet |
+| Instant matching when a profile is saved | Out of scope | Matching runs in a weekly batch |
 
-### Kullanıcılar ve dış sistemler
+### Users and external systems
 
-| Taraf | Sistemin parçası mı? | Rolü |
+| Party | Part of the system? | Role |
 |---|---|---|
-| Öğrenci, Kariyer Danışmanı, Yönetici | Hayır (kullanıcı) | Web uygulamasını kullanır |
-| E-posta servisi | Hayır (dış servis) | Doğrulama ve bildirim e-postalarını iletir; sistem çalışmak için ona ihtiyaç duyar |
-| Google Calendar API | Hayır (dış servis) | Yalnızca danışman hesabını bağlarsa Meet bağlantısı oluşturur; bağlı değilse sistem elle girilen bağlantıyla çalışır |
+| Student, Career Advisor, Administrator | No (users) | Use the web app |
+| Email service | No (external service) | Delivers verification and notification e-mails; the system needs it to work |
+| Google Calendar API | No (external service) | Creates a Meet link only if the advisor connects their account; if not connected, the system works with a manually entered link |
 
-### Güven varsayımları
+## Constraints
 
-- `@ankarabilim.edu.tr` alan adı ve e-postadaki doğrulama bağlantısı, kullanıcının
-  okul üyeliğini yeterince kanıtlar; bağlantı tıklanmadan hesap aktif olmaz.
-- Rol, e-posta biçiminden belirlenir, ama danışman hesabı yalnızca yönetici
-  tarafından açılır; öğrenci kendini danışman yapamaz.
-- Yönetici hesapları güvenilirdir ve elle eklenir.
-- Not ortalamasını yalnızca öğrenci ve atanmış danışmanı görür; danışman
-  değişikliği talebindeki açıklamayı yalnızca öğrenci ve yönetici görür; CV'yi
-  yalnızca öğrenci ve atanmış danışmanı indirebilir.
-- Danışmanın Google yetkisi danışmana aittir; danışman bağlantıyı istediği an
-  kaldırabilir. Bağlantı kalkarsa sistem elle bağlantı girişine döner.
-- E-posta teslimi garanti edilmez; kritik bilgiler (randevu durumu) sistemde de
-  görünür.
-- Tüm saatler Europe/Istanbul saat dilimindedir.
+- **Domain:** only `@ankarabilim.edu.tr` addresses can register. Student
+  addresses are `s` + 9 digits (e.g. `s230205030@ankarabilim.edu.tr`); advisor
+  addresses are `name.surname` or `n.surname`.
+- **Technology:** Python/Django REST Framework and PostgreSQL on the back end;
+  React web front end; the contract is `openapi.yaml`.
+- **Matching:** rule-based only, run weekly (Sunday 22:00 Europe/Istanbul);
+  students are processed fewest-options-first, then by registration time.
+  GPA is not used in the score.
+- **Appointments:** fixed 30-minute length; no cancellation within 30 minutes
+  of the start; one booking per slot; one active appointment per student.
+- **Capacity:** set by the administrator; new advisors start at 20; it cannot
+  be set below the current student count.
+- **CV files:** PDF only, at most 2 MB.
+- **Interest areas:** a predefined list managed by the administrator; at least
+  1 and currently at most 5 per user (the limit and the first list are to be
+  finalized with advisors).
+- **Language:** all project documents are written in English.
+- **Time zone:** all times are Europe/Istanbul.
+- **Delivery:** the course schedule (Sprint 1 due 3 November 2026) and a
+  six-person team.
+
+## Assumptions
+
+- The `@ankarabilim.edu.tr` domain and the e-mail verification link are enough
+  proof of university membership; an account is not active until the link is
+  used.
+- The role is derived from the e-mail format, but advisor accounts are created
+  only by an administrator; a student cannot make themselves an advisor.
+- Administrator accounts are trusted and added by hand.
+- Only the student and the assigned advisor can see the GPA; only the student
+  and administrators can see the explanation in an advisor change request; only
+  the student and the assigned advisor can download the CV.
+- The advisor's Google authorization belongs to the advisor and can be removed
+  at any time. If it is removed, the system goes back to entering links by
+  hand.
+- If an advisor changes their profile, the assignments of current students do
+  not change.
+- When a student moves up a grade, the assignment does not change
+  automatically; the student may optionally send a change request.
+- E-mail delivery is not guaranteed, so important information (appointment
+  status) is also shown in the system.

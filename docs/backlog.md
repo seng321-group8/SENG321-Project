@@ -3,226 +3,287 @@
 | Field | Value |
 |---|---|
 | Deliverable | Sprint 1 — Initial product backlog |
+| Team | Team 8 |
 | Document owner (Accountable) | Aybüke — Product Owner |
 | Acceptance criteria | Ebrar — QA Engineer (review and completion) |
-| Feasibility and API impact | Emine — Implementation Engineer, Fatima Zehra — Architect |
+| Feasibility and API impact | Emine — Implementation Engineer, Fatima Zehra — Lead Software Architect |
 | Capacity check | Nil — Scrum Master |
 | Related issue | #17 |
-| Team | Team 8 |
 | Tool | GitHub Projects — "SENG 321 - Sprint 1 Project Board" (one issue per story) |
+| Source of truth | Project brief of November 1, 2026 and `docs/decision.md` (D-14 to D-27) |
 | Status | Draft for Sprint 1 review |
 
-> API operation names in this backlog are **proposed**. They must match the
-> `operationId` values in `openapi.yaml`; Emine's story-to-operation mapping
-> will confirm or correct them.
+> **API operations.** `openapi.yaml` does not yet define `operationId` values, so
+> operations are listed as `METHOD /path`. Entries marked **(new)** are not yet in
+> the contract and must be added by the Architect; Emine's story-to-operation
+> mapping confirms the final names.
 
-## 1. Estimation and priority
+## 1. Estimation, priority and ownership
 
-- **Story points** measure relative size (effort, complexity, uncertainty). They
-  are **not hours**. Scale: 1, 2, 3, 5, 8, 13. Reference story: **US-08 (student
-  sees assigned advisor) = 2**. Stories larger than 8 are split.
-- **Priority:**
-  - **P1 Must** — needed for the core journey (Sprint 3 MVP).
-  - **P2 Should** — needed for the complete first release (final submission).
-  - **P3 Could** — valuable but can be dropped if time runs out.
+- **Story points** measure relative size (effort, complexity, uncertainty), **not hours**. Scale: 1, 2, 3, 5, 8. Reference story: **US-12 (student sees assigned advisor and reason) = 2**. Larger stories are split.
+- **Priority** follows the MVP order in the brief:
+  - **P1 Must** — MVP part 1–3: registration and login, profiles, weekly matching; office hours and appointment request, approval and cancellation; e-mail and .ics (Sprint 3 MVP).
+  - **P2 Should** — MVP part 4: CV upload, Google Meet, advisor change request (final submission).
+- **Owners.** Group B (Fatima, Emine, Yağız) owns the API side; Group A (Aybüke, Nil, Ebrar) owns the user interface and acceptance testing. "API owner" is accountable for the story's backend; "UI owner" for its screens. Ebrar writes or reviews the tests of every story. Owners are proposals and are confirmed by Fatima's task distribution.
 
 ## 2. Business rules
 
-| ID | Rule |
-|---|---|
-| BR-1 | Roles: STUDENT, ADVISOR, ADMIN. Each user has exactly one role. |
-| BR-2 | Student profile: class 1–4; department from a fixed list; GPA 0.00–4.00 with two decimals; 1–5 keywords from the keyword list. |
-| BR-3 | Advisor profile: 1–10 keywords; one or more classes served (1–4); office location; capacity set by the administrator (default 30). |
-| BR-4 | Matching candidates share at least one keyword with the student and are below capacity. |
-| BR-5 | Score = 2 × shared keywords + 1 (same department) + 1 (advisor serves the student's class). Highest score wins; ties → fewer assigned students → lowest advisor ID. GPA is not used. |
-| BR-6 | No candidate → student status WAITING_FOR_MATCH, visible to the administrator. |
-| BR-7 | Advisors define weekly recurring office hours divided into fixed 30-minute slots. Each dated occurrence of a slot holds at most one active appointment; past occurrences cannot be booked. |
-| BR-8 | A student books only their assigned advisor's slots and has at most one active (BOOKED) appointment. |
-| BR-9 | A student may cancel a BOOKED appointment until 2 hours before its start. |
-| BR-10 | Appointment statuses: BOOKED → COMPLETED / CANCELLED / NO_SHOW. Only the advisor marks COMPLETED or NO_SHOW, after the start time. |
-| BR-11 | Advisor change request: reason category (TIME_CONFLICT, FIELD_MISMATCH, COMMUNICATION, OTHER) + explanation of at least 20 characters; at most one PENDING request per student. |
-| BR-12 | On approval, the student is re-matched excluding the previous advisor; future BOOKED appointments with the previous advisor are cancelled and that advisor is e-mailed. |
-| BR-13 | GPA is visible only to the student and the assigned advisor. Change-request explanations are visible only to the student and administrators. |
+| ID | Rule | Decision |
+|---|---|---|
+| BR-1 | Only @ankarabilim.edu.tr addresses can register; the account is inactive until the e-mail verification link is used. | D-14 |
+| BR-2 | Role is derived from the e-mail format: student = `s` + 9-digit student number (e.g. s230205030@ankarabilim.edu.tr); advisor = first.last or f.last. Advisor accounts are created only by the administrator. | D-14 |
+| BR-3 | Interests: at least 1 and at most a configurable maximum per user (placeholder 5 until advisors' interests are collected), chosen from one predefined, unordered list maintained by the administrator; no free text. | D-25 |
+| BR-4 | Student profile: year 1–4, department from a list, GPA 0.00–4.00, interests. | D-25 |
+| BR-5 | Advisor profile: interests, years served (any combination of 1–4), department, short introduction text, online-meeting preference. | D-22 |
+| BR-6 | Score = 2 × shared interests + 1 (same department) + 1 (advisor serves the student's year). GPA is never used. | D-20 |
+| BR-7 | Matching runs as a weekly batch every Sunday at 22:00 (Europe/Istanbul). Round 1: advisors serving the student's year with ≥ 1 shared interest. Round 2: year condition dropped. Round 3: interests ignored; advisor with the most free quota, own department first, random on ties (fixed seed in tests). Ties in rounds 1–2: fewer current students. Counts update during the run. | D-20 |
+| BR-8 | Only advisors with free quota are candidates. Students with no candidate stay WAITING_FOR_MATCH. The assigned advisor is permanent. | D-20 |
+| BR-9 | Quota is configurable per advisor by the administrator; new advisors start with 20. It cannot be set below the advisor's current number of students. | D-17 |
+| BR-10 | Office hours are weekly recurring 30-minute slots. A slot holds at most one active appointment; a student has at most one active appointment. | D-08, D-18 |
+| BR-11 | Appointment flow: REQUESTED → CONFIRMED (advisor accepts) or REJECTED; CONFIRMED → COMPLETED / NO_SHOW (advisor marks). REQUESTED or CONFIRMED → CANCELLED by student or advisor with a reason. | D-09, D-18 |
+| BR-12 | Cancellation is not allowed within 30 minutes of the start, for both the student and the advisor. | D-18 |
+| BR-13 | Meeting type is in person or online; online is possible only if the advisor offers it. A confirmed online appointment gets an automatic Google Meet link if the advisor connected Google Calendar; otherwise the advisor enters a link manually. | D-15 |
+| BR-14 | E-mails are sent for verification, request, acceptance or rejection, and cancellation; the confirmation e-mail includes an .ics file. | D-19 |
+| BR-15 | CV: one PDF of at most 2 MB per student; a new upload replaces the old file. | D-16 |
+| BR-16 | Change request: reason (time conflict, field mismatch, communication issue, year change, other) + explanation ≥ 20 characters; one pending request per student. On approval, re-match excluding the previous advisor; if no candidate, the student keeps the current advisor. | D-21 |
+| BR-17 | Privacy: GPA → student and assigned advisor; CV → student and assigned advisor; change-request explanation → student and administrators. | D-26 |
+| BR-18 | Advisor profile changes do not affect existing matches; they apply to future runs. | D-23 |
 
 ## 3. Epics and features
 
 | Epic | Features | Stories |
 |---|---|---|
-| EP-01 Access and profiles | F-01 Sign-in and roles; F-02 Student profile; F-03 Advisor profile | US-01, US-02, US-03 |
-| EP-02 Administration | F-04 Keyword list; F-05 Advisor accounts | US-04, US-05 |
-| EP-03 Advisor matching | F-06 Automatic matching; F-07 Unmatched students | US-06, US-07, US-08 |
-| EP-04 Office hours and appointments | F-08 Office-hour slots; F-09 Booking; F-10 Appointment outcome | US-09, US-10, US-11, US-12 |
-| EP-05 Notifications and calendar | F-11 E-mail notification; F-12 Calendar file | US-13, US-14 |
-| EP-06 Advisor change | F-13 Change request; F-14 Request decision | US-15, US-16 |
+| EP-01 Registration and access | F-01 Registration and verification; F-02 Sign-in | US-01, US-02, US-03 |
+| EP-02 Administration | F-03 Interest list; F-04 Advisor accounts and quota | US-04, US-05 |
+| EP-03 Profiles | F-05 Student profile; F-06 Advisor profile | US-06, US-07 |
+| EP-04 Weekly matching | F-07 Scoring and rounds; F-08 Batch run; F-09 Match visibility | US-08, US-09, US-10, US-11, US-12, US-13 |
+| EP-05 Office hours and appointments | F-10 Office hours; F-11 Request and decision; F-12 Cancellation; F-13 Outcome | US-14, US-15, US-16, US-17, US-18 |
+| EP-06 Notifications and calendar | F-14 E-mail; F-15 Calendar file; F-16 Online meeting links | US-19, US-20, US-21, US-22 |
+| EP-07 CV | F-17 CV upload and access | US-23, US-24 |
+| EP-08 Advisor change | F-18 Change request; F-19 Decision and re-matching | US-25, US-26 |
 
 ## 4. Backlog overview (priority order)
 
-| Order | ID | Feature | Story (short) | Priority | SP | Depends on | Owner | Proposed API operations |
-|---:|---|---|---|---|---:|---|---|---|
-| 1 | US-01 | F-01 | Sign in and see role-based screens | P1 | 3 | — | Emine | `getCurrentUser` |
-| 2 | US-04 | F-04 | Admin manages keyword list | P1 | 3 | US-01 | Emine | `listKeywords`, `createKeyword`, `updateKeyword` |
-| 3 | US-05 | F-05 | Admin registers advisors and sets capacity | P1 | 3 | US-01 | Emine | `createAdvisor`, `updateAdvisor` |
-| 4 | US-03 | F-03 | Advisor sets keywords and classes served | P1 | 2 | US-04, US-05 | Emine | `updateMyAdvisorProfile` |
-| 5 | US-02 | F-02 | Student completes profile | P1 | 3 | US-01, US-04 | Emine | `updateMyStudentProfile` |
-| 6 | US-06 | F-06 | System assigns an advisor automatically | P1 | 5 | US-02, US-03 | Fatima Zehra | `requestMatch` |
-| 7 | US-08 | F-06 | Student sees assigned advisor | P1 | 2 | US-06 | Emine | `getMyAdvisor` |
-| 8 | US-09 | F-08 | Advisor defines weekly office hours | P1 | 3 | US-03 | Emine | `listMySlots`, `createSlot`, `deleteSlot` |
-| 9 | US-10 | F-09 | Student books a slot | P1 | 5 | US-08, US-09 | Fatima Zehra | `listAdvisorSlots`, `createAppointment` |
-| 10 | US-13 | F-11 | Advisor receives booking e-mail | P1 | 3 | US-10 | Yağız | (internal; triggered by `createAppointment`) |
-| 11 | US-11 | F-09 | Student views and cancels appointments | P2 | 3 | US-10 | Emine | `listMyAppointments`, `cancelAppointment` |
-| 12 | US-12 | F-10 | Advisor views appointments and marks outcome | P2 | 3 | US-10 | Emine | `listMyAppointments`, `updateAppointmentStatus` |
-| 13 | US-07 | F-07 | Admin sees students waiting for a match | P2 | 2 | US-06 | Emine | `listUnmatchedStudents` |
-| 14 | US-14 | F-12 | Calendar file in e-mail and "Add to calendar" | P2 | 2 | US-13 | Yağız | `getAppointmentCalendarFile` |
-| 15 | US-15 | F-13 | Student requests advisor change with explanation | P2 | 3 | US-08 | Emine | `createAdvisorChangeRequest` |
-| 16 | US-16 | F-14 | Admin decides on change request; re-matching | P2 | 5 | US-15, US-06 | Fatima Zehra | `listAdvisorChangeRequests`, `decideAdvisorChangeRequest` |
-| | | | **Total** | | **50** | | | |
+| # | ID | Story (short) | Pri | SP | Depends on | API owner | UI owner | API operations |
+|---:|---|---|---|---:|---|---|---|---|
+| 1 | US-01 | Student registers with institutional e-mail; role from e-mail format | P1 | 3 | — | Fatima | Aybüke | `POST /auth/register` |
+| 2 | US-19 | System sends verification and appointment e-mails | P1 | 3 | — | Yağız | Ebrar (tests) | internal (e-mail service) |
+| 3 | US-02 | User verifies e-mail; account becomes active | P1 | 3 | US-01, US-19 | Fatima | Aybüke | `POST /auth/verify-email`, `POST /auth/resend-verification` |
+| 4 | US-03 | Verified user signs in and sees role-based screens | P1 | 2 | US-02 | Fatima | Aybüke | `POST /auth/login` |
+| 5 | US-04 | Admin manages the interest list | P1 | 3 | US-03 | Emine | Nil | `GET /keywords`, `POST /admin/keywords`, `PATCH /admin/keywords/{keywordId}` (new) |
+| 6 | US-05 | Admin creates advisor accounts and sets quota | P1 | 3 | US-03 | Emine | Nil | `GET /admin/advisors`, `POST /admin/advisors`, `PATCH /admin/advisors/{advisorId}/capacity` |
+| 7 | US-06 | Student completes profile | P1 | 3 | US-03, US-04 | Emine | Aybüke | `GET /departments`, `GET/PUT /students/me/profile` |
+| 8 | US-07 | Advisor completes profile (interests, years, intro text, online preference) | P1 | 3 | US-04, US-05 | Emine | Aybüke | `GET/PUT /advisors/me/profile` (fields `bio`, `offersOnline` new) |
+| 9 | US-08 | Matching round 1 and scoring rule | P1 | 5 | US-06, US-07 | Fatima | Ebrar (tests) | internal (matching engine) |
+| 10 | US-09 | Matching round 2 (year condition dropped) | P1 | 2 | US-08 | Fatima | Ebrar (tests) | internal |
+| 11 | US-10 | Matching round 3 (most free quota, own department first, seeded random) | P1 | 3 | US-09 | Fatima | Ebrar (tests) | internal |
+| 12 | US-11 | Weekly batch run, manual "run now" and run history | P1 | 5 | US-10 | Yağız | Nil | `POST /admin/matching-runs` (new), `GET /admin/matching-runs` (new) |
+| 13 | US-12 | Student sees assigned advisor and reason | P1 | 2 | US-11 | Emine | Aybüke | `GET /students/me/advisor` (fields `matchReason`, `nextMatchingRunAt` new) |
+| 14 | US-13 | Admin sees students waiting for a match | P1 | 2 | US-11 | Emine | Nil | `GET /admin/students/waiting` |
+| 15 | US-14 | Advisor manages weekly office hours | P1 | 3 | US-07 | Emine | Aybüke | `GET/POST /advisors/me/office-hours`, `DELETE /advisors/me/office-hours/{slotId}` |
+| 16 | US-15 | Student requests an appointment | P1 | 5 | US-12, US-14 | Emine | Aybüke | `GET /advisors/{advisorId}/office-hours`, `POST /appointments`, `GET /appointments/{appointmentId}` |
+| 17 | US-16 | Advisor accepts or rejects a request | P1 | 3 | US-15 | Emine | Aybüke | `POST /appointments/{appointmentId}/confirm`, `POST /appointments/{appointmentId}/reject` |
+| 18 | US-17 | Student or advisor cancels with a reason | P1 | 3 | US-16 | Emine | Aybüke | `POST /appointments/{appointmentId}/cancel` |
+| 19 | US-20 | Confirmation e-mail with .ics and "Add to calendar" | P1 | 2 | US-16, US-19 | Yağız | Aybüke | `GET /appointments/{appointmentId}/calendar.ics` |
+| 20 | US-18 | Advisor views appointments and marks the outcome | P1 | 2 | US-16 | Emine | Aybüke | `GET /appointments`, `PATCH /appointments/{appointmentId}`, `GET /advisors/me/students` |
+| 21 | US-23 | Student uploads, replaces or deletes a CV | P2 | 3 | US-06 | Yağız | Aybüke | `PUT/GET/DELETE /students/me/cv` |
+| 22 | US-24 | Assigned advisor downloads a student's CV | P2 | 2 | US-23, US-12 | Yağız | Aybüke | `GET /students/{studentId}/cv` |
+| 23 | US-21 | Advisor connects Google Calendar; Meet link created for confirmed online appointments | P2 | 5 | US-16 | Fatima | Aybüke | `GET/DELETE /advisors/me/google-calendar`, `POST /advisors/me/google-calendar/connect`, `GET /advisors/me/google-calendar/callback` |
+| 24 | US-22 | Advisor enters a meeting link manually | P2 | 1 | US-16 | Emine | Aybüke | `PATCH /appointments/{appointmentId}` |
+| 25 | US-25 | Student requests an advisor change with a reason and explanation | P2 | 3 | US-12 | Emine | Aybüke | `GET/POST /advisor-change-requests` (reason `year_change` new) |
+| 26 | US-26 | Admin decides on a change request; approved requests are re-matched | P2 | 5 | US-25, US-10 | Fatima | Nil | `POST /admin/advisor-change-requests/{requestId}/decision` |
+| | | **Total** | | **79** | | | | |
 
-P1 total: 32 points (Sprint 3 MVP). P2 total: 18 points (final submission).
-No P3 stories in the first release; deferred ideas are listed in Section 7.
+P1 total: **60 points** (rows 1–20, Sprint 3 MVP). P2 total: **19 points** (rows 21–26, final submission).
 
-"Owner" is the team member accountable for delivering the story; any member
-may implement it. Ebrar writes or reviews the tests of every story. Owners are
-proposals and will be confirmed at Sprint 3 planning.
+Story-point load by API owner: Fatima 28 · Emine 36 · Yağız 15 (Yağız also owns CI, Docker and SonarQube, which are tracked as technical tasks in Fatima's task distribution).
 
 ## 5. Story details
 
-Acceptance criteria are written as Given / When / Then. They are a Product
-Owner draft and are completed and approved together with Ebrar (QA).
+Acceptance criteria use Given / When / Then. Each story has at least one success case, one failure case and, where useful, a boundary case. They are a Product Owner draft, completed and approved together with Ebrar (QA).
 
-### US-01 — Sign in and see role-based screens
-As a **user (student, advisor or administrator)**, I want to **sign in with my
-institutional identity**, so that **I only see the functions of my role**.
-*(The university identity provider is replaced by a documented local identity
-stub with the same boundary — decision D-10.)*
-- **AC1** Given a valid student identity issued by the identity stub, when the user signs in, then the student home page is shown and `getCurrentUser` returns role STUDENT.
-- **AC2** Given a missing, expired or invalid token, when calling any operation, then the response is 401.
-- **AC3** Given a signed-in student, when they call an administrator operation, then the response is 403.
+### EP-01 Registration and access
 
-### US-02 — Student completes profile
-As a **student**, I want to **enter my class, department, GPA and keywords**,
-so that **the system can match me with a suitable advisor**.
-- **AC1** Given class 3, department "Computer Engineering", GPA 3.20 and keywords *Internship, Software*, when the student saves the profile, then it is stored and shown on the profile page.
-- **AC2** Given GPA 4.50 or class 5, when saving, then the response is 400 with an error on that field.
-- **AC3** Given 0 or 6 keywords, or a keyword that is not in the list, when saving, then the response is 400.
+**US-01 — Register with institutional e-mail**
+As a **student**, I want to **register with my @ankarabilim.edu.tr address**, so that **only university members can use the system**.
+- **AC1 (success)** Given an unused address in the student format (e.g. s230205030@ankarabilim.edu.tr), when the student registers, then an inactive STUDENT account is created and a verification e-mail is sent.
+- **AC2 (failure)** Given an address outside @ankarabilim.edu.tr (including look-alike domains such as `evilankarabilim.edu.tr`), when registering, then the response is 400.
+- **AC3 (failure)** Given an address in the advisor format, when a person self-registers, then the response is 400, because advisor accounts are created only by the administrator.
+- **AC4 (failure)** Given an address that is already registered, then the response is 409.
+- **AC5 (boundary)** Given `s23020503@ankarabilim.edu.tr` (8 digits) or `s2302050301@ankarabilim.edu.tr` (10 digits), then the response is 400; `s230205030@ankarabilim.edu.tr` (9 digits) is accepted.
 
-### US-03 — Advisor sets keywords and classes served
-As an **advisor**, I want to **select my keywords and the classes I serve**, so
-that **I receive students whose needs match my experience**.
-- **AC1** Given 1–10 valid keywords and classes 3 and 4, when the advisor saves, then the profile is updated.
-- **AC2** Given 11 keywords or no class, when saving, then the response is 400.
+**US-02 — Verify e-mail**
+As a **user**, I want to **activate my account through the link in the e-mail**, so that **the system knows the address is mine**.
+- **AC1 (success)** Given a valid, unused verification token, when the user opens the link, then the account becomes active.
+- **AC2 (failure)** Given an expired or already used token, then the response is 400 or 409 and the account stays as it is.
+- **AC3 (boundary)** Given a user requests a new link several times in a short period, then further requests are rejected with 429.
 
-### US-04 — Admin manages keyword list
-As an **administrator**, I want to **add, rename and deactivate keywords**, so
-that **students and advisors describe needs with the same words**.
-- **AC1** Given a new keyword "Portfolio", when the admin adds it, then it appears in the list for students and advisors.
-- **AC2** Given a keyword that already exists (case-insensitive), when adding it, then the response is 409.
-- **AC3** Given a deactivated keyword, then it is no longer offered for new selections but existing profiles keep it.
+**US-03 — Sign in**
+As a **user**, I want to **sign in and see the screens of my role**, so that **I only use the functions I am allowed to**.
+- **AC1 (success)** Given an active student account and correct credentials, when signing in, then the student home page is shown.
+- **AC2 (failure)** Given an account that is not yet verified, when signing in, then the response is 403.
+- **AC3 (failure)** Given wrong credentials, then the response is 401.
 
-### US-05 — Admin registers advisors and sets capacity
-As an **administrator**, I want to **register faculty members as advisors and
-set their capacity**, so that **only authorised faculty members advise students and
-workload stays fair**.
-- **AC1** Given a name, institutional e-mail, office location and capacity 25, when the admin registers an advisor, then the advisor exists with capacity 25.
-- **AC2** Given an e-mail already registered as an advisor, then the response is 409.
-- **AC3** Given capacity 0 or negative, then the response is 400.
+### EP-02 Administration
 
-### US-06 — System assigns an advisor automatically
-As a **student**, I want **the system to assign the most suitable advisor
-automatically**, so that **I do not have to guess whom to ask**.
-- **AC1** Given a student with *Internship, Software, Interview* and advisors A (*CV, Internship, Software*), B (*Internship, Interview, Software*), when matching runs, then B is assigned (score 6 > 4).
-- **AC2** Given two advisors with the same score, then the one with fewer assigned students is assigned; if still equal, the lower advisor ID.
-- **AC3** Given an advisor at full capacity, then that advisor is never assigned.
-- **AC4** Given same department or class served, then the score increases by 1 for each, as defined in BR-5.
-- **AC5** Given no advisor with a shared keyword, then the student status is WAITING_FOR_MATCH and no advisor is assigned.
-- **AC6** Given an incomplete profile, when matching is requested, then the response is 409 and no assignment is made.
+**US-04 — Manage the interest list**
+As an **administrator**, I want to **add, rename and deactivate interests**, so that **students and advisors describe needs with the same words**.
+- **AC1 (success)** Given a new interest "Portfolio", when the admin adds it, then it appears in the list for students and advisors.
+- **AC2 (failure)** Given an interest that already exists (case-insensitive), then the response is 409.
+- **AC3 (boundary)** Given a deactivated interest, then it is no longer offered for new selections, existing profiles keep it, and it still counts in matching.
 
-### US-07 — Admin sees students waiting for a match
-As an **administrator**, I want to **see students who could not be matched**,
-so that **I can add advisors or keywords to help them**.
-- **AC1** Given two students in WAITING_FOR_MATCH, when the admin opens the list, then both appear with their keywords.
-- **AC2** Given a student or advisor token, when requesting the list, then the response is 403.
+**US-05 — Create advisor accounts and set quota**
+As an **administrator**, I want to **create advisor accounts and set each advisor's quota**, so that **only faculty members advise students and the workload stays fair**.
+- **AC1 (success)** Given a name and a first.last@ankarabilim.edu.tr address, when the admin creates an advisor, then an ADVISOR account with the default quota of 20 is created and a verification e-mail is sent.
+- **AC2 (failure)** Given a non-administrator, when calling this operation, then the response is 403.
+- **AC3 (boundary)** Given an advisor with 12 students, when the admin sets the quota to 11, then the response is 409; when set to 12, it succeeds.
 
-### US-08 — Student sees assigned advisor
-As a **student**, I want to **see my assigned advisor and why they were
-assigned**, so that **I know whom to meet**.
-- **AC1** Given a matched student, when opening "My advisor", then the advisor's name, shared keywords and office location are shown.
-- **AC2** Given an unmatched student, then the page states that a match is pending.
+### EP-03 Profiles
 
-### US-09 — Advisor defines weekly office hours
-As an **advisor**, I want to **define my weekly recurring office hours in
-30-minute slots**, so that **students can book times when I am available every
-week** *(decision D-08)*.
-- **AC1** Given Tuesday 10:00–11:00, when the advisor saves, then two weekly 30-minute slots (10:00 and 10:30) are created and their occurrences appear for the coming weeks.
-- **AC2** Given a start time that is not on a 30-minute boundary, then the response is 400; given an overlap with an existing weekly slot of the same advisor, then the response is 409.
-- **AC3** Given a weekly slot with a future booked occurrence, when the advisor deletes it, then the response is 409.
+**US-06 — Student profile**
+As a **student**, I want to **enter my year, department, GPA and interests**, so that **I can be matched with a suitable advisor**.
+- **AC1 (success)** Given year 3, "Computer Engineering", GPA 3.20 and interests *Internship, Software*, when saving, then the profile is stored and the student is WAITING_FOR_MATCH until the next run.
+- **AC2 (boundary)** Given GPA 0.00 or 4.00, then the value is accepted; given 4.01 or −0.01, then the response is 400.
+- **AC3 (failure)** Given no interest, more than the configured maximum (5 in development), or an interest not in the list, then the response is 400.
 
-### US-10 — Student books a slot
-As a **student**, I want to **book a free office-hour slot of my advisor**, so
-that **I can meet them without exchanging e-mails**.
-- **AC1** Given a matched student with no active appointment and a free future occurrence of their advisor's slot (e.g. Tuesday 4 November, 10:30), when booking, then the response is 201, the appointment is BOOKED and a confirmation is shown on the page.
-- **AC2** Given a slot that is already booked, then the response is 409.
-- **AC3** Given a slot belonging to another advisor, then the response is 403.
-- **AC4** Given the student already has a BOOKED appointment, then the response is 409.
-- **AC5** Given two concurrent requests for the same slot, then exactly one succeeds and the other receives 409.
+**US-07 — Advisor profile**
+As an **advisor**, I want to **choose my interests and the years I serve, write a short introduction and say whether I offer online meetings**, so that **I am matched with suitable students and they know me**.
+- **AC1 (success)** Given interests *CV, Internship*, years 3 and 4, an introduction and "offers online = yes", when saving, then the profile is updated.
+- **AC2 (failure)** Given no year selected, no interest, or more than the configured maximum, then the response is 400.
+- **AC3 (boundary)** Given the advisor already has students and changes interests, then existing assignments do not change (BR-18).
 
-### US-11 — Student views and cancels appointments
-As a **student**, I want to **see my appointments and cancel one**, so that **I
-can free the slot for others if I cannot attend**.
-- **AC1** Given a BOOKED appointment starting in 5 hours, when the student cancels, then it becomes CANCELLED and the slot is free again.
-- **AC2** Given an appointment starting in 1 hour, when cancelling, then the response is 409.
-- **AC3** Given another student's appointment, when cancelling, then the response is 403.
+### EP-04 Weekly matching
 
-### US-12 — Advisor views appointments and marks outcome
-As an **advisor**, I want to **see my upcoming appointments with student
-details and mark each as completed or no-show**, so that **I can prepare and
-keep an accurate record**.
-- **AC1** Given an assigned student's appointment, when the advisor opens it, then class, department, GPA and keywords are shown.
-- **AC2** Given an appointment whose start time has passed, when the advisor marks it NO_SHOW, then the status changes.
-- **AC3** Given an appointment that has not started, when marking COMPLETED, then the response is 409.
+**US-08 — Round 1 and scoring**
+As a **student**, I want to **be matched with the advisor who best fits my interests, department and year**, so that **my advisor can really help me**.
+- **AC1 (success)** Given a year-3 Computer Engineering student with {Internship, Interview, Software}, advisor A (years 3–4, Computer Engineering, {Internship, Software, Graduate study}) and advisor B (years 3–4, Electrical Engineering, {Interview, CV, Entrepreneurship}), when round 1 runs, then A is assigned (score 6 vs 3).
+- **AC2 (boundary)** Given A and B have the same score, then the advisor with fewer current students is assigned, and that advisor's count increases by one before the next student is processed.
+- **AC3 (failure)** Given an advisor who does not serve the student's year, or whose quota is full, then that advisor is not a round-1 candidate.
+- **AC4** Given two students with identical profiles except GPA, then their scores are identical.
 
-### US-13 — Advisor receives booking e-mail
-As an **advisor**, I want to **receive an e-mail when a student books or cancels
-an appointment**, so that **I am informed without checking the system**.
-- **AC1** Given a successful booking, then an e-mail with student name, date, time and topic keywords is sent to the advisor within 1 minute (verified with a test mail server).
-- **AC2** Given a cancellation, then a cancellation e-mail is sent.
-- **AC3** Given the mail service is unavailable, then the booking still succeeds and the failure is logged for retry.
+**US-09 — Round 2**
+As a **student**, I want to **still be matched by interests when no advisor serves my year**, so that **I am not left without an advisor**.
+- **AC1 (success)** Given no round-1 candidate but an advisor for years 1–2 who shares one interest with a year-3 student, when round 2 runs, then that advisor is assigned.
+- **AC2 (failure)** Given no advisor shares any interest, then round 2 assigns nobody and the student moves to round 3.
 
-### US-14 — Calendar file
-As an **advisor or student**, I want to **add the appointment to my calendar**,
-so that **I do not forget it**.
-- **AC1** Given a booking e-mail, then it contains an .ics attachment with the correct start, end and title.
-- **AC2** Given a BOOKED appointment, when the user selects "Add to calendar", then the same .ics file is downloaded.
-- **AC3** Given an appointment of another user, when requesting its file, then the response is 403.
+**US-10 — Round 3**
+As a **student**, I want to **be assigned to an available advisor even without shared interests**, so that **I always get support when capacity exists**.
+- **AC1 (success)** Given no shared interests with anyone, advisor X (10 free places, same department) and advisor Y (15 free places, other department), when round 3 runs, then X is assigned (own department first).
+- **AC2 (boundary)** Given two advisors in the student's department with equal free places, then the choice is random; with the test seed fixed, the result is always the same.
+- **AC3 (failure)** Given every advisor's quota is full, then the student stays WAITING_FOR_MATCH.
 
-### US-15 — Student requests advisor change with explanation
-As a **student**, I want to **ask the administrator for a different advisor and
-explain why**, so that **I can get guidance that fits me better**.
-- **AC1** Given a matched student, a reason category and a 40-character explanation, when submitting, then a PENDING request is created.
-- **AC2** Given an explanation shorter than 20 characters, then the response is 400.
-- **AC3** Given an existing PENDING request, when submitting another, then the response is 409.
+**US-11 — Weekly batch run**
+As an **administrator**, I want **matching to run automatically every Sunday and to be able to start it manually**, so that **students are assigned on a predictable schedule and the demo can be run on demand**.
+- **AC1 (success)** Given three waiting students, when the Sunday 22:00 run (or "run now") starts, then each is processed through rounds 1–3 and a run record shows the time, the number of assigned students and the number still waiting.
+- **AC2 (boundary)** Given a run is already in progress, when "run now" is requested, then the response is 409.
+- **AC3 (failure)** Given a non-administrator, when requesting "run now", then the response is 403.
+- **AC4** Given students are processed in a defined order (fewest candidate advisors first, then registration time), then the same input always gives the same result with the test seed.
 
-### US-16 — Admin decides on change request; re-matching
-As an **administrator**, I want to **approve or reject change requests with a
-note**, so that **advisor changes are fair and recorded**.
-- **AC1** Given a PENDING request, when the admin approves, then the student is re-matched excluding the previous advisor, future BOOKED appointments with the previous advisor are CANCELLED, and that advisor is e-mailed.
-- **AC2** Given the admin rejects with a note, then the request is REJECTED and the student keeps the current advisor.
-- **AC3** Given a request that is not PENDING, when deciding, then the response is 409.
-- **AC4** Given approval but no other candidate advisor, then the student becomes WAITING_FOR_MATCH.
+**US-12 — See assigned advisor and reason**
+As a **student**, I want to **see my advisor, why we were matched and the advisor's introduction**, so that **I trust the match and know whom to meet**.
+- **AC1 (success)** Given a matched student, when opening "My advisor", then the name, introduction, interests, shared interests and the department/year reasons are shown.
+- **AC2 (boundary)** Given a waiting student, then the page shows the date of the next matching run.
+
+**US-13 — Students waiting for a match**
+As an **administrator**, I want to **see students who could not be matched**, so that **I can add advisors, quota or interests**.
+- **AC1 (success)** Given two WAITING_FOR_MATCH students, then both appear with their interests and year.
+- **AC2 (failure)** Given a student or advisor, when requesting the list, then the response is 403.
+
+### EP-05 Office hours and appointments
+
+**US-14 — Weekly office hours**
+As an **advisor**, I want to **define weekly recurring office hours in 30-minute slots**, so that **students can request times when I am available**.
+- **AC1 (success)** Given Tuesday 10:00–11:00, when saving, then two weekly slots (10:00, 10:30) are created.
+- **AC2 (failure)** Given a start time not on a 30-minute boundary, then 400; given an overlap with an existing slot, then 409.
+- **AC3 (boundary)** Given a slot with a future active appointment, when the advisor deletes it, then the response is 409.
+
+**US-15 — Request an appointment**
+As a **student**, I want to **request a free slot of my advisor, in person or online**, so that **I can meet my advisor without exchanging e-mails**.
+- **AC1 (success)** Given a matched student with no active appointment and a free future slot, when requesting it in person, then an appointment with status REQUESTED is created and the advisor is e-mailed.
+- **AC2 (failure)** Given the slot already has an active appointment, then the response is 409; given two concurrent requests, exactly one succeeds.
+- **AC3 (failure)** Given a slot of another advisor, then 403; given the student already has an active appointment, then 409.
+- **AC4 (boundary)** Given the advisor does not offer online meetings, when requesting an online meeting, then the response is 400.
+
+**US-16 — Accept or reject a request**
+As an **advisor**, I want to **accept or reject appointment requests**, so that **I keep control of my time**.
+- **AC1 (success)** Given a REQUESTED appointment, when the advisor accepts, then it becomes CONFIRMED and the student is e-mailed with an .ics file.
+- **AC2 (success)** Given a REQUESTED appointment, when the advisor rejects it, then it becomes REJECTED, the slot is free again and the student is e-mailed.
+- **AC3 (failure)** Given an appointment of another advisor, or one that is not REQUESTED, then 403 or 409.
+
+**US-17 — Cancel with a reason**
+As a **student or advisor**, I want to **cancel an appointment with a reason**, so that **the other side knows and the slot becomes free**.
+- **AC1 (success)** Given a CONFIRMED appointment starting in 2 hours, when the student cancels with a reason, then it becomes CANCELLED, the slot is free and the advisor is e-mailed.
+- **AC2 (boundary)** Given the appointment starts in 31 minutes, cancellation is accepted; given 29 minutes, the response is 409 (30-minute lock, BR-12).
+- **AC3 (failure)** Given no reason, then the response is 400.
+
+**US-18 — Outcome and student list**
+As an **advisor**, I want to **see my appointments and students (including GPA) and mark each past appointment as completed or no-show**, so that **I can prepare and keep a record**.
+- **AC1 (success)** Given a confirmed appointment whose start time has passed, when the advisor marks it NO_SHOW, then the status changes.
+- **AC2 (failure)** Given an appointment that has not started, when marking COMPLETED, then the response is 409.
+- **AC3** Given the advisor opens "My students", then only their assigned students are listed, with GPA.
+
+### EP-06 Notifications and calendar
+
+**US-19 — E-mails**
+As a **user**, I want to **receive e-mails for verification and appointment events**, so that **I do not miss anything**.
+- **AC1 (success)** Given a registration, request, acceptance, rejection or cancellation, then the right recipient gets an e-mail within 1 minute (verified with a test mail server).
+- **AC2 (failure)** Given the e-mail service is unavailable, then the operation still succeeds, the status is visible in the system and the failure is logged for retry.
+
+**US-20 — Calendar file**
+As a **student or advisor**, I want to **add a confirmed appointment to my calendar**, so that **I do not forget it**.
+- **AC1 (success)** Given a CONFIRMED appointment, then the confirmation e-mail contains an .ics file with the correct start, end (30 minutes) and title, and "Add to calendar" downloads the same file.
+- **AC2 (failure)** Given an appointment that is not CONFIRMED, then the .ics request returns 409; given another user's appointment, 403.
+
+**US-21 — Google Calendar and Meet**
+As an **advisor**, I want to **connect Google Calendar so that a Meet link is created for confirmed online appointments**, so that **I do not create links by hand**.
+- **AC1 (success)** Given a connected advisor and an online request, when the advisor accepts, then a Google Meet link is stored on the appointment and shown to both sides.
+- **AC2 (failure)** Given Google returns an error, then the appointment is still confirmed and the advisor is asked to enter a link manually.
+- **AC3** Given the advisor disconnects Google Calendar, then future online appointments fall back to manual links; when an appointment with a Meet link is cancelled, the calendar event is deleted.
+
+**US-22 — Manual meeting link**
+As an **advisor without Google Calendar**, I want to **enter a Zoom, Meet or Teams link**, so that **online meetings still work**.
+- **AC1 (success)** Given a confirmed online appointment, when the advisor saves a valid https link, then both sides see it.
+- **AC2 (failure)** Given an invalid URL, then the response is 400.
+
+### EP-07 CV
+
+**US-23 — Upload CV**
+As a **student**, I want to **upload my CV**, so that **my advisor can prepare for our meeting**.
+- **AC1 (success)** Given a 1 MB PDF, when uploading, then it is stored; a second upload replaces the first.
+- **AC2 (boundary)** Given a PDF of exactly 2 MB, it is accepted; 2 MB + 1 byte returns 400.
+- **AC3 (failure)** Given a .docx file, then the response is 400.
+
+**US-24 — Advisor downloads CV**
+As an **assigned advisor**, I want to **download my student's CV**, so that **I can give specific advice**.
+- **AC1 (success)** Given the assigned advisor, when downloading, then the PDF is returned.
+- **AC2 (failure)** Given another advisor or another student, then the response is 403.
+
+### EP-08 Advisor change
+
+**US-25 — Request a change**
+As a **student**, I want to **ask the administrator for a different advisor and explain why**, so that **I can get guidance that fits me better**.
+- **AC1 (success)** Given a matched student, reason "field mismatch" and a 40-character explanation, when submitting, then a PENDING request is created.
+- **AC2 (boundary)** Given an explanation of 19 characters, then 400; 20 characters is accepted.
+- **AC3 (failure)** Given an existing PENDING request, then the response is 409.
+- **AC4** Given the student moved to a new year, then "year change" is available as a reason.
+
+**US-26 — Decide and re-match**
+As an **administrator**, I want to **approve or reject change requests with a note**, so that **changes are fair and recorded**.
+- **AC1 (success)** Given a PENDING request, when approved, then the student is re-matched by the matching rules excluding the previous advisor, future appointments with the previous advisor are cancelled and that advisor is e-mailed.
+- **AC2 (boundary)** Given approval but no other advisor has free quota, then the student keeps the current advisor and the request records that no alternative was found.
+- **AC3 (failure)** Given a request that is not PENDING, then the response is 409; given a rejection without a note, 400.
 
 ## 6. Definition of Ready
 
 A story enters a sprint only when:
 1. User, capability and value are explicit.
-2. Acceptance criteria are testable and include at least one success and one failure case.
-3. Dependencies and API impact are understood and the operation exists in `openapi.yaml`.
+2. Acceptance criteria are testable, with at least one success and one failure case.
+3. Dependencies and API impact are understood, and the operation exists in `openapi.yaml`.
 4. The story is 8 points or fewer and can be finished in one sprint.
 5. Every open question has a named owner.
 
-## 7. Deferred ideas (not in the first release)
+## 7. Open questions affecting stories
 
-| Idea | Note |
-|---|---|
-| Video meeting link on appointments | Decision recorded in `docs/decision.md`. |
-| CV upload (PDF) | Decision recorded in `docs/decision.md`. |
-| Mobile application | Same API can be reused. |
-| Topic statistics report for the administrator | Possible P3 after the first release. |
+| Question | Stories | Owner |
+|---|---|---|
+| Maximum number of interests and the initial interest list (set after collecting every advisor's interests) | US-04, US-06, US-07 | Aybüke |

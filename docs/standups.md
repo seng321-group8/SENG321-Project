@@ -57,3 +57,12 @@ Format: Online (Google Meet)
 - Emine: Map backlog user stories to OpenAPI operations and open a tracking issue for the weekly matching logic.
 - Yağız: Open at least one PR from individual account and assist Nil in making the repo `public` for branch rulesets.
 - Nil: Merge Aybüke's PR #35, update `standups.md` (Nov 1) and `retrospective.md` (Nov 3). Open and merge `develop` -> `main` PR before delivery.
+
+---
+
+## Meeting 3 - November 3, 2026
+Format:  Face-to-face
+
+**## Notes and Decisions**
+- Şevval Nil and Fatima Zehra consulted the course instructor regarding the advisor student quota (following up on the open question from Meeting 2).
+- The instructor recommended an admin-configurable quota; default 20, cannot go below the current student count (D-17).

@@ -68,7 +68,7 @@ Release tag: [sprint-1](https://github.com/seng321-group8/SENG321-Project/releas
 | Product backlog | docs/backlog.md | #17 | #32, #41 |
 | Decision log | docs/decision.md | #13 | #19, #25, #35 |
 | Acceptance criteria and test matrix | docs/acceptance-criteria-draft.md, docs/test-scenario-matrix.md | #17 | #34, #38, #40, #42, #46 |
-| Stand-up records and retrospective | docs/standups.md, docs/retrospective.md | #13 | #28, #29, #45, #47 |
+| Stand-up records and retrospective | docs/standups.md, docs/retrospective.md | #13 | #28, #29, #45, #47, #52 |
 
 ### Evidence
 - Release tag: `sprint-1`

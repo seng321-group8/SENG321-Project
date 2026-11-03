@@ -10,9 +10,9 @@ These criteria are prepared as a QA contribution to Product Backlog Issue #17. T
 
 ---
 
-## 2. Student Profile Management
+## 2. Student Profile Management (Linked to US-01)
 
-### AC-SP-01: Valid Student Profile
+### AC-SP-01: Valid Student Profile (Linked to US-01)
 
 **Given** a student is creating or updating their profile,
 
@@ -20,7 +20,7 @@ These criteria are prepared as a QA contribution to Product Backlog Issue #17. T
 
 **Then** the system should accept and save the profile successfully.
 
-### AC-SP-02: GPA Boundary Validation
+### AC-SP-02: GPA Boundary Validation (Linked to US-01)
 
 **Given** a student is entering their GPA,
 
@@ -28,7 +28,7 @@ These criteria are prepared as a QA contribution to Product Backlog Issue #17. T
 
 **Then** the system should accept the value.
 
-### AC-SP-03: Invalid GPA
+### AC-SP-03: Invalid GPA (Linked to US-01)
 
 **Given** a student is entering their GPA,
 
@@ -36,7 +36,7 @@ These criteria are prepared as a QA contribution to Product Backlog Issue #17. T
 
 **Then** the system should reject the request with HTTP 400 Bad Request.
 
-### AC-SP-04: Grade Level Validation
+### AC-SP-04: Grade Level Validation (Linked to US-01)
 
 **Given** a student is entering their grade level,
 
@@ -44,7 +44,7 @@ These criteria are prepared as a QA contribution to Product Backlog Issue #17. T
 
 **Then** the system should accept the value.
 
-### AC-SP-05: Invalid Grade Level
+### AC-SP-05: Invalid Grade Level (Linked to US-01)
 
 **Given** a student is entering their grade level,
 
@@ -52,7 +52,7 @@ These criteria are prepared as a QA contribution to Product Backlog Issue #17. T
 
 **Then** the system should reject the request with HTTP 400 Bad Request.
 
-### AC-SP-06: Expertise Keyword Limit
+### AC-SP-06: Expertise Keyword Limit (Linked to US-01)
 
 **Given** a student is selecting expertise keywords,
 
@@ -60,7 +60,7 @@ These criteria are prepared as a QA contribution to Product Backlog Issue #17. T
 
 **Then** the system should accept the selection.
 
-### AC-SP-07: Invalid Expertise Keyword Selection
+### AC-SP-07: Invalid Expertise Keyword Selection (Linked to US-01)
 
 **Given** a student is selecting expertise keywords,
 
@@ -70,25 +70,48 @@ These criteria are prepared as a QA contribution to Product Backlog Issue #17. T
 
 ---
 
-## 3. Advisor Matching
+## 3. Account Security & Email Verification (Linked to US-02)
 
-### AC-AM-01: Minimum Keyword Match
+### AC-EV-01: Account Registration Email Verification (Linked to US-02)
 
-**Given** a student and an advisor share at least one expertise keyword,
+**Given** a student or advisor registers a new account,
 
-**When** the matching process runs and the advisor has available capacity,
+**When** the user submits their valid email address,
 
-**Then** the advisor should be considered an eligible candidate.
+**Then** the system should send a verification link via email and keep the account status as `Pending Verification`.
 
-### AC-AM-02: Highest Matching Score
+### AC-EV-02: Complete Email Verification (Linked to US-02)
 
-**Given** multiple eligible advisors are available,
+**Given** a user has received a verification email,
 
-**When** the system calculates their matching scores,
+**When** the user clicks the verification link within the expiration time,
 
-**Then** the advisor with the highest score should be selected.
+**Then** the account status should change to `Active` and allow login.
 
-### AC-AM-03: Department Match
+---
+
+## 4. Weekly & 3-Round Advisor Matching (Linked to US-03)
+
+### AC-AM-01: Weekly Batch Matching Execution (Linked to US-03)
+
+**Given** students are waiting for matching in status `Pending Matching`,
+
+**When** the system triggers the scheduled weekly matching job,
+
+**Then** the system should execute the 3-round CV matching algorithm for all pending students.
+
+### AC-AM-02: 3-Round Matching Process (Linked to US-03)
+
+**Given** the weekly matching process starts,
+
+**When** the system evaluates candidates,
+
+**Then** it must execute 3 rounds: 
+- **Round 1:** Exact department and highest expertise keyword match.
+- **Round 2:** Grade level match with shared keywords.
+- **Round 3:** General keyword matching across available advisor capacities.
+
+### AC-AM-03: Department Match (Linked to US-03)
 
 **Given** a student and an eligible advisor belong to the same department,
 
@@ -96,7 +119,7 @@ These criteria are prepared as a QA contribution to Product Backlog Issue #17. T
 
 **Then** the advisor should receive 1 additional point.
 
-### AC-AM-04: Grade Level Match
+### AC-AM-04: Grade Level Match (Linked to US-03)
 
 **Given** an advisor serves the student's grade level,
 
@@ -104,17 +127,17 @@ These criteria are prepared as a QA contribution to Product Backlog Issue #17. T
 
 **Then** the advisor should receive 1 additional point.
 
-### AC-AM-05: Matching Score Calculation
+### AC-AM-05: Matching Score Calculation (Linked to US-03)
 
 **Given** an eligible advisor and a student share expertise keywords,
 
-**When** the system calculates the matching score,
+**When** the system calculates the matching score during the weekly 3-round evaluation,
 
 **Then** the score should follow this formula:
 
 `(Number of common keywords × 2) + Same department (+1) + Grade served (+1)`
 
-### AC-AM-06: Tie-Breaking Rule
+### AC-AM-06: Tie-Breaking Rule (Linked to US-03)
 
 **Given** two or more eligible advisors have the same matching score,
 
@@ -122,7 +145,7 @@ These criteria are prepared as a QA contribution to Product Backlog Issue #17. T
 
 **Then** the advisor with fewer assigned students should be selected.
 
-### AC-AM-07: Advisor Capacity
+### AC-AM-07: Advisor Capacity (Linked to US-03)
 
 **Given** an advisor has reached the maximum capacity of 30 students,
 
@@ -130,51 +153,59 @@ These criteria are prepared as a QA contribution to Product Backlog Issue #17. T
 
 **Then** that advisor should not be considered an eligible candidate.
 
-### AC-AM-08: No Eligible Advisor
+### AC-AM-08: No Eligible Advisor (Linked to US-03)
 
-**Given** no advisor meets the minimum matching requirements or has available capacity,
+**Given** no advisor meets the minimum matching requirements or has available capacity after 3 rounds,
 
-**When** the matching process runs,
+**When** the weekly matching process concludes,
 
-**Then** the student's matching status should become `Pending Matching`.
+**Then** the student's matching status should remain `Pending Matching`.
 
 ---
 
-## 4. Appointment Management
+## 5. Appointment Management & Approvals (Linked to US-04, US-05)
 
-### AC-AP-01: Successful Appointment Booking
+### AC-AP-01: Appointment Request Submission (Linked to US-04)
 
 **Given** a student has an assigned advisor and an available office-hour slot,
 
-**When** the student books that slot,
+**When** the student requests an appointment,
 
-**Then** the system should create the appointment successfully with status `Booked`.
+**Then** the system should create the appointment request with status `Pending Approval`.
 
-### AC-AP-02: Only Assigned Advisor's Slots
+### AC-AP-02: Advisor Approval Process (Linked to US-04)
 
-**Given** a student has an assigned advisor,
+**Given** an advisor has a pending appointment request,
 
-**When** the student attempts to book an appointment,
+**When** the advisor approves the request,
 
-**Then** the system should only allow booking from their assigned advisor's available office hours.
+**Then** the appointment status should change to `Booked` and notify both student and advisor.
 
-### AC-AP-03: Prevent Double Booking
+### AC-AP-03: Advisor Rejection Process (Linked to US-04)
 
-**Given** an office-hour slot has already been booked,
+**Given** an advisor has a pending appointment request,
+
+**When** the advisor rejects the request with a reason,
+
+**Then** the appointment status should change to `Rejected` and the slot should become available again.
+
+### AC-AP-04: Google Meet Link Generation (Linked to US-05)
+
+**Given** an appointment request has been approved by the advisor,
+
+**When** the status changes to `Booked`,
+
+**Then** the system should automatically generate a Google Meet link and attach it to the appointment details and calendar invitation.
+
+### AC-AP-05: Prevent Double Booking (Linked to US-04)
+
+**Given** an office-hour slot has already been requested or booked,
 
 **When** another student attempts to book the same slot,
 
 **Then** the system should reject the request with HTTP 409 Conflict.
 
-### AC-AP-04: One Active Appointment Per Student
-
-**Given** a student already has an active appointment,
-
-**When** the student attempts to book another appointment,
-
-**Then** the system should reject the request according to the appointment rules.
-
-### AC-AP-05: Prevent Past Appointments
+### AC-AP-06: Prevent Past Appointments (Linked to US-04)
 
 **Given** an office-hour slot is in the past,
 
@@ -182,15 +213,23 @@ These criteria are prepared as a QA contribution to Product Backlog Issue #17. T
 
 **Then** the system should reject the booking request.
 
-### AC-AP-06: Appointment Cancellation
+### AC-AP-07: Appointment Cancellation (30-Minute Window) (Linked to US-04)
 
-**Given** a student has an appointment starting in 2 hours or more with status `Booked`,
+**Given** a student or advisor has an appointment starting in 30 minutes or more,
 
-**When** the student cancels their own appointment,
+**When** they cancel the appointment,
 
-**Then** the appointment status should change to `Cancelled`.
+**Then** the appointment status should change to `Cancelled` and the Google Meet link should be invalidated.
 
-### AC-AP-07: Appointment Completion
+### AC-AP-08: Late Cancellation Restriction (Linked to US-04)
+
+**Given** an appointment is scheduled to start in less than 30 minutes,
+
+**When** a user attempts to cancel the appointment,
+
+**Then** the system should reject the cancellation request and the appointment status should remain `Booked`.
+
+### AC-AP-09: Appointment Completion (Linked to US-04)
 
 **Given** an advisor has conducted an appointment,
 
@@ -198,19 +237,11 @@ These criteria are prepared as a QA contribution to Product Backlog Issue #17. T
 
 **Then** the appointment status should change to `Completed`.
 
-### AC-AP-08: Cancellation Deadline
-
-**Given** a student has an appointment starting in less than 2 hours with status `Booked`,
-
-**When** the student attempts to cancel the appointment,
-
-**Then** the system should reject the cancellation and the appointment status should remain `Booked`.
-
 ---
 
-## 5. Advisor Change Requests
+## 6. Advisor Change Requests (Linked to US-06)
 
-### AC-CR-01: Submit Advisor Change Request
+### AC-CR-01: Submit Advisor Change Request (Linked to US-06)
 
 **Given** a student has an assigned advisor,
 
@@ -218,7 +249,7 @@ These criteria are prepared as a QA contribution to Product Backlog Issue #17. T
 
 **Then** the system should accept the advisor change request.
 
-### AC-CR-02: Required Explanation
+### AC-CR-02: Required Explanation (Linked to US-06)
 
 **Given** a student is submitting an advisor change request,
 
@@ -226,7 +257,7 @@ These criteria are prepared as a QA contribution to Product Backlog Issue #17. T
 
 **Then** the system should reject the request.
 
-### AC-CR-03: One Pending Request
+### AC-CR-03: One Pending Request (Linked to US-06)
 
 **Given** a student already has a pending advisor change request,
 
@@ -234,15 +265,15 @@ These criteria are prepared as a QA contribution to Product Backlog Issue #17. T
 
 **Then** the system should prevent the creation of another pending request.
 
-### AC-CR-04: Admin Approval
+### AC-CR-04: Admin Approval (Linked to US-06)
 
 **Given** an administrator reviews a pending advisor change request,
 
 **When** the administrator approves the request,
 
-**Then** the system should initiate a new advisor matching process that excludes the previous advisor.
+**Then** the system should initiate a new advisor matching process in the next weekly cycle that excludes the previous advisor.
 
-### AC-CR-05: Admin Rejection
+### AC-CR-05: Admin Rejection (Linked to US-06)
 
 **Given** an administrator reviews a pending advisor change request,
 
@@ -250,7 +281,7 @@ These criteria are prepared as a QA contribution to Product Backlog Issue #17. T
 
 **Then** the request should be marked as rejected and the rejection reason should be recorded.
 
-### AC-CR-06: Cancel Future Appointments After Approval
+### AC-CR-06: Cancel Future Appointments After Approval (Linked to US-06)
 
 **Given** an advisor change request has been approved,
 
@@ -260,9 +291,9 @@ These criteria are prepared as a QA contribution to Product Backlog Issue #17. T
 
 ---
 
-## 6. Advisor Management
+## 7. Advisor Management (Linked to US-07)
 
-### AC-AD-01: Manage Expertise Keywords
+### AC-AD-01: Manage Expertise Keywords (Linked to US-07)
 
 **Given** an advisor is updating their profile,
 
@@ -270,7 +301,7 @@ These criteria are prepared as a QA contribution to Product Backlog Issue #17. T
 
 **Then** the system should save the selected keywords.
 
-### AC-AD-02: Manage Grade Levels
+### AC-AD-02: Manage Grade Levels (Linked to US-07)
 
 **Given** an advisor is updating their profile,
 
@@ -278,7 +309,7 @@ These criteria are prepared as a QA contribution to Product Backlog Issue #17. T
 
 **Then** the system should save the selected grade levels.
 
-### AC-AD-03: Manage Office Hours
+### AC-AD-03: Manage Office Hours (Linked to US-07)
 
 **Given** an advisor is managing their availability,
 
@@ -286,58 +317,10 @@ These criteria are prepared as a QA contribution to Product Backlog Issue #17. T
 
 **Then** the system should display the available slots for eligible students.
 
-### AC-AD-04: View Assigned Students
+### AC-AD-04: View Assigned Students (Linked to US-07)
 
 **Given** an advisor is logged in,
 
 **When** the advisor views their student list,
 
-**Then** only students assigned to that advisor should be displayed.
-
----
-
-## 7. Administration and Privacy
-
-### AC-PR-01: View Pending Matching Students
-
-**Given** a student has the matching status `Pending Matching`,
-
-**When** an administrator views pending matching records,
-
-**Then** the student should be visible in the administrator's list.
-
-### AC-PR-02: GPA Privacy
-
-**Given** a user does not have permission to view a student's GPA,
-
-**When** that user attempts to access the GPA,
-
-**Then** the system should deny access to the information.
-
-### AC-PR-03: Advisor Change Explanation Privacy
-
-**Given** an advisor change request contains a private explanation,
-
-**When** an advisor attempts to access that explanation,
-
-**Then** the system should deny access.
-
-### AC-PR-04: Admin Access to Change Requests
-
-**Given** an administrator is authorized,
-
-**When** the administrator views advisor change requests,
-
-**Then** the administrator should be able to access the request details and explanations.
-
----
-
-## 8. QA Notes
-
-- These acceptance criteria are draft requirements prepared for Product Backlog Issue #17.
-- Final wording and story mapping must be reviewed with the Product Owner.
-- HTTP 400 Bad Request is specified for invalid input values.
-- HTTP 409 Conflict is specified for an already occupied appointment slot.
-- Other HTTP response codes should be confirmed in the OpenAPI contract.
-- These criteria will be used as the basis for future acceptance testing and API testing with Postman.
-- Test execution will take place after the corresponding application features are implemented.
+**

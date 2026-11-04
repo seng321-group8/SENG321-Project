@@ -1,0 +1,2160 @@
+openapi: 3.1.0
+info:
+  title: Career Advisor Matching and Appointment System API
+  version: 0.4.0
+  description: |
+    A student fills in a profile and, in the next weekly run, the system
+    assigns a permanent career advisor using rule-based matching (no AI).
+    The student then picks one of the advisor's 30-minute office-hour slots
+    (online or in person) and sends an appointment REQUEST. The appointment
+    becomes final when the advisor confirms it.
+
+    **Client:** React web app (mobile-friendly UI). **Server:** Django REST
+    Framework.
+
+    **Decision summary**
+    - Appointment length is fixed at 30 minutes. The advisor enters an
+      office-hour range and the system splits it into 30-minute slots.
+    - Appointment flow: `REQUESTED` -> `CONFIRMED` / `REJECTED` ->
+      `COMPLETED` / `NO_SHOW`. A student or advisor can cancel with a reason,
+      which sets `CANCELLED`.
+    - A `REQUESTED` appointment already holds the slot and uses the student's
+      single active-appointment allowance. Active = `REQUESTED` or
+      `CONFIRMED`.
+    - **Cancellation lock:** an appointment cannot be cancelled by the student
+      or the advisor within 30 minutes of its start time (409).
+    - Meeting type is `online` or `in_person`. Online meetings depend on the
+      advisor: an advisor sets `offersOnline` on their profile. When an online
+      appointment is confirmed and the advisor has connected Google Calendar,
+      a Google Meet link is created automatically; otherwise the advisor
+      enters a Zoom/Meet/Teams link manually.
+    - CV: PDF only, at most 2 MB. Only the student and the assigned advisor
+      can access it.
+    - Advisor capacity is set by the administrator. A new advisor starts at 20
+      students. Capacity cannot be set below the advisor's current student
+      count (409).
+    - Only Ankara Bilim University members can register. Student e-mail is
+      `s` + 9-digit student number + `@ankarabilim.edu.tr`
+      (e.g. `s230205030@ankarabilim.edu.tr`). The domain is matched exactly;
+      sub-domains and look-alikes such as `evilankarabilim.edu.tr` are
+      rejected. An account is not active until the e-mail verification link
+      is used.
+    - Only an administrator creates advisor accounts (`name.surname@` or
+      `n.surname@ankarabilim.edu.tr`). Advisor-format self-registration is
+      rejected so that nobody can escalate privileges. The first administrator
+      is added manually.
+    - If an advisor change is approved but no other suitable advisor exists,
+      the student stays with the current advisor and no appointment is
+      cancelled.
+    - A student who moves up a grade may send an optional advisor change
+      request with reason `grade_change`. It goes to the administrator and
+      never changes the assignment automatically.
+    - If an advisor edits their profile (keywords, served grades, bio), the
+      assignments of current students are not affected.
+
+    **Matching (weekly batch).** Matching does not run when a profile is saved.
+    It runs every Sunday at 22:00 (Europe/Istanbul) and an administrator can
+    also start it manually. Waiting students are processed in order of fewest
+    candidate advisors first, then registration time. Score =
+    `2 x common keywords` + `1` if same department + `1` if the advisor serves
+    the student's grade. GPA is not part of the score. Ties go to the advisor
+    with fewer students (counts are updated live within a run).
+    - Round 1: advisors who serve the student's grade and share at least one
+      keyword.
+    - Round 2: the grade requirement is dropped; at least one shared keyword
+      is still required.
+    - Round 3: no shared keyword needed. Same-department advisors first, then
+      the advisor with the most free capacity.
+    - If no advisor has free capacity, the student stays `waiting` and is
+      listed for the administrator.
+    The student can see why they were matched (`matchReasons`) and when the
+    next assignment run happens (`nextAssignmentAt`).
+
+    **Privacy.** `gpa` is returned only to the student and the assigned
+    advisor. The `explanation` of a change request is returned only to the
+    student and administrators. A CV is open only to the student and the
+    assigned advisor.
+
+    **Errors.** All errors use the `Error` schema (`code`, `message`,
+    optional `details`).
+
+    All date-times are ISO 8601 (RFC 3339) in the Europe/Istanbul time zone.
+  license:
+    name: Apache 2.0
+    identifier: Apache-2.0
+servers:
+  - url: http://localhost:8000/api/v1
+    description: Local development
+tags:
+  - name: Auth
+  - name: Reference
+    description: Keyword and department lists
+  - name: Student
+  - name: Advisor
+  - name: Appointments
+  - name: ChangeRequests
+  - name: Admin
+security:
+  - bearerAuth: []
+
+paths:
+  /auth/register:
+    post:
+      operationId: registerStudent
+      tags: [Auth]
+      summary: Register a student (only @ankarabilim.edu.tr)
+      description: |
+        Only the student role can be created here; advisor and administrator
+        accounts cannot. The e-mail must be a student number address:
+        `s` + 9 digits + `@ankarabilim.edu.tr`. On success the account is
+        created as unverified and a verification link is e-mailed.
+        If the e-mail is already registered this version returns 409 for
+        clarity.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: Account created, verification e-mail sent
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegisterResponse'
+        '400':
+          description: |
+            Validation error: invalid e-mail, weak password, or e-mail not in
+            the `s<9 digits>@ankarabilim.edu.tr` format.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                wrongDomain:
+                  summary: E-mail outside the university
+                  value:
+                    code: EMAIL_DOMAIN_NOT_ALLOWED
+                    message: Only ankarabilim.edu.tr e-mail addresses can register.
+                wrongFormat:
+                  summary: University domain but not a student number
+                  value:
+                    code: STUDENT_EMAIL_FORMAT_INVALID
+                    message: A student e-mail must look like s230205030@ankarabilim.edu.tr (s + 9 digits).
+                advisorFormat:
+                  summary: Advisor-format address cannot self-register
+                  value:
+                    code: ADVISOR_SELF_REGISTRATION_NOT_ALLOWED
+                    message: Advisor accounts are created by an administrator.
+                weakPassword:
+                  summary: Weak password
+                  value:
+                    code: VALIDATION_ERROR
+                    message: The request could not be validated.
+                    details:
+                      - field: password
+                        message: The password must be at least 8 characters.
+        '409':
+          description: An account with this e-mail already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: EMAIL_ALREADY_REGISTERED
+                message: An account with this e-mail already exists.
+
+  /auth/verify-email:
+    post:
+      operationId: verifyEmail
+      tags: [Auth]
+      summary: Confirm the e-mail verification link
+      description: Send the one-time token from the verification e-mail.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VerifyEmailRequest'
+      responses:
+        '200':
+          description: E-mail verified, account is active
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VerifyEmailResponse'
+        '400':
+          description: Token is invalid or expired
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: VERIFICATION_TOKEN_INVALID
+                message: The verification link is invalid or has expired.
+        '409':
+          description: E-mail is already verified
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: EMAIL_ALREADY_VERIFIED
+                message: This e-mail address is already verified.
+
+  /auth/resend-verification:
+    post:
+      operationId: resendVerification
+      tags: [Auth]
+      summary: Resend the verification e-mail
+      description: |
+        The same response is returned whether or not the e-mail is registered,
+        so account existence does not leak. A rate limit prevents abuse.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResendVerificationRequest'
+      responses:
+        '202':
+          description: If the account exists and is unverified, an e-mail was sent
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '429':
+          description: Too many attempts
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: TOO_MANY_REQUESTS
+                message: Too many attempts. Try again later.
+
+  /auth/login:
+    post:
+      operationId: login
+      tags: [Auth]
+      summary: Log in
+      description: |
+        A student cannot log in before verifying the e-mail. Advisor and
+        administrator accounts are created by an administrator.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login succeeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: E-mail is not verified yet
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: EMAIL_NOT_VERIFIED
+                message: You must verify your e-mail address before logging in.
+
+  /departments:
+    get:
+      operationId: listDepartments
+      tags: [Reference]
+      summary: List departments
+      responses:
+        '200':
+          description: Departments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Department'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /keywords:
+    get:
+      operationId: listKeywords
+      tags: [Reference]
+      summary: List the predefined interest areas (keywords)
+      description: |
+        Returns only active keywords. An administrator can pass
+        `includeInactive=true` to see deactivated ones as well.
+      parameters:
+        - name: includeInactive
+          in: query
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: Keywords
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Keyword'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /students/me/profile:
+    get:
+      operationId: getMyStudentProfile
+      tags: [Student]
+      summary: Get my profile
+      responses:
+        '200':
+          description: Student profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentProfile'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      operationId: saveMyStudentProfile
+      tags: [Student]
+      summary: Save my profile (queues me for the next weekly assignment)
+      description: |
+        Saving a profile does NOT match the student immediately. A student with
+        no advisor gets `matchStatus=waiting` and `nextAssignmentAt` shows the
+        next weekly run (Sunday 22:00). Updating the profile after an advisor
+        is assigned does not change the advisor; changes only happen through an
+        advisor change request.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StudentProfileInput'
+      responses:
+        '200':
+          description: Profile saved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentProfile'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /students/me/advisor:
+    get:
+      operationId: getMyAdvisor
+      tags: [Student]
+      summary: Get my assigned career advisor and why I was matched
+      responses:
+        '200':
+          description: Advisor with the match reasons
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdvisorAssignment'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          description: The student is not matched yet (still waiting)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: NOT_MATCHED_YET
+                message: You have not been matched yet. The next assignment run is on Sunday at 22:00.
+
+  /students/me/cv:
+    put:
+      operationId: uploadMyCv
+      tags: [Student]
+      summary: Upload or replace my CV (PDF, at most 2 MB)
+      description: |
+        One CV is stored per student; a new upload replaces the old one. The
+        file type is also checked on the server from the content (magic
+        bytes).
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: "`application/pdf`, at most 2 MB (2,097,152 bytes)."
+      responses:
+        '200':
+          description: CV saved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CvInfo'
+        '400':
+          description: Not a PDF, or larger than 2 MB
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                notPdf:
+                  summary: Wrong file type
+                  value:
+                    code: CV_INVALID_TYPE
+                    message: Only PDF files can be uploaded.
+                tooLarge:
+                  summary: Size limit exceeded
+                  value:
+                    code: CV_TOO_LARGE
+                    message: A CV can be at most 2 MB.
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    get:
+      operationId: downloadMyCv
+      tags: [Student]
+      summary: Download my CV
+      responses:
+        '200':
+          description: CV file
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      operationId: deleteMyCv
+      tags: [Student]
+      summary: Delete my CV
+      responses:
+        '204':
+          description: Deleted
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /students/{studentId}/cv:
+    get:
+      operationId: downloadStudentCv
+      tags: [Advisor]
+      summary: Download a student's CV (assigned advisor only)
+      description: |
+        Only the student's current assigned advisor can access it. When the
+        advisor changes, the old advisor's access ends. Everyone else gets 403.
+      parameters:
+        - name: studentId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: CV file
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /advisors/me/profile:
+    get:
+      operationId: getMyAdvisorProfile
+      tags: [Advisor]
+      summary: Get my advisor profile
+      responses:
+        '200':
+          description: Advisor profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Advisor'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    put:
+      operationId: saveMyAdvisorProfile
+      tags: [Advisor]
+      summary: Update keywords, served grades, bio and online preference
+      description: |
+        The advisor chooses which grades they serve, their interest areas, a
+        short self-introduction (`bio`) and whether they offer online meetings
+        (`offersOnline`). These changes do not affect current students; only
+        later assignment runs use the new values. Capacity cannot be changed
+        here (administrator only).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdvisorProfileInput'
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Advisor'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /advisors/me/students:
+    get:
+      operationId: listMyStudents
+      tags: [Advisor]
+      summary: List my students (GPA is shown as information only)
+      responses:
+        '200':
+          description: Student list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StudentProfile'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /advisors/me/google-calendar:
+    get:
+      operationId: getGoogleCalendarStatus
+      tags: [Advisor]
+      summary: Google Calendar connection status
+      responses:
+        '200':
+          description: Status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCalendarStatus'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    delete:
+      operationId: disconnectGoogleCalendar
+      tags: [Advisor]
+      summary: Disconnect Google Calendar
+      description: For later online appointments the link must be entered manually.
+      responses:
+        '204':
+          description: Disconnected
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /advisors/me/google-calendar/connect:
+    post:
+      operationId: startGoogleCalendarConnect
+      tags: [Advisor]
+      summary: Get the Google OAuth authorization URL
+      description: The user is redirected to the returned URL; Google returns to `callback`.
+      responses:
+        '200':
+          description: Authorization URL
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [authUrl]
+                properties:
+                  authUrl:
+                    type: string
+                    format: uri
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          description: The account is already connected
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: GOOGLE_ALREADY_CONNECTED
+                message: Google Calendar is already connected.
+
+  /advisors/me/google-calendar/callback:
+    get:
+      operationId: completeGoogleCalendarConnect
+      tags: [Advisor]
+      summary: Google OAuth return
+      parameters:
+        - name: code
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: state
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Connected
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCalendarStatus'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /advisors/me/office-hours:
+    get:
+      operationId: listMyOfficeHours
+      tags: [Advisor]
+      summary: List my office-hour slots (booked and free)
+      responses:
+        '200':
+          description: Slots
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/OfficeHourSlot'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    post:
+      operationId: createOfficeHours
+      tags: [Advisor]
+      summary: Add an office-hour range (split into 30-minute slots)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OfficeHourInput'
+      responses:
+        '201':
+          description: The 30-minute slots that were created
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/OfficeHourSlot'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          description: Overlaps an existing slot of the same advisor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: OFFICE_HOUR_OVERLAP
+                message: This time range overlaps an existing office hour.
+
+  /advisors/me/office-hours/{slotId}:
+    delete:
+      operationId: deleteOfficeHourSlot
+      tags: [Advisor]
+      summary: Delete a free office-hour slot
+      parameters:
+        - name: slotId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Deleted
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: The slot has a requested or confirmed appointment; cancel it first
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: SLOT_HAS_ACTIVE_APPOINTMENT
+                message: This slot has an active appointment. Cancel it first.
+
+  /advisors/{advisorId}/office-hours:
+    get:
+      operationId: listAdvisorOfficeHours
+      tags: [Student]
+      summary: List an advisor's office-hour slots
+      description: A student can only see their own advisor's slots (otherwise 403).
+      parameters:
+        - $ref: '#/components/parameters/AdvisorId'
+        - name: from
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: to
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: onlyAvailable
+          in: query
+          schema:
+            type: boolean
+            default: true
+      responses:
+        '200':
+          description: Slots
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/OfficeHourSlot'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /appointments:
+    get:
+      operationId: listAppointments
+      tags: [Appointments]
+      summary: List my appointments (student's own, or those addressed to the advisor)
+      parameters:
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/AppointmentStatus'
+      responses:
+        '200':
+          description: Appointment list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Appointment'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    post:
+      operationId: requestAppointment
+      tags: [Appointments]
+      summary: Send an appointment request (student)
+      description: |
+        Rules: only a slot of the student's own advisor; one request or
+        appointment per slot; at most 1 active (`REQUESTED` or `CONFIRMED`)
+        appointment per student; `online` is allowed only if the advisor has
+        `offersOnline=true`. On success the appointment is `REQUESTED`, the
+        slot is held, and a request e-mail goes to the advisor. The calendar
+        file (.ics) and the link are created when the advisor confirms.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AppointmentCreate'
+      responses:
+        '201':
+          description: Request created (`REQUESTED`)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Appointment'
+        '400':
+          description: Validation error, or online meeting requested but not offered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                validation:
+                  summary: Validation error
+                  value:
+                    code: VALIDATION_ERROR
+                    message: The request could not be validated.
+                onlineNotOffered:
+                  summary: Advisor does not offer online meetings
+                  value:
+                    code: ONLINE_NOT_OFFERED
+                    message: This advisor does not offer online meetings.
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: The slot does not belong to the student's advisor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: FORBIDDEN
+                message: You can only book your own advisor's slots.
+        '409':
+          description: The slot is taken, or the student already has an active appointment
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                slotTaken:
+                  summary: Slot taken
+                  value:
+                    code: SLOT_ALREADY_BOOKED
+                    message: An appointment has already been requested for this slot.
+                activeExists:
+                  summary: Active appointment exists
+                  value:
+                    code: ACTIVE_APPOINTMENT_EXISTS
+                    message: You can have at most 1 active appointment at a time.
+
+  /appointments/{appointmentId}:
+    get:
+      operationId: getAppointment
+      tags: [Appointments]
+      summary: Get appointment details
+      parameters:
+        - $ref: '#/components/parameters/AppointmentId'
+      responses:
+        '200':
+          description: Appointment
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Appointment'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    patch:
+      operationId: markAppointmentOutcome
+      tags: [Appointments]
+      summary: Advisor marks the outcome (COMPLETED / NO_SHOW)
+      description: Only `CONFIRMED` appointments, and only after the start time.
+      parameters:
+        - $ref: '#/components/parameters/AppointmentId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status]
+              properties:
+                status:
+                  type: string
+                  enum: [COMPLETED, NO_SHOW]
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Appointment'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: The appointment is not confirmed, or already has an outcome
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: APPOINTMENT_STATE_CONFLICT
+                message: Only confirmed appointments can be completed or marked as no-show.
+
+  /appointments/{appointmentId}/confirm:
+    post:
+      operationId: confirmAppointment
+      tags: [Appointments]
+      summary: Confirm an appointment request (advisor)
+      description: |
+        Sets the appointment to `CONFIRMED` and e-mails the student a
+        confirmation with an .ics attachment. For an online appointment the
+        link is decided like this:
+        - If the advisor's Google Calendar is connected, a Google Meet link is
+          created automatically (`meetingLinkSource=google_meet`); `meetingLink`
+          need not be sent.
+        - Otherwise `meetingLink` is required (Zoom/Meet/Teams, `manual`).
+        For an in-person appointment `meetingLink` is ignored.
+      parameters:
+        - $ref: '#/components/parameters/AppointmentId'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                meetingLink:
+                  type: string
+                  format: uri
+      responses:
+        '200':
+          description: Appointment confirmed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Appointment'
+        '400':
+          description: Online appointment, Google not connected, and no valid `meetingLink`
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: MEETING_LINK_REQUIRED
+                message: Google Calendar is not connected; you must enter a meeting link.
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: The request is no longer pending (cancelled, rejected or confirmed)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: APPOINTMENT_STATE_CONFLICT
+                message: This request is no longer pending.
+
+  /appointments/{appointmentId}/reject:
+    post:
+      operationId: rejectAppointment
+      tags: [Appointments]
+      summary: Reject an appointment request (advisor)
+      description: The slot becomes free again and the student regains the active-appointment allowance.
+      parameters:
+        - $ref: '#/components/parameters/AppointmentId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReasonInput'
+      responses:
+        '200':
+          description: Rejected
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Appointment'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: The request is no longer pending
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: APPOINTMENT_STATE_CONFLICT
+                message: This request is no longer pending.
+
+  /appointments/{appointmentId}/cancel:
+    post:
+      operationId: cancelAppointment
+      tags: [Appointments]
+      summary: Cancel an appointment with a reason (student or advisor)
+      description: |
+        Both the student and the advisor can cancel a `REQUESTED` or
+        `CONFIRMED` appointment; a reason is required. The other party gets a
+        cancellation e-mail with the reason, the slot becomes free again, and
+        for a confirmed appointment the Google Calendar event is deleted.
+        **An appointment cannot be cancelled within 30 minutes of its start
+        time** (409 `CANCELLATION_WINDOW_CLOSED`).
+      parameters:
+        - $ref: '#/components/parameters/AppointmentId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReasonInput'
+      responses:
+        '200':
+          description: Cancelled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Appointment'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: |
+            The appointment starts in 30 minutes or less, or it is already
+            cancelled, rejected or completed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                windowClosed:
+                  summary: Within 30 minutes of the start
+                  value:
+                    code: CANCELLATION_WINDOW_CLOSED
+                    message: An appointment cannot be cancelled within 30 minutes of its start time.
+                alreadyFinal:
+                  summary: Already in a final state
+                  value:
+                    code: APPOINTMENT_STATE_CONFLICT
+                    message: This appointment is already cancelled, rejected or completed.
+
+  /appointments/{appointmentId}/calendar.ics:
+    get:
+      operationId: downloadAppointmentCalendar
+      tags: [Appointments]
+      summary: '"Add to calendar" file (.ics)'
+      description: Only generated for `CONFIRMED` appointments.
+      parameters:
+        - $ref: '#/components/parameters/AppointmentId'
+      responses:
+        '200':
+          description: iCalendar file
+          content:
+            text/calendar:
+              schema:
+                type: string
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: The appointment is not confirmed yet
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: APPOINTMENT_NOT_CONFIRMED
+                message: A calendar file is only available for confirmed appointments.
+
+  /advisor-change-requests:
+    get:
+      operationId: listAdvisorChangeRequests
+      tags: [ChangeRequests]
+      summary: My requests (student) / all requests (administrator)
+      parameters:
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/ChangeRequestStatus'
+      responses:
+        '200':
+          description: Request list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AdvisorChangeRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    post:
+      operationId: createAdvisorChangeRequest
+      tags: [ChangeRequests]
+      summary: Send an advisor change request
+      description: |
+        Only 1 pending request is allowed at a time. A student who moved up a
+        grade can use reason `grade_change`; this is optional and never
+        changes the assignment by itself.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdvisorChangeRequestInput'
+      responses:
+        '201':
+          description: Request created (`PENDING`)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdvisorChangeRequest'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          description: There is already a pending request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: PENDING_REQUEST_EXISTS
+                message: You already have a pending advisor change request.
+
+  /admin/advisor-change-requests/{requestId}/decision:
+    post:
+      operationId: decideAdvisorChangeRequest
+      tags: [Admin]
+      summary: Approve or reject a change request
+      description: |
+        If approved, matching is run again excluding the old advisor.
+        - A suitable new advisor is found: the student is assigned to them
+          (`outcome=reassigned`), future appointments with the old advisor are
+          cancelled, the old advisor is e-mailed, and the old advisor's CV
+          access ends.
+        - No other suitable advisor: the student stays with the current
+          advisor (`outcome=kept_current_advisor`), appointments are left
+          alone, and the student is informed by e-mail.
+        If rejected, `decisionNote` is required.
+      parameters:
+        - name: requestId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChangeRequestDecision'
+      responses:
+        '200':
+          description: Decision recorded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdvisorChangeRequest'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: The request has already been decided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: REQUEST_ALREADY_DECIDED
+                message: This request has already been decided.
+
+  /admin/students/waiting:
+    get:
+      operationId: listWaitingStudents
+      tags: [Admin]
+      summary: List students waiting for a match
+      responses:
+        '200':
+          description: Waiting students
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StudentProfile'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /admin/matching-runs:
+    get:
+      operationId: listMatchingRuns
+      tags: [Admin]
+      summary: Assignment run history
+      description: Scheduled (Sunday 22:00) and manual runs, newest first.
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        '200':
+          description: Runs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MatchingRun'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    post:
+      operationId: runMatchingNow
+      tags: [Admin]
+      summary: Run the assignment now
+      description: |
+        Starts the same batch as the weekly run for all waiting students. It
+        runs asynchronously; poll the returned run or the history.
+      responses:
+        '202':
+          description: The run was started
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MatchingRun'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          description: A run is already in progress
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: MATCHING_RUN_IN_PROGRESS
+                message: An assignment run is already in progress.
+
+  /admin/keywords:
+    post:
+      operationId: createKeyword
+      tags: [Admin]
+      summary: Add a keyword (interest area)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name:
+                  type: string
+                  minLength: 2
+                  maxLength: 50
+      responses:
+        '201':
+          description: Added
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Keyword'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          description: The keyword already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: KEYWORD_ALREADY_EXISTS
+                message: This keyword already exists.
+
+  /admin/keywords/{keywordId}:
+    patch:
+      operationId: updateKeyword
+      tags: [Admin]
+      summary: Rename or deactivate/reactivate a keyword
+      description: |
+        A deactivated keyword is hidden from selection lists but stays on
+        existing profiles, so earlier assignments keep their history.
+      parameters:
+        - name: keywordId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              minProperties: 1
+              properties:
+                name:
+                  type: string
+                  minLength: 2
+                  maxLength: 50
+                active:
+                  type: boolean
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Keyword'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Another keyword already has this name
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: KEYWORD_ALREADY_EXISTS
+                message: This keyword already exists.
+
+  /admin/advisors:
+    get:
+      operationId: listAdvisors
+      tags: [Admin]
+      summary: List advisor accounts
+      responses:
+        '200':
+          description: Advisors
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Advisor'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    post:
+      operationId: createAdvisorAccount
+      tags: [Admin]
+      summary: Create an advisor account (administrator only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdvisorAccountInput'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Advisor'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          description: The e-mail is already registered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: EMAIL_ALREADY_REGISTERED
+                message: An account with this e-mail already exists.
+
+  /admin/advisors/{advisorId}/capacity:
+    patch:
+      operationId: updateAdvisorCapacity
+      tags: [Admin]
+      summary: Change an advisor's capacity
+      parameters:
+        - $ref: '#/components/parameters/AdvisorId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [capacity]
+              properties:
+                capacity:
+                  type: integer
+                  minimum: 1
+                  maximum: 500
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Advisor'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: The new capacity is below the advisor's current student count
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: CAPACITY_BELOW_STUDENT_COUNT
+                message: Capacity cannot be lower than the advisor's current student count.
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    AdvisorId:
+      name: advisorId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    AppointmentId:
+      name: appointmentId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+
+  responses:
+    BadRequest:
+      description: Invalid request (validation error)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: VALIDATION_ERROR
+            message: The request could not be validated.
+            details:
+              - field: gpa
+                message: GPA must be between 0.00 and 4.00.
+    Unauthorized:
+      description: Authentication is required or the token is invalid
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: UNAUTHORIZED
+            message: Authentication is required.
+    Forbidden:
+      description: You are not allowed to access this resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: FORBIDDEN
+            message: You are not allowed to access this resource.
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: NOT_FOUND
+            message: Resource not found.
+
+  schemas:
+    Error:
+      type: object
+      required: [code, message]
+      properties:
+        code:
+          type: string
+          example: SLOT_ALREADY_BOOKED
+        message:
+          type: string
+        details:
+          type: array
+          items:
+            type: object
+            properties:
+              field:
+                type: string
+              message:
+                type: string
+
+    ReasonInput:
+      type: object
+      required: [reason]
+      properties:
+        reason:
+          type: string
+          minLength: 5
+          maxLength: 500
+          description: Reason for the cancellation or rejection.
+
+    RegisterRequest:
+      type: object
+      required: [email, password, fullName]
+      properties:
+        email:
+          type: string
+          format: email
+          pattern: '^s[0-9]{9}@ankarabilim\.edu\.tr$'
+          example: s230205030@ankarabilim.edu.tr
+          description: |
+            Student number format: `s` + 9 digits + `@ankarabilim.edu.tr`.
+            Lower-cased and normalized on registration.
+        password:
+          type: string
+          format: password
+          minLength: 8
+          maxLength: 128
+        fullName:
+          type: string
+          minLength: 2
+          maxLength: 100
+
+    RegisterResponse:
+      type: object
+      required: [email, verificationRequired]
+      properties:
+        email:
+          type: string
+          format: email
+        verificationRequired:
+          type: boolean
+          example: true
+
+    VerifyEmailRequest:
+      type: object
+      required: [token]
+      properties:
+        token:
+          type: string
+          description: One-time token from the verification e-mail.
+
+    VerifyEmailResponse:
+      type: object
+      required: [verified]
+      properties:
+        verified:
+          type: boolean
+          example: true
+
+    ResendVerificationRequest:
+      type: object
+      required: [email]
+      properties:
+        email:
+          type: string
+          format: email
+
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+
+    LoginResponse:
+      type: object
+      required: [token, user]
+      properties:
+        token:
+          type: string
+        user:
+          $ref: '#/components/schemas/User'
+
+    Role:
+      type: string
+      enum: [student, advisor, admin]
+
+    User:
+      type: object
+      required: [id, email, fullName, role]
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        fullName:
+          type: string
+        role:
+          $ref: '#/components/schemas/Role'
+
+    Department:
+      type: object
+      required: [id, name]
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          example: Computer Engineering
+
+    Keyword:
+      type: object
+      required: [id, name, active]
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          example: Internship
+        active:
+          type: boolean
+          description: Deactivated keywords cannot be newly selected.
+
+    MatchStatus:
+      type: string
+      enum: [matched, waiting]
+
+    StudentProfileInput:
+      type: object
+      required: [grade, departmentId, gpa, keywordIds]
+      properties:
+        grade:
+          type: integer
+          minimum: 1
+          maximum: 4
+        departmentId:
+          type: string
+          format: uuid
+        gpa:
+          type: number
+          format: float
+          minimum: 0.00
+          maximum: 4.00
+          example: 3.25
+        keywordIds:
+          type: array
+          description: |
+            Interest areas from the predefined list (no free text), unordered.
+            At least 1; the maximum is configurable and currently 5.
+          minItems: 1
+          maxItems: 5
+          uniqueItems: true
+          items:
+            type: string
+            format: uuid
+
+    StudentProfile:
+      type: object
+      required: [studentId, fullName, grade, department, keywords, matchStatus, hasCv]
+      properties:
+        studentId:
+          type: string
+          format: uuid
+        fullName:
+          type: string
+        grade:
+          type: integer
+          minimum: 1
+          maximum: 4
+        department:
+          $ref: '#/components/schemas/Department'
+        gpa:
+          type: number
+          format: float
+          minimum: 0.00
+          maximum: 4.00
+          description: Returned only to the student and their advisor; absent for other roles.
+        keywords:
+          type: array
+          items:
+            $ref: '#/components/schemas/Keyword'
+        matchStatus:
+          $ref: '#/components/schemas/MatchStatus'
+        advisorId:
+          type: [string, 'null']
+          format: uuid
+          description: "Null when `matchStatus=waiting`."
+        nextAssignmentAt:
+          type: [string, 'null']
+          format: date-time
+          description: Time of the next weekly assignment run; null when already matched.
+        hasCv:
+          type: boolean
+
+    CvInfo:
+      type: object
+      required: [fileName, sizeBytes, uploadedAt]
+      properties:
+        fileName:
+          type: string
+          example: jane-doe-cv.pdf
+        sizeBytes:
+          type: integer
+          maximum: 2097152
+        uploadedAt:
+          type: string
+          format: date-time
+
+    AdvisorProfileInput:
+      type: object
+      required: [keywordIds, servedGrades]
+      properties:
+        keywordIds:
+          type: array
+          description: At least 1; the maximum is configurable and currently 5.
+          minItems: 1
+          maxItems: 5
+          uniqueItems: true
+          items:
+            type: string
+            format: uuid
+        servedGrades:
+          type: array
+          description: The grades (1-4) this advisor chooses to serve.
+          minItems: 1
+          uniqueItems: true
+          items:
+            type: integer
+            minimum: 1
+            maximum: 4
+        bio:
+          type: string
+          maxLength: 1000
+          description: Short self-introduction shown to students.
+        offersOnline:
+          type: boolean
+          description: Whether this advisor offers online meetings.
+
+    AdvisorAccountInput:
+      type: object
+      required: [email, fullName, departmentId]
+      properties:
+        email:
+          type: string
+          format: email
+          pattern: '^[a-z]+(\.[a-z]+)+@ankarabilim\.edu\.tr$'
+          example: name.surname@ankarabilim.edu.tr
+          description: |
+            `name.surname` or `n.surname` on `@ankarabilim.edu.tr`
+            (sub-domains are not accepted).
+        fullName:
+          type: string
+        departmentId:
+          type: string
+          format: uuid
+        capacity:
+          type: integer
+          minimum: 1
+          default: 20
+
+    Advisor:
+      type: object
+      required: [id, fullName, department, keywords, servedGrades, capacity, studentCount, offersOnline]
+      properties:
+        id:
+          type: string
+          format: uuid
+        fullName:
+          type: string
+        email:
+          type: string
+          format: email
+        department:
+          $ref: '#/components/schemas/Department'
+        keywords:
+          type: array
+          items:
+            $ref: '#/components/schemas/Keyword'
+        servedGrades:
+          type: array
+          items:
+            type: integer
+            minimum: 1
+            maximum: 4
+        bio:
+          type: [string, 'null']
+          maxLength: 1000
+          description: Short self-introduction.
+        offersOnline:
+          type: boolean
+        capacity:
+          type: integer
+          minimum: 1
+          default: 20
+          description: Set by the administrator.
+        studentCount:
+          type: integer
+          minimum: 0
+        googleCalendarConnected:
+          type: boolean
+
+    MatchReasons:
+      type: object
+      description: Why the student was matched with this advisor.
+      required: [round, score, commonKeywords, sameDepartment, servesStudentGrade]
+      properties:
+        round:
+          type: integer
+          minimum: 1
+          maximum: 3
+          description: The assignment round (1-3) in which the match happened.
+        score:
+          type: integer
+          minimum: 0
+          description: 2 x common keywords + same department + serves grade.
+        commonKeywords:
+          type: array
+          items:
+            $ref: '#/components/schemas/Keyword'
+        sameDepartment:
+          type: boolean
+        servesStudentGrade:
+          type: boolean
+
+    AdvisorAssignment:
+      type: object
+      required: [advisor, assignedAt, matchReasons]
+      properties:
+        advisor:
+          $ref: '#/components/schemas/Advisor'
+        assignedAt:
+          type: string
+          format: date-time
+        matchReasons:
+          $ref: '#/components/schemas/MatchReasons'
+
+    MatchingRun:
+      type: object
+      required: [id, trigger, status, startedAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+        trigger:
+          type: string
+          enum: [scheduled, manual]
+        triggeredBy:
+          type: [string, 'null']
+          format: uuid
+          description: Administrator who started a manual run; null for scheduled runs.
+        status:
+          type: string
+          enum: [RUNNING, COMPLETED, FAILED]
+        startedAt:
+          type: string
+          format: date-time
+        finishedAt:
+          type: [string, 'null']
+          format: date-time
+        processedCount:
+          type: integer
+          minimum: 0
+        assignedCount:
+          type: integer
+          minimum: 0
+        waitingCount:
+          type: integer
+          minimum: 0
+          description: Students left waiting because no advisor had free capacity.
+
+    GoogleCalendarStatus:
+      type: object
+      required: [connected]
+      properties:
+        connected:
+          type: boolean
+        googleEmail:
+          type: [string, 'null']
+          format: email
+        connectedAt:
+          type: [string, 'null']
+          format: date-time
+
+    OfficeHourInput:
+      type: object
+      required: [startsAt, endsAt]
+      properties:
+        startsAt:
+          type: string
+          format: date-time
+        endsAt:
+          type: string
+          format: date-time
+          description: |
+            Must be after `startsAt`; the duration must be a multiple of 30
+            minutes (e.g. 10:00-12:00 gives 4 slots).
+        location:
+          type: string
+          example: Block B, Room 214
+          description: Where in-person meetings take place.
+
+    OfficeHourSlot:
+      type: object
+      required: [id, advisorId, startsAt, endsAt, isAvailable]
+      properties:
+        id:
+          type: string
+          format: uuid
+        advisorId:
+          type: string
+          format: uuid
+        startsAt:
+          type: string
+          format: date-time
+        endsAt:
+          type: string
+          format: date-time
+          description: Always `startsAt` + 30 minutes.
+        location:
+          type: string
+        isAvailable:
+          type: boolean
+          description: "True when there is no `REQUESTED` or `CONFIRMED` appointment."
+
+    MeetingType:
+      type: string
+      enum: [online, in_person]
+
+    AppointmentStatus:
+      type: string
+      description: |
+        REQUESTED -> CONFIRMED / REJECTED -> COMPLETED / NO_SHOW.
+        CANCELLED is set when a student or advisor cancels with a reason.
+      enum: [REQUESTED, CONFIRMED, REJECTED, CANCELLED, COMPLETED, NO_SHOW]
+
+    AppointmentCreate:
+      type: object
+      required: [slotId, meetingType]
+      properties:
+        slotId:
+          type: string
+          format: uuid
+        meetingType:
+          $ref: '#/components/schemas/MeetingType'
+        note:
+          type: string
+          maxLength: 500
+
+    Appointment:
+      type: object
+      required: [id, slotId, studentId, advisorId, startsAt, endsAt, meetingType, status]
+      properties:
+        id:
+          type: string
+          format: uuid
+        slotId:
+          type: string
+          format: uuid
+        studentId:
+          type: string
+          format: uuid
+        advisorId:
+          type: string
+          format: uuid
+        startsAt:
+          type: string
+          format: date-time
+        endsAt:
+          type: string
+          format: date-time
+        meetingType:
+          $ref: '#/components/schemas/MeetingType'
+        status:
+          $ref: '#/components/schemas/AppointmentStatus'
+        location:
+          type: [string, 'null']
+          description: Office location for in-person appointments.
+        meetingLink:
+          type: [string, 'null']
+          format: uri
+          description: Set only for confirmed online appointments.
+        meetingLinkSource:
+          type: [string, 'null']
+          enum: [google_meet, manual, null]
+        note:
+          type: string
+        cancelledBy:
+          type: [string, 'null']
+          enum: [student, advisor, null]
+        cancellationReason:
+          type: [string, 'null']
+        rejectionReason:
+          type: [string, 'null']
+        calendarUrl:
+          type: [string, 'null']
+          description: '"Add to calendar" (.ics) link; set only while `CONFIRMED`.'
+          example: /appointments/3f2a.../calendar.ics
+
+    ChangeReason:
+      type: string
+      description: |
+        `grade_change` is for a student who moved up a grade; it is optional
+        and never changes the assignment automatically.
+      enum: [time_conflict, field_mismatch, communication_issue, grade_change, other]
+
+    ChangeRequestStatus:
+      type: string
+      description: PENDING -> APPROVED / REJECTED
+      enum: [PENDING, APPROVED, REJECTED]
+
+    AdvisorChangeRequestInput:
+      type: object
+      required: [reason, explanation]
+      properties:
+        reason:
+          $ref: '#/components/schemas/ChangeReason'
+        explanation:
+          type: string
+          minLength: 20
+          maxLength: 1000
+
+    AdvisorChangeRequest:
+      type: object
+      required: [id, studentId, currentAdvisorId, reason, status, createdAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+        studentId:
+          type: string
+          format: uuid
+        currentAdvisorId:
+          type: string
+          format: uuid
+        newAdvisorId:
+          type: [string, 'null']
+          format: uuid
+          description: "The new advisor when `outcome=reassigned`; otherwise null."
+        reason:
+          $ref: '#/components/schemas/ChangeReason'
+        explanation:
+          type: string
+          description: Personal data; returned only to the student and administrators.
+        status:
+          $ref: '#/components/schemas/ChangeRequestStatus'
+        outcome:
+          type: [string, 'null']
+          enum: [reassigned, kept_current_advisor, null]
+          description: Set only on `APPROVED` requests.
+        decisionNote:
+          type: [string, 'null']
+          description: Administrator's reason (required when rejecting).
+        createdAt:
+          type: string
+          format: date-time
+        decidedAt:
+          type: [string, 'null']
+          format: date-time
+
+    ChangeRequestDecision:
+      type: object
+      required: [decision]
+      properties:
+        decision:
+          type: string
+          enum: [APPROVED, REJECTED]
+        decisionNote:
+          type: string
+          minLength: 5
+          maxLength: 500
+          description: "Required when `REJECTED`."

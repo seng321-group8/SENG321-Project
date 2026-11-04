@@ -40,4 +40,4 @@ This policy describes how the team uses Git and GitHub in Sprint 1.
 
 ## Enforcement
 
-Branch protection is configured with GitHub rulesets for `main` and `develop`. Because the repository is private on a free organization plan, GitHub does not enforce rulesets automatically. The team therefore applies these rules by discipline and checks the commit history regularly for direct pushes.
+The repository is public and the `Protect main and develop` ruleset is active: direct pushes are blocked and every pull request needs at least one approval. Branch deletion and force pushes are also blocked, and the bypass list is empty.

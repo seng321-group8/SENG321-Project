@@ -4,7 +4,7 @@
 - **Related Issue:** #62
 
 ## 1. Student User Flow
-Covers website entry, authentication (`s+9` student email), profile setup (grade, department, interests), weekly Sunday 22:00 matching result with match explanation, appointment request, 30-minute cancellation rule, and advisor change request.
+Covers website entry, authentication (`s+9` student email), profile setup (year, department, GPA, interests; CV optional), weekly Sunday 22:00 matching result with match explanation, appointment request, 30-minute cancellation rule, and advisor change request.
 
 ![Student User Flow](./student-flow.png)
 

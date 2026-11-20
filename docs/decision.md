@@ -245,3 +245,10 @@ Sources: team meeting of October 27, 2026 (D-01 to D-13) and the project brief o
 - Owner: Fatima
 - Decision: Backend: Python, Django REST Framework and PostgreSQL. Frontend: React (JavaScript, HTML, CSS), responsive web. External services: an e-mail service and the Google Calendar API.
 - Rationale: Built-in authentication and administration features, free tools, one-command Docker deployment.
+
+## D-28 Advisor seed data
+- Status: Proposed
+- Date: November 17, 2026
+- Source: Guidance from the course instructor (in person)
+- Decision: The team prepares the advisor data itself for 24 advisors. Interest keywords are taken from public faculty web pages and Google Scholar. Office hours, grades served and the online preference are generated randomly. The data is seed data for development and demonstration; it is not a response from the advisors.
+- Rationale: The advisors do not have time to fill in a form one by one. This gives realistic data without asking each advisor for time.

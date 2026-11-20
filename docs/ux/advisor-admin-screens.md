@@ -16,6 +16,12 @@ The screens follow the advisor and administrator flows in [user-flows.md](user-f
 ### 1. Advisor Login, Profile, and Office Hours
 Advisors sign in with their administrator-created account and manage their profile including `bio`, `interests`, `years served`, and `online preference` (per-advisor preference)[cite: 11]. Advisors add recurring 30-minute office hour slots, delete free slots, optionally connect Google Calendar for automatic Google Meet links (or enter a meeting link manually), and view incoming appointment requests[cite: 11].
 
+### Desktop (1440x1024)
+![Advisor Profile & Office Hours Desktop](./advisor-profile-office-hours-desktop.png)
+
+### Mobile (393x852)
+![Advisor Profile & Office Hours Mobile](./advisor-profile-office-hours-mobile.png)
+
 ### 2. Appointment Requests, Schedule, and Post-Meeting Outcomes
 Advisors review appointment requests (`REQUESTED`) and either confirm (`CONFIRMED`, triggering `.ics` delivery and automatic Google Meet link when Google Calendar is connected, or manual link entry) or reject (`REJECTED`) them[cite: 11]. Advisors can cancel an appointment with a reason more than 30 minutes before the start time (`> 30 minutes` lock applies to both students and advisors; cancellations within 30 minutes are blocked)[cite: 11]. After a session takes place, the advisor marks the post-meeting outcome as `COMPLETED` or `NO_SHOW` (rather than treating `CONFIRMED` as a final outcome) and views assigned advisees and their GPA[cite: 11].
 

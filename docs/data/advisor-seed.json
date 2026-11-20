@@ -1,0 +1,903 @@
+{
+  "_note": "Seed data for development and demonstration (D-28). Not a response from the advisors; some fields are simulated. Advisor names and e-mails are not stored here.",
+  "max_interests_per_user": 5,
+  "departments": [
+    "Software Engineering",
+    "Computer Engineering",
+    "Electrical-Electronics Engineering",
+    "Industrial Engineering",
+    "Information Systems Engineering"
+  ],
+  "interests": [
+    {
+      "name": "Artificial Intelligence",
+      "group": "technical"
+    },
+    {
+      "name": "Machine Learning",
+      "group": "technical"
+    },
+    {
+      "name": "Data Science and Analytics",
+      "group": "technical"
+    },
+    {
+      "name": "Software Engineering",
+      "group": "technical"
+    },
+    {
+      "name": "Software Development and Programming",
+      "group": "technical"
+    },
+    {
+      "name": "Web Development",
+      "group": "technical"
+    },
+    {
+      "name": "Mobile App Development",
+      "group": "technical"
+    },
+    {
+      "name": "Algorithms and Theory of Computation",
+      "group": "technical"
+    },
+    {
+      "name": "Cybersecurity",
+      "group": "technical"
+    },
+    {
+      "name": "Computer Networks",
+      "group": "technical"
+    },
+    {
+      "name": "Telecommunications",
+      "group": "technical"
+    },
+    {
+      "name": "Optics and Photonics",
+      "group": "technical"
+    },
+    {
+      "name": "Image Processing and Computer Vision",
+      "group": "technical"
+    },
+    {
+      "name": "Signal and Audio Processing",
+      "group": "technical"
+    },
+    {
+      "name": "Embedded Systems and IoT",
+      "group": "technical"
+    },
+    {
+      "name": "Robotics and Control",
+      "group": "technical"
+    },
+    {
+      "name": "Electronics and Circuits",
+      "group": "technical"
+    },
+    {
+      "name": "Nanotechnology and MEMS",
+      "group": "technical"
+    },
+    {
+      "name": "Biomedical Engineering",
+      "group": "technical"
+    },
+    {
+      "name": "Sensor Systems",
+      "group": "technical"
+    },
+    {
+      "name": "Renewable Energy and Solar Cells",
+      "group": "technical"
+    },
+    {
+      "name": "Modeling and Simulation",
+      "group": "technical"
+    },
+    {
+      "name": "Operations Research and Optimization",
+      "group": "technical"
+    },
+    {
+      "name": "Decision Making and Fuzzy Logic",
+      "group": "technical"
+    },
+    {
+      "name": "Supply Chain and Logistics",
+      "group": "technical"
+    },
+    {
+      "name": "Production Systems and Lean Manufacturing",
+      "group": "technical"
+    },
+    {
+      "name": "Quality Management and Six Sigma",
+      "group": "technical"
+    },
+    {
+      "name": "Project Management",
+      "group": "technical"
+    },
+    {
+      "name": "Business Analysis and Requirements Engineering",
+      "group": "technical"
+    },
+    {
+      "name": "Human-Computer Interaction",
+      "group": "technical"
+    },
+    {
+      "name": "Educational Technology and E-Learning",
+      "group": "technical"
+    },
+    {
+      "name": "Mathematics",
+      "group": "technical"
+    },
+    {
+      "name": "Statistics and Probability",
+      "group": "technical"
+    },
+    {
+      "name": "Physics",
+      "group": "technical"
+    },
+    {
+      "name": "Ergonomics and Human Factors",
+      "group": "technical"
+    },
+    {
+      "name": "Cognitive Science",
+      "group": "technical"
+    },
+    {
+      "name": "Startups and Entrepreneurship",
+      "group": "sector"
+    },
+    {
+      "name": "Defense Industry",
+      "group": "sector"
+    },
+    {
+      "name": "Telecommunications Industry",
+      "group": "sector"
+    },
+    {
+      "name": "Healthcare and Medical Technologies",
+      "group": "sector"
+    },
+    {
+      "name": "Banking and Finance (FinTech)",
+      "group": "sector"
+    },
+    {
+      "name": "Automotive Industry",
+      "group": "sector"
+    },
+    {
+      "name": "Manufacturing Industry",
+      "group": "sector"
+    },
+    {
+      "name": "Software Industry",
+      "group": "sector"
+    }
+  ],
+  "advisors": [
+    {
+      "code": "ADV-01",
+      "department": "Software Engineering",
+      "years_served": [
+        2,
+        3,
+        4
+      ],
+      "interests": [
+        "Artificial Intelligence",
+        "Machine Learning",
+        "Modeling and Simulation",
+        "Data Science and Analytics",
+        "Defense Industry"
+      ],
+      "introduction": "I received my BSc in Computer Engineering from METU and my MSc and PhD from the University of Manchester. I worked for many years at TÜBİTAK BİLGEM as head of software and institute director, and as an advisor on electronic warfare and radar projects in the defense industry. I work on modeling and simulation, large language models, machine learning and reinforcement learning.",
+      "offers_online": false,
+      "quota": 20,
+      "office_hours": [
+        {
+          "day": "TUE",
+          "start": "14:00",
+          "end": "16:00"
+        },
+        {
+          "day": "THU",
+          "start": "10:00",
+          "end": "11:00"
+        }
+      ]
+    },
+    {
+      "code": "ADV-02",
+      "department": "Computer Engineering",
+      "years_served": [
+        3,
+        4
+      ],
+      "interests": [
+        "Artificial Intelligence",
+        "Machine Learning",
+        "Data Science and Analytics",
+        "Web Development",
+        "Defense Industry"
+      ],
+      "introduction": "I hold a PhD in Computer Engineering from METU and worked for many years on software and simulation projects for defense organizations and NATO. My research covers artificial intelligence, machine learning, data mining and web technologies. I can help with academic careers, graduate applications and choosing a sector.",
+      "offers_online": false,
+      "quota": 20,
+      "office_hours": [
+        {
+          "day": "MON",
+          "start": "10:00",
+          "end": "12:00"
+        },
+        {
+          "day": "WED",
+          "start": "14:00",
+          "end": "15:00"
+        }
+      ]
+    },
+    {
+      "code": "ADV-03",
+      "department": "Industrial Engineering",
+      "years_served": [
+        3,
+        4
+      ],
+      "interests": [
+        "Decision Making and Fuzzy Logic",
+        "Operations Research and Optimization",
+        "Artificial Intelligence",
+        "Supply Chain and Logistics",
+        "Automotive Industry"
+      ],
+      "introduction": "I received my PhD from Atılım University and work on multi-criteria decision making, fuzzy logic, AI-based autonomous vehicles, and logistics and supply chain optimization. I can guide students on academic development, graduate applications, projects and choosing a sector.",
+      "offers_online": false,
+      "quota": 20,
+      "office_hours": [
+        {
+          "day": "TUE",
+          "start": "10:00",
+          "end": "12:00"
+        },
+        {
+          "day": "THU",
+          "start": "13:00",
+          "end": "14:00"
+        }
+      ]
+    },
+    {
+      "code": "ADV-04",
+      "department": "Electrical-Electronics Engineering",
+      "years_served": [
+        2,
+        3,
+        4
+      ],
+      "interests": [
+        "Biomedical Engineering",
+        "Image Processing and Computer Vision",
+        "Machine Learning",
+        "Signal and Audio Processing",
+        "Healthcare and Medical Technologies"
+      ],
+      "introduction": "I received my PhD in Electrical-Electronics Engineering from Çukurova University and have worked as a biomedical engineer in an international hospital and in the electronics industry. I work on biomedical signal and image processing, machine learning, control and embedded systems. I can help with careers in the medical and electronics sectors, internships, graduation projects and graduate applications.",
+      "offers_online": true,
+      "quota": 20,
+      "office_hours": [
+        {
+          "day": "MON",
+          "start": "14:00",
+          "end": "16:00"
+        },
+        {
+          "day": "FRI",
+          "start": "10:00",
+          "end": "11:00"
+        }
+      ]
+    },
+    {
+      "code": "ADV-05",
+      "department": "Information Systems Engineering",
+      "years_served": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "interests": [
+        "Nanotechnology and MEMS",
+        "Biomedical Engineering",
+        "Sensor Systems",
+        "Healthcare and Medical Technologies"
+      ],
+      "introduction": "I received my PhD in Materials Science and Nanotechnology from Bilkent University and work on biosensors, nanotechnology, biomaterials and health and environmental technologies. As the faculty's internship and Erasmus coordinator, I can help with finding internships, exchange programs, TÜBİTAK projects and graduate applications.",
+      "offers_online": false,
+      "quota": 20,
+      "office_hours": [
+        {
+          "day": "WED",
+          "start": "10:00",
+          "end": "12:00"
+        },
+        {
+          "day": "THU",
+          "start": "14:00",
+          "end": "15:00"
+        }
+      ]
+    },
+    {
+      "code": "ADV-06",
+      "department": "Software Engineering",
+      "years_served": [
+        3,
+        4
+      ],
+      "interests": [
+        "Image Processing and Computer Vision",
+        "Signal and Audio Processing",
+        "Cybersecurity",
+        "Software Engineering",
+        "Defense Industry"
+      ],
+      "introduction": "I completed my PhD at the New Jersey Institute of Technology and work on image and audio processing and information systems. I was a manager at TÜBİTAK Marmara Research Center and HAVELSAN and led many R&D projects in defense and telecommunications. I can support students on academic careers, graduate applications, TÜBİTAK projects and moving into industry.",
+      "offers_online": true,
+      "quota": 20,
+      "office_hours": [
+        {
+          "day": "TUE",
+          "start": "10:00",
+          "end": "11:00"
+        },
+        {
+          "day": "WED",
+          "start": "15:00",
+          "end": "16:00"
+        }
+      ]
+    },
+    {
+      "code": "ADV-07",
+      "department": "Software Engineering",
+      "years_served": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "interests": [
+        "Mathematics",
+        "Statistics and Probability",
+        "Robotics and Control"
+      ],
+      "introduction": "I completed my MSc in topology and my PhD in mathematics at Ege University and was a visiting researcher at Universidade do Minho in Portugal. I work on algebraic topology and motion planning in robotics and teach calculus, linear algebra and differential equations. I can help with academic careers, MSc and PhD applications, research abroad and scholarship or TÜBİTAK applications.",
+      "offers_online": true,
+      "quota": 20,
+      "office_hours": [
+        {
+          "day": "MON",
+          "start": "10:00",
+          "end": "12:00"
+        },
+        {
+          "day": "THU",
+          "start": "13:00",
+          "end": "14:00"
+        }
+      ]
+    },
+    {
+      "code": "ADV-08",
+      "department": "Industrial Engineering",
+      "years_served": [
+        3,
+        4
+      ],
+      "interests": [
+        "Operations Research and Optimization",
+        "Supply Chain and Logistics",
+        "Production Systems and Lean Manufacturing",
+        "Decision Making and Fuzzy Logic"
+      ],
+      "introduction": "I hold a PhD in Industrial Engineering and teach operations research, optimization, inventory and supply chain management. I work on multi-criteria decision making and have supervised MSc theses in logistics.",
+      "offers_online": true,
+      "quota": 15,
+      "office_hours": [
+        {
+          "day": "TUE",
+          "start": "13:00",
+          "end": "15:00"
+        },
+        {
+          "day": "FRI",
+          "start": "10:00",
+          "end": "11:00"
+        }
+      ]
+    },
+    {
+      "code": "ADV-09",
+      "department": "Electrical-Electronics Engineering",
+      "years_served": [
+        1,
+        2,
+        3
+      ],
+      "interests": [
+        "Optics and Photonics",
+        "Sensor Systems",
+        "Telecommunications"
+      ],
+      "introduction": "I am a professor of Electrical-Electronics Engineering working on fiber-optic communication, optical amplifiers and optical sensor systems. I supervise graduate theses and can guide students interested in photonics and graduate study.",
+      "offers_online": true,
+      "quota": 20,
+      "office_hours": [
+        {
+          "day": "WED",
+          "start": "13:00",
+          "end": "15:00"
+        },
+        {
+          "day": "THU",
+          "start": "10:00",
+          "end": "11:00"
+        }
+      ]
+    },
+    {
+      "code": "ADV-10",
+      "department": "Industrial Engineering",
+      "years_served": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "interests": [
+        "Data Science and Analytics",
+        "Machine Learning",
+        "Statistics and Probability",
+        "Modeling and Simulation",
+        "Quality Management and Six Sigma"
+      ],
+      "introduction": "I completed my PhD in Modeling and Design of Engineering Systems at Atılım University and work on data analytics, time-series forecasting, quality engineering and simulation. I publish on sustainable supply chains and machine-learning-based forecasting and was a visiting researcher at the University of Surrey in 2025–2026. I can help with graduation projects, graduate applications, research abroad and academic careers.",
+      "offers_online": true,
+      "quota": 20,
+      "office_hours": [
+        {
+          "day": "MON",
+          "start": "13:00",
+          "end": "15:00"
+        },
+        {
+          "day": "WED",
+          "start": "10:00",
+          "end": "11:00"
+        }
+      ]
+    },
+    {
+      "code": "ADV-11",
+      "department": "Software Engineering",
+      "years_served": [
+        2,
+        3,
+        4
+      ],
+      "interests": [
+        "Signal and Audio Processing",
+        "Computer Networks",
+        "Cybersecurity",
+        "Software Development and Programming",
+        "Startups and Entrepreneurship"
+      ],
+      "introduction": "I work on computer networks and speech recognition. Before joining the university, I served as a naval officer, worked as an engineer in the defense industry and founded my own software company. I am happy to share my industry and entrepreneurship experience with students.",
+      "offers_online": true,
+      "quota": 20,
+      "office_hours": [
+        {
+          "day": "TUE",
+          "start": "10:00",
+          "end": "12:00"
+        },
+        {
+          "day": "THU",
+          "start": "15:00",
+          "end": "16:00"
+        }
+      ]
+    },
+    {
+      "code": "ADV-12",
+      "department": "Computer Engineering",
+      "years_served": [
+        1,
+        2
+      ],
+      "interests": [
+        "Machine Learning",
+        "Cybersecurity",
+        "Computer Networks"
+      ],
+      "introduction": "I am an associate professor of Computer Engineering working on deep learning, cybersecurity and wireless sensor networks. I completed my postdoctoral research abroad and have supervised many MSc theses.",
+      "offers_online": true,
+      "quota": 10,
+      "office_hours": [
+        {
+          "day": "MON",
+          "start": "10:00",
+          "end": "11:00"
+        },
+        {
+          "day": "WED",
+          "start": "13:00",
+          "end": "15:00"
+        }
+      ]
+    },
+    {
+      "code": "ADV-13",
+      "department": "Industrial Engineering",
+      "years_served": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "interests": [
+        "Operations Research and Optimization",
+        "Modeling and Simulation",
+        "Production Systems and Lean Manufacturing",
+        "Quality Management and Six Sigma",
+        "Manufacturing Industry"
+      ],
+      "introduction": "I completed my MSc in Industrial Engineering at Bilkent University and my PhD at the Université de Neuchâtel, and worked as a researcher at the EPFL Artificial Intelligence Laboratory. As organizational development manager at Bilkent Holding, I led process improvement, lean and workforce optimization projects. I can support students on internships, graduation projects, study abroad and careers in manufacturing and services.",
+      "offers_online": false,
+      "quota": 20,
+      "office_hours": [
+        {
+          "day": "TUE",
+          "start": "14:00",
+          "end": "16:00"
+        },
+        {
+          "day": "FRI",
+          "start": "13:00",
+          "end": "14:00"
+        }
+      ]
+    },
+    {
+      "code": "ADV-14",
+      "department": "Computer Engineering",
+      "years_served": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "interests": [
+        "Human-Computer Interaction",
+        "Educational Technology and E-Learning",
+        "Project Management",
+        "Business Analysis and Requirements Engineering",
+        "Cybersecurity"
+      ],
+      "introduction": "I received my PhD from the Department of Computer Education and Instructional Technology at METU and work on human-computer interaction, generative AI and learning analytics. I managed career and recruitment programs for junior security specialists at a cybersecurity company and worked as a project manager on public-sector and e-learning projects. I can help with careers in cybersecurity and software projects, recruitment processes and project management.",
+      "offers_online": true,
+      "quota": 20,
+      "office_hours": [
+        {
+          "day": "WED",
+          "start": "10:00",
+          "end": "12:00"
+        },
+        {
+          "day": "FRI",
+          "start": "14:00",
+          "end": "15:00"
+        }
+      ]
+    },
+    {
+      "code": "ADV-15",
+      "department": "Software Engineering",
+      "years_served": [
+        2,
+        3,
+        4
+      ],
+      "interests": [
+        "Artificial Intelligence",
+        "Machine Learning",
+        "Data Science and Analytics",
+        "Cognitive Science"
+      ],
+      "introduction": "I work on artificial intelligence, machine learning and cognitive science. I can support students on data science and AI projects, graduate applications and planning an academic career.",
+      "offers_online": true,
+      "quota": 20,
+      "office_hours": [
+        {
+          "day": "MON",
+          "start": "10:00",
+          "end": "11:30"
+        },
+        {
+          "day": "WED",
+          "start": "10:00",
+          "end": "11:30"
+        }
+      ]
+    },
+    {
+      "code": "ADV-16",
+      "department": "Electrical-Electronics Engineering",
+      "years_served": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "interests": [
+        "Telecommunications",
+        "Embedded Systems and IoT",
+        "Telecommunications Industry",
+        "Banking and Finance (FinTech)",
+        "Startups and Entrepreneurship"
+      ],
+      "introduction": "I graduated in Electrical-Electronics Engineering from METU, completed my MSc at Universität Duisburg-Essen and my PhD on an AI-based detection system. I worked for 17 years as a systems engineer and project and program manager at NEC Australia, Huawei and Türk Telekom on DSL, fiber and mobile network projects. I can help with telecom careers, entrepreneurship and TÜBİTAK projects.",
+      "offers_online": false,
+      "quota": 20,
+      "office_hours": [
+        {
+          "day": "MON",
+          "start": "14:00",
+          "end": "16:00"
+        },
+        {
+          "day": "THU",
+          "start": "10:00",
+          "end": "11:00"
+        }
+      ]
+    },
+    {
+      "code": "ADV-17",
+      "department": "Computer Engineering",
+      "years_served": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "interests": [
+        "Mathematics"
+      ],
+      "introduction": "I completed my PhD in mathematics and work on topology, algebra and number theory. I can guide students on their mathematical foundations, graduate applications and academic career goals.",
+      "offers_online": true,
+      "quota": 20,
+      "office_hours": [
+        {
+          "day": "MON",
+          "start": "14:00",
+          "end": "16:00"
+        }
+      ]
+    },
+    {
+      "code": "ADV-18",
+      "department": "Computer Engineering",
+      "years_served": [
+        2,
+        3,
+        4
+      ],
+      "interests": [
+        "Educational Technology and E-Learning"
+      ],
+      "introduction": "I work on educational technology, project-based learning and online learning systems. I can support students on developing projects, the research process and academic careers.",
+      "offers_online": true,
+      "quota": 20,
+      "office_hours": [
+        {
+          "day": "WED",
+          "start": "14:00",
+          "end": "16:00"
+        }
+      ]
+    },
+    {
+      "code": "ADV-19",
+      "department": "Software Engineering",
+      "years_served": [
+        2,
+        3,
+        4
+      ],
+      "interests": [
+        "Software Development and Programming",
+        "Cybersecurity",
+        "Educational Technology and E-Learning"
+      ],
+      "introduction": "I work on distance-learning design, information technologies, security and privacy, and software development. I can help students with building projects, career planning and academic development.",
+      "offers_online": true,
+      "quota": 20,
+      "office_hours": [
+        {
+          "day": "MON",
+          "start": "14:00",
+          "end": "16:00"
+        },
+        {
+          "day": "WED",
+          "start": "14:00",
+          "end": "16:00"
+        }
+      ]
+    },
+    {
+      "code": "ADV-20",
+      "department": "Computer Engineering",
+      "years_served": [
+        2,
+        3,
+        4
+      ],
+      "interests": [
+        "Algorithms and Theory of Computation",
+        "Software Engineering",
+        "Software Development and Programming",
+        "Machine Learning",
+        "Cybersecurity"
+      ],
+      "introduction": "I graduated in Computer Engineering from Atılım University and completed my PhD in Modeling and Design of Engineering Systems. I work on algorithms, software engineering and computational methods and teach programming and computer science courses. I can guide students on software development, algorithms and academic careers.",
+      "offers_online": true,
+      "quota": 20,
+      "office_hours": [
+        {
+          "day": "TUE",
+          "start": "13:00",
+          "end": "15:00"
+        },
+        {
+          "day": "THU",
+          "start": "10:00",
+          "end": "12:00"
+        }
+      ]
+    },
+    {
+      "code": "ADV-21",
+      "department": "Industrial Engineering",
+      "years_served": [
+        2,
+        3,
+        4
+      ],
+      "interests": [
+        "Operations Research and Optimization",
+        "Supply Chain and Logistics",
+        "Production Systems and Lean Manufacturing",
+        "Ergonomics and Human Factors",
+        "Defense Industry"
+      ],
+      "introduction": "I completed my BSc, MSc and PhD in Industrial Engineering at METU and did postdoctoral research at the University of Waterloo. I work on operations research, optimization, logistics, production planning and ergonomics and have experience in industry projects. I can guide students on industrial engineering, research projects and academic careers.",
+      "offers_online": true,
+      "quota": 20,
+      "office_hours": [
+        {
+          "day": "MON",
+          "start": "14:00",
+          "end": "16:00"
+        },
+        {
+          "day": "WED",
+          "start": "10:00",
+          "end": "12:00"
+        }
+      ]
+    },
+    {
+      "code": "ADV-22",
+      "department": "Electrical-Electronics Engineering",
+      "years_served": [
+        1,
+        3,
+        4
+      ],
+      "interests": [
+        "Electronics and Circuits",
+        "Nanotechnology and MEMS",
+        "Optics and Photonics",
+        "Renewable Energy and Solar Cells"
+      ],
+      "introduction": "I completed my BSc and MSc at Tabriz Azad University and my PhD in Micro and Nanotechnology at METU. I work on electronics, nanotechnology, photonics and the efficiency of solar cells. With my experience in TÜBİTAK-funded research projects, I can guide students aiming for research and an academic career.",
+      "offers_online": true,
+      "quota": 20,
+      "office_hours": [
+        {
+          "day": "TUE",
+          "start": "10:00",
+          "end": "12:00"
+        },
+        {
+          "day": "FRI",
+          "start": "13:00",
+          "end": "15:00"
+        }
+      ]
+    },
+    {
+      "code": "ADV-23",
+      "department": "Electrical-Electronics Engineering",
+      "years_served": [
+        2,
+        3,
+        4
+      ],
+      "interests": [
+        "Physics"
+      ],
+      "introduction": "I completed my BSc and MSc in Physics at METU and my PhD at Georg-August-Universität Göttingen in Germany. I have international publications on general physics, high-energy and particle physics and gyroscope dynamics. I can guide students on physics research, academic careers and graduate study abroad.",
+      "offers_online": false,
+      "quota": 20,
+      "office_hours": [
+        {
+          "day": "WED",
+          "start": "13:00",
+          "end": "15:00"
+        },
+        {
+          "day": "THU",
+          "start": "14:00",
+          "end": "16:00"
+        }
+      ]
+    },
+    {
+      "code": "ADV-24",
+      "department": "Software Engineering",
+      "years_served": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "interests": [
+        "Software Development and Programming",
+        "Web Development",
+        "Mobile App Development",
+        "Software Industry"
+      ],
+      "introduction": "I teach software development courses and follow web and mobile application development closely. I can help students find internships, prepare their CVs and get ready for technical interviews in the software industry.",
+      "offers_online": true,
+      "quota": 20,
+      "office_hours": [
+        {
+          "day": "TUE",
+          "start": "13:00",
+          "end": "15:00"
+        },
+        {
+          "day": "FRI",
+          "start": "10:00",
+          "end": "11:00"
+        }
+      ]
+    }
+  ]
+}

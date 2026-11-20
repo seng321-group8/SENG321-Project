@@ -66,3 +66,12 @@ Format:  Face-to-face
 ### Notes and Decisions
 - Şevval Nil and Fatima Zehra consulted the course instructor regarding the advisor student quota (following up on the open question from Meeting 2).
 - The instructor recommended an admin-configurable quota; default 20, cannot go below the current student count (D-17).
+
+---
+
+## Informal discussions – November 17, 2026
+Participants: some team members and the course instructor (face to face)
+
+- Topic: advisor interest data. The instructor advised to take the keywords from the advisors' public web pages and Google Scholar, and to generate the other details randomly.
+- Result: 24 advisors were shared between the six team members (four each) and the form was filled in on their behalf.
+- Impediments: none.

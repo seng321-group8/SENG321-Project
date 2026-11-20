@@ -3,7 +3,7 @@
 Status values: Proposed, Accepted, Rejected, Superseded.
 Process: The team proposes a decision at a meeting. The Product Owner confirms it during pull request review and changes the status to Accepted. A decision that is replaced keeps its entry, is marked Superseded and points to the decision that replaces it.
 
-Sources: team meeting of October 27, 2026 (D-01 to D-13) and the project brief of November 1, 2026 prepared by the Lead Software Architect (D-14 to D-27). Items marked Proposed are waiting for the confirmation listed in the entry. On November 3, 2026 the Product Owner confirmed the remaining open points (D-15, D-20, D-21, D-23); the student e-mail pattern (D-14) was confirmed the same day; only the interest count (D-25) stays open.
+Sources: team meeting of October 27, 2026 (D-01 to D-13) and the project brief of November 1, 2026 prepared by the Lead Software Architect (D-14 to D-27). Items marked Proposed are waiting for the confirmation listed in the entry. On November 3, 2026 the Product Owner confirmed the remaining open points (D-15, D-20, D-21, D-23); the student e-mail pattern (D-14) was confirmed the same day. The interest list and the maximum interest count (D-25) were finalized on November 20, 2026.
 
 ## Summary
 
@@ -33,9 +33,10 @@ Sources: team meeting of October 27, 2026 (D-01 to D-13) and the project brief o
 | D-22 | Advisor profile | Accepted |
 | D-23 | Effect of advisor profile changes | Accepted |
 | D-24 | Showing the reason for a match | Accepted |
-| D-25 | Interest keywords | Accepted (maximum count open) |
+| D-25 | Interest keywords | Accepted |
 | D-26 | Privacy | Accepted |
 | D-27 | Technology stack | Accepted |
+| D-28 | Advisor seed data | Accepted |
 
 ## D-01 Platform
 - Status: Accepted
@@ -222,13 +223,12 @@ Sources: team meeting of October 27, 2026 (D-01 to D-13) and the project brief o
 - Rationale: Transparency builds trust in automatic matching.
 
 ## D-25 Interest keywords
-- Status: Accepted (maximum count open)
-- Accepted on: November 2, 2026 · updated November 3, 2026
+- Status: Accepted
+- Accepted on: November 2, 2026 · updated November 3, 2026 · finalized November 20, 2026
 - Proposed by: Team (project brief)
 - Owner: Aybüke
-- Decision: Students and advisors choose at least one interest from the same predefined, unordered list; free text is not allowed. The administrator maintains the list. The maximum number of interests per user is a configurable setting; its final value and the initial list will be set after the interests of every advisor have been collected. Until then, development and tests use a maximum of 5 as a placeholder.
-- Rationale: A shared vocabulary makes matching possible; the list and the limit should reflect what advisors actually offer.
-- Open point: final maximum count and initial interest list (after collecting advisors' interests).
+- Decision: Students and advisors choose at least one interest from the same predefined, unordered list; free text is not allowed. The administrator maintains the list. The maximum number of interests per user is a configurable setting with the value **5**. The initial list has 44 interests in two groups (technical areas and industry sectors) and is defined in `docs/interest-list.md`. General academic and career topics (graduate study, internships, CV preparation and similar) are not on the list, because almost every advisor offers them.
+- Rationale: A shared vocabulary makes matching possible. The list was built from the advisor form, so every interest has at least one advisor. A maximum of 5 lets every advisor keep their main technical areas and one sector, and keeps matching fair because advisors with many interests are not favored.
 
 ## D-26 Privacy
 - Status: Accepted
@@ -247,8 +247,8 @@ Sources: team meeting of October 27, 2026 (D-01 to D-13) and the project brief o
 - Rationale: Built-in authentication and administration features, free tools, one-command Docker deployment.
 
 ## D-28 Advisor seed data
-- Status: Proposed
-- Date: November 17, 2026
+- Status: Accepted
+- Date: November 17, 2026 · updated November 20, 2026
 - Source: Guidance from the course instructor (in person)
-- Decision: The team prepares the advisor data itself for 24 advisors. Interest keywords are taken from public faculty web pages and Google Scholar. Office hours, grades served and the online preference are generated randomly. The data is seed data for development and demonstration; it is not a response from the advisors.
+- Decision: The team prepares the advisor data itself for 24 advisors by filling in the advisor form on their behalf from public faculty pages, CVs and publications. The instructor allowed the team to simulate missing information (office hours, unanswered fields). The data is stored in `docs/data/advisor-seed.json` without names or e-mail addresses and is used for development and demonstration; it is not a confirmed response from the advisors.
 - Rationale: The advisors do not have time to fill in a form one by one. This gives realistic data without asking each advisor for time.

@@ -54,5 +54,19 @@ Administrators create advisor accounts with a default quota of `20` and update a
 ### 5. Advisor Change Requests
 Administrators review pending advisor change requests[cite: 10]. The written explanation is visible only to the student and the administrator. When approving a request, the system re-matches the student excluding the previous advisor (keeping the current advisor if no alternative is available)[cite: 10]. When rejecting a request, a written reason is required[cite: 10].
 
+# Desktop
+![Change Requests Desktop](images/5-change-requests-desktop.png)
+
+# Mobile
+![Change Requests Mobile](images/5-change-requests-mobile.png)
+
 ### 6. Advisor Accounts and Interest List Management
 Administrators manage advisor accounts (adding and deactivating accounts) and manage the interest list (adding, renaming, and deactivating interests)[cite: 10].
+
+# Desktop
+![Accounts Interest List Desktop](images/6-accounts-interest-list-desktop.png)
+
+# Mobile
+![Accounts Interest List Mobile](images/6-accounts-interest-list-mobile.png)
+
+

@@ -58,15 +58,15 @@ Administrators review pending advisor change requests[cite: 10]. The written exp
 ![Change Requests Desktop](5-change-requests-desktop.png)
 
 # Mobile
-![Change Requests Mobile](images/5-change-requests-mobile.png)
+![Change Requests Mobile](5-change-requests-mobile.png)
 
 ### 6. Advisor Accounts and Interest List Management
 Administrators manage advisor accounts (adding and deactivating accounts) and manage the interest list (adding, renaming, and deactivating interests)[cite: 10].
 
 # Desktop
-![Accounts Interest List Desktop](images/6-accounts-interest-list-desktop.png)
+![Accounts Interest List Desktop](6-accounts-interest-list-desktop.png)
 
 # Mobile
-![Accounts Interest List Mobile](images/6-accounts-interest-list-mobile.png)
+![Accounts Interest List Mobile](6-accounts-interest-list-mobile.png)
 
 

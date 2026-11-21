@@ -46,10 +46,10 @@ Advisors view the students assigned to them and download uploaded student CVs (P
 Administrators create advisor accounts with a default quota of `20` and update advisor quotas without setting a quota below the current assigned student count[cite: 10]. Administrators view students waiting for a match, trigger matching manually ("Run matching now"), and inspect matching run history[cite: 10].
 
 ### Desktop (1440x1024)
-![Quotas Matching Desktop](4-quotas-matching-desktop.png)
+![Quotas Matching Desktop](quotas-waiting-students-matching-desktop.png)
 
 ### Mobile (393x852)
-![Quotas Matching Mobile](4-quotas-matching-mobile.png)
+![Quotas Matching Mobile](quotas-waiting-students-matching-mobile.png)
 
 ### 5. Advisor Change Requests
 Administrators review pending advisor change requests[cite: 10]. The written explanation is visible only to the student and the administrator. When approving a request, the system re-matches the student excluding the previous advisor (keeping the current advisor if no alternative is available)[cite: 10]. When rejecting a request, a written reason is required[cite: 10].

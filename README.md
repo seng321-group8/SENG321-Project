@@ -111,19 +111,19 @@ Release tag: [sprint-2](https://github.com/seng321-group8/SENG321-Project/releas
 | Software requirements specification | docs/srs.md | #57 | #74 |
 | Use cases and coverage matrix | docs/use-cases.md | #58 | #75 |
 | Refined product backlog | docs/backlog.md | #59 | #76 |
-| Non-functional and security requirements | docs/nfr.md | #60 | #[ ] |
+| Non-functional and security requirements | docs/nfr.md | #60 | #107 |
 | Quality measures | docs/quality-measures.md | #61 | #80 |
 | User flows | docs/ux/user-flows.md | #62 | #73 |
 | Student screens | docs/ux/student-screens.md | #63 | #77 |
 | Advisor and admin screens | docs/ux/advisor-admin-screens.md | #64 | #81 |
 | C4 model | docs/architecture/c4.md | #65 | #78 |
-| Deployment view | docs/architecture/deployment.md | #66 | #[ ] |
-| Sequence diagrams: registration, login, matching | docs/architecture/sequence-auth-matching.md | #67 | #[ ] |
+| Deployment view | docs/architecture/deployment.md | #66 | #106 |
+| Sequence diagrams: registration, login, matching | docs/architecture/sequence-auth-matching.md | #67 | #108 |
 | Sequence diagrams: appointment, advisor change | docs/architecture/appointment-change.md | #68 | #79, #103 |
 | Class diagram and database schema | docs/architecture/class-diagram.md | #69 | #79, #102 |
 | OpenAPI contract | openapi.yaml | #70 | #101 |
 | Advisor interest list and seed data | docs/decision.md, docs/data/advisor-seed-data.md, docs/interest-list.md, docs/data/advisor-seed.json | #72 | #82, #83 |
-| Submission, stand-ups, retrospective | README.md, CONTRIBUTIONS.md, docs/standups.md, docs/retrospective.md | #71 | #[ ] |
+| Submission, stand-ups, retrospective | README.md, CONTRIBUTIONS.md, docs/standups.md, docs/retrospective.md | #71 | #111 |
 
 ### Design files
 ### Design files

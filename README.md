@@ -36,6 +36,30 @@ Detailed responsibilities per activity: [RACI matrix](docs/raci.md).
 - `feature/<issue>-<short-name>`: one branch per issue.
 - No direct pushes to `main` or `develop`. Every change goes through a pull request linked to an issue and reviewed by at least one teammate.
 
+## Local development
+
+The project skeleton uses Django REST Framework, PostgreSQL, React and Docker Compose.
+
+1. Copy the example configuration:
+
+   ```bash
+   cp .env.example .env
+   ```
+
+2. Replace the local-only secret and passwords in `.env`.
+
+3. Build and start the complete stack:
+
+   ```bash
+   docker-compose up --build
+   ```
+
+4. Open the web client at <http://localhost:5173>. The API health endpoint is available at <http://localhost:8000/api/health/> and versioned API routes start at `/api/v1/`.
+
+PostgreSQL and uploaded CV files use named volumes. Stop the containers with `docker-compose down`; add `-v` only when intentionally deleting local database and CV data.
+
+For host-side backend development, install `backend/requirements-dev.txt`, run commands from `backend/`, and leave `POSTGRES_HOST` unset to use the local SQLite fallback. Frontend commands run from `frontend/` with `npm install`, `npm run lint` and `npm run build`.
+
 ## License
 
 Licensed under the Apache License 2.0. See [LICENSE](LICENSE).

@@ -119,16 +119,17 @@ Release tag: [sprint-2](https://github.com/seng321-group8/SENG321-Project/releas
 | C4 model | docs/architecture/c4.md | #65 | #78 |
 | Deployment view | docs/architecture/deployment.md | #66 | #[ ] |
 | Sequence diagrams: registration, login, matching | docs/architecture/sequence-auth-matching.md | #67 | #[ ] |
-| Sequence diagrams: appointment, advisor change | docs/architecture/sequence-appointment-change.md | #68 | #[ ] |
-| Class diagram and database schema | docs/architecture/class-diagram.md | #69 | #[ ] |
-| OpenAPI contract | openapi.yaml | #70 | #[ ] |
-| Advisor interest list and seed data | docs/decision.md, docs/data/advisor-seed-data.md | #72 | #82, #83 |
+| Sequence diagrams: appointment, advisor change | docs/architecture/appointment-change.md | #68 | #79, #103 |
+| Class diagram and database schema | docs/architecture/class-diagram.md | #69 | #79, #102 |
+| OpenAPI contract | openapi.yaml | #70 | #101 |
+| Advisor interest list and seed data | docs/decision.md, docs/data/advisor-seed-data.md, docs/interest-list.md, docs/data/advisor-seed.json | #72 | #82, #83 |
 | Submission, stand-ups, retrospective | README.md, CONTRIBUTIONS.md, docs/standups.md, docs/retrospective.md | #71 | #[ ] |
 
 ### Design files
-- User flows (FigJam): [[NIL-FIGJAM-LINK](https://www.figma.com/board/yCbRs4vPk9B99bneEDwANZ/Career-Advisor-Matching---User-Flows?node-id=0-1&t=vo9uhkk9qqeXH3nt-1)]
-- Student screens (Figma): [[NIL-FIGMA-LINK](https://www.figma.com/design/4EBRTQr6qI3nCYrgwtjXFN/Career-Advisor-Matching---Screens?node-id=0-1&t=FTJWB3RPnHpztpoo-1)]
-- Advisor and admin screens (Figma): [[EBRAR-FIGMA-LINK](https://www.figma.com/design/YWPkjTqH5NflMmNDhqw4uu/Untitled?node-id=0-1&t=FJpGnegomFfEfPso-1)]
+### Design files
+- [User flows (FigJam)](https://www.figma.com/board/yCbRs4vPk9B99bneEDwANZ/Career-Advisor-Matching---User-Flows?node-id=0-1&t=vo9uhkk9qqeXH3nt-1)
+- [Student screens (Figma)](https://www.figma.com/design/4EBRTQr6qI3nCYrgwtjXFN/Career-Advisor-Matching---Screens?node-id=0-1&t=FTJWB3RPnHpztpoo-1)
+- [Advisor and admin screens (Figma)](https://www.figma.com/design/YWPkjTqH5NflMmNDhqw4uu/Untitled?node-id=0-1&t=FJpGnegomFfEfPso-1)
 
 ### Evidence
 - Release tag: `sprint-2`

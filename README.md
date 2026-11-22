@@ -59,12 +59,12 @@ Release tag: [sprint-1](https://github.com/seng321-group8/SENG321-Project/releas
 ### Team members
 | Name | Role | GitHub |
 |---|---|---|
-| Aybüke BALÇIK | Product Owner and Requirements Engineer | @aybuke9 |
-| Şevval Nil UÇAR | Scrum Master and Agile Process Coach | @niluccr |
-| Fatima Zehra ÖKTEM | Lead Software Architect and Technical Lead | @fatimazhroktem |
-| Sümeyye Ebrar COMART | QA and Test Automation Engineer | @ebrarcomart |
-| Yağız Efe DERE | DevOps and CI/CD Infrastructure Engineer | @yagizder |
-| Emine BARAN | Implementation and Integration Engineer | @Eminebaran |
+| Aybüke BALÇIK | Product Owner and Requirements Engineer | [@aybuke9](https://github.com/aybuke9) |
+| Şevval Nil UÇAR | Scrum Master and Agile Process Coach | [@niluccr](https://github.com/niluccr) |
+| Fatima Zehra ÖKTEM | Lead Software Architect and Technical Lead | [@fatimazhroktem](https://github.com/fatimazhroktem) |
+| Sümeyye Ebrar COMART | QA and Test Automation Engineer | [@ebrarcomart](https://github.com/ebrarcomart) |
+| Yağız Efe DERE | DevOps and CI/CD Infrastructure Engineer | [@yagizder](https://github.com/yagizder) |
+| Emine BARAN | Implementation and Integration Engineer | [@Eminebaran](https://github.com/Eminebaran) |
 
 ### Deliverables
 | Deliverable | File | Issue | Pull requests |
@@ -98,10 +98,10 @@ Release tag: [sprint-2](https://github.com/seng321-group8/SENG321-Project/releas
 ### Team members
 | Name | Role | GitHub | Sprint 2 work |
 |---|---|---|---|
-| Aybüke BALÇIK | Product Owner and Requirements Engineer | @aybuke9 | SRS, use cases, backlog, interest list (#57, #58, #59, #72) |
-| Şevval Nil UÇAR | Scrum Master and Agile Process Coach | @niluccr | User flows, student screens, submission (#62, #63, #71) |
-| Fatima Zehra ÖKTEM | Lead Software Architect and Technical Lead | @fatimazhroktem | C4 model, OpenAPI (#65, #70) |
-| Sümeyye Ebrar COMART | QA and Test Automation Engineer | @ebrarcomart | Quality measures, advisor and admin screens (#61, #64) |
+| Aybüke BALÇIK | Product Owner and Requirements Engineer | @aybuke9 | SRS, use cases, backlog, interest list (#57, #58, #59, #72, #74, #75, #76, #83) |
+| Şevval Nil UÇAR | Scrum Master and Agile Process Coach | @niluccr | User flows, student screens, submission (#62, #63, #71, #72, #73, #77, #82) |
+| Fatima Zehra ÖKTEM | Lead Software Architect and Technical Lead | @fatimazhroktem | C4 model, OpenAPI (#65, #70, #78) |
+| Sümeyye Ebrar COMART | QA and Test Automation Engineer | @ebrarcomart | Quality measures, advisor and admin screens (#61, #64, #75, #80, #81) |
 | Yağız Efe DERE | DevOps and CI/CD Infrastructure Engineer | @yagizder | NFR and security, deployment view, sequence diagrams (#60, #66, #67) |
 | Emine BARAN | Implementation and Integration Engineer | @Eminebaran | Sequence diagrams, class diagram (#68, #69) |
 

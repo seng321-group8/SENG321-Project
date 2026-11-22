@@ -40,7 +40,7 @@ Out of scope for the first release: a native mobile application, own video infra
 | Student | A user registered with an address of the form `s` + 9-digit student number `@ankarabilim.edu.tr` |
 | Advisor | A faculty member who gives career guidance; the account is created by the administrator |
 | Administrator (admin) | A trusted user who manages accounts, quotas, the interest list, matching runs and change requests |
-| Interest | A keyword from the predefined interest list, chosen by students and advisors |
+| Interest | An item from the predefined interest list, chosen by students and advisors |
 | Matching run | The batch process that assigns waiting students to advisors |
 | Quota | The maximum number of students that can be assigned to an advisor |
 | Office-hour slot | A weekly recurring 30-minute period in which an advisor accepts appointments |
@@ -115,8 +115,8 @@ The system is a new, self-contained web application. Its context and boundary ar
 | ID | Requirement | Priority | Source | Stories | API operations |
 |---|---|---|---|---|---|
 | FR-07 | The system shall allow the administrator to create advisor accounts with an address in the format first.last or f.last `@ankarabilim.edu.tr`; a verification e-mail shall be sent to the advisor. | Must | D-14 | US-05 | `createAdvisorAccount`, `listAdvisors` |
-| FR-08 | The system shall give each new advisor a quota of 20 students and allow the administrator to change it; a quota below the advisor's current number of students shall be rejected (409). | Must | D-17 | US-05 | `updateAdvisorCapacity` |
-| FR-09 | The system shall allow the administrator to add, rename and deactivate interests; duplicate names (case-insensitive) shall be rejected (409). A deactivated interest shall not be offered for new selections but shall stay on existing profiles and still count in matching. | Must | D-25 | US-04 | `listKeywords`, `createKeyword`, `updateKeyword` |
+| FR-08 | The system shall give each new advisor a quota of 20 students and allow the administrator to change it; a quota below the advisor's current number of students shall be rejected (409). | Must | D-17 | US-05 | `updateAdvisorQuota` |
+| FR-09 | The system shall allow the administrator to add, rename and deactivate interests; duplicate names (case-insensitive) shall be rejected (409). A deactivated interest shall not be offered for new selections but shall stay on existing profiles and still count in matching. | Must | D-25 | US-04 | `listInterests`, `createInterest`, `updateInterest` |
 | FR-10 | The system shall let the administrator configure the maximum number of interests per user (value set after the faculty form; 5 until then). | Must | D-25 | US-04, US-06, US-07 | configuration |
 
 ### 3.3 Profiles
@@ -145,8 +145,8 @@ The system is a new, self-contained web application. Its context and boundary ar
 
 | ID | Requirement | Priority | Source | Stories | API operations |
 |---|---|---|---|---|---|
-| FR-23 | The system shall allow an advisor to define weekly recurring office hours, divided into 30-minute slots starting on a 30-minute boundary; overlapping slots shall be rejected (409). A slot with a future active appointment shall not be deletable (409). | Must | D-08 | US-14 | `listMyOfficeHours`, `createOfficeHours`, `deleteOfficeHourSlot` |
-| FR-24 | The system shall show a matched student the free future slots of the assigned advisor only. | Must | D-18 | US-15 | `listAdvisorOfficeHours` |
+| FR-23 | The system shall allow an advisor to define weekly recurring office hours, divided into 30-minute slots starting on a 30-minute boundary; overlapping slots shall be rejected (409). An office hour with a future active appointment shall not be deletable (409). | Must | D-08 | US-14 | `listMyOfficeHours`, `createOfficeHour`, `deleteOfficeHour` |
+| FR-24 | The system shall show a matched student the free future slots of the assigned advisor only. | Must | D-18 | US-15 | `listAvailableSlots` |
 | FR-25 | The system shall allow a matched student to request a free slot as an in-person or online meeting; the appointment shall be created with status REQUESTED. Online shall be possible only if the advisor offers it (400 otherwise). | Must | D-15, D-18 | US-15 | `requestAppointment`, `getAppointment` |
 | FR-26 | A slot shall hold at most one active appointment and a student shall have at most one active appointment; a conflicting request shall be rejected (409), and of two concurrent requests for the same slot exactly one shall succeed. | Must | D-18 | US-15 | `requestAppointment` |
 | FR-27 | The system shall allow the assigned advisor to confirm (status CONFIRMED) or reject (status REJECTED) a REQUESTED appointment; a rejected appointment shall free the slot. Only REQUESTED appointments can be decided (409 otherwise). | Must | D-18 | US-16 | `confirmAppointment`, `rejectAppointment` |
@@ -162,7 +162,7 @@ The system is a new, self-contained web application. Its context and boundary ar
 | FR-32 | The system shall send e-mails for account verification, a new appointment request (to the advisor), confirmation or rejection (to the student) and cancellation (to the other side). A failed e-mail shall not cancel the operation; it shall be logged for retry. | Must | D-19 | US-19 | internal (e-mail service) |
 | FR-33 | The confirmation e-mail shall include an .ics file with the correct start, a 30-minute end and a title, and the appointment page shall offer the same file through "Add to calendar". The file shall be available only for CONFIRMED appointments and only to the two participants. | Must | D-19 | US-20 | `downloadAppointmentCalendar` |
 | FR-34 | The system shall allow an advisor to connect and disconnect Google Calendar. When a connected advisor confirms an online appointment, the system shall create a Google Meet link and show it to both sides; when such an appointment is cancelled, the calendar event shall be deleted. If Google returns an error, the appointment shall still be confirmed and the advisor asked for a manual link. | Should | D-15 | US-21 | `getGoogleCalendarStatus`, `startGoogleCalendarConnect`, `completeGoogleCalendarConnect`, `disconnectGoogleCalendar` |
-| FR-35 | The system shall allow an advisor to enter a valid https meeting link (Zoom, Meet or Teams) for a confirmed online appointment. | Should | D-15 | US-22 | not yet in `openapi.yaml` — to be added in #70 |
+| FR-35 | The system shall allow an advisor to enter a valid https meeting link (Zoom, Meet or Teams) for a confirmed online appointment. | Should | D-15 | US-22 | `confirmAppointment` (`meetingLink`) |
 
 ### 3.7 CV
 
@@ -219,11 +219,11 @@ The main data entities are listed below. Their attributes, keys and relationship
 | User | e-mail, password hash, role, verified flag | Role derived from the e-mail format; advisors created by the admin |
 | StudentProfile | year, department, GPA, interests, match status, assigned advisor, registration time | GPA private (FR-40) |
 | AdvisorProfile | department, years served, interests, introduction, offers online, quota, current student count | Quota ≥ current count |
-| Keyword (interest) | name, active flag | Unique name (case-insensitive) |
+| Interest | name, active flag | Unique name (case-insensitive) |
 | Department | name | Predefined list |
 | MatchingRun | start time, trigger, assigned count, waiting count, seed | One run at a time |
-| OfficeHourSlot | advisor, weekday, start time | 30 minutes, no overlap |
-| Appointment | student, advisor, slot date and time, meeting type, status, meeting link, cancellation reason, calendar event ID | Status values: REQUESTED, CONFIRMED, REJECTED, CANCELLED, COMPLETED, NO_SHOW |
+| OfficeHour | advisor, weekday, start time, end time, location | Weekly rule; duration a multiple of 30 minutes; no overlap; free 30-minute slots are computed, not stored |
+| Appointment | student, advisor, office hour, start time, meeting type, status, meeting link, cancellation reason, calendar event ID | Status values: REQUESTED, CONFIRMED, REJECTED, CANCELLED, COMPLETED, NO_SHOW |
 | CV | student, file, size, upload time | One per student, PDF ≤ 2 MB |
 | AdvisorChangeRequest | student, previous advisor, reason, explanation, status, admin note, result | Status values: PENDING, APPROVED, REJECTED; one PENDING per student |
 | GoogleCalendarConnection | advisor, encrypted tokens | Deleted when the advisor disconnects |
@@ -298,5 +298,5 @@ The full mapping from functional requirements to use cases is in `docs/use-cases
 |---|---|---|---|
 | Final maximum number of interests per user and the initial interest list | FR-09 – FR-12 | Aybüke | Faculty form (#72), recorded in D-25 |
 | Appointment reminders and automatic expiry of unanswered requests | FR-32 | Aybüke | Deferred; decided after the first release |
-| The change reason "year change" is named `grade_change` in `openapi.yaml` | FR-37, FR-39 | Fatima | Aligned in #70 |
-| No operation for entering a manual meeting link (the appointment PATCH accepts only the outcome status) | FR-35 | Fatima | Added in #70 |
+| The change reason "year change" is named `grade_change` in `openapi.yaml` | FR-37, FR-39 | Fatima | Resolved in #70 (`year_change`) |
+| No operation for entering a manual meeting link (the appointment PATCH accepts only the outcome status) | FR-35 | Fatima | Resolved in #70 (`meetingLink` in `confirmAppointment`) |

@@ -33,7 +33,7 @@ Detailed responsibilities per activity: [RACI matrix](docs/raci.md).
 - [Non-functional and security requirements](docs/nfr.md)
 - [Quality measures](docs/quality-measures.md)
 - UX: [user flows](docs/ux/user-flows.md), [student screens](docs/ux/student-screens.md), [advisor and admin screens](docs/ux/advisor-admin-screens.md)
-- Architecture: [C4 model](docs/architecture/c4.md), [deployment view](docs/architecture/deployment.md), [sequence diagrams: registration and matching](docs/architecture/sequence-auth-matching.md), [sequence diagrams: appointment and advisor change](docs/architecture/sequence-appointment-change.md), [class diagram](docs/architecture/class-diagram.md)
+- Architecture: [C4 model](docs/architecture/c4.md), [deployment view](docs/architecture/deployment.md), [sequence diagrams: registration and matching](docs/architecture/sequence-auth-matching.md), [sequence diagrams: appointment and advisor change](docs/architecture/appointment-change.md), [class diagram](docs/architecture/class-diagram.md)
 - [Advisor seed data](docs/data/advisor-seed-data.md)
 - [Stand-up records](docs/standups.md)
 - [Retrospectives](docs/retrospective.md)

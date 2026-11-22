@@ -1,7 +1,9 @@
 import unittest
 
 from career_advising.domain.errors import InvalidProfile
-from career_advising.domain.matching import AdvisorCandidate as A, StudentInput as S, score, select_advisor
+from career_advising.domain.matching import AdvisorCandidate as A
+from career_advising.domain.matching import StudentInput as S
+from career_advising.domain.matching import score, select_advisor
 
 
 def adv(id, kw, dept=1, years=(1, 2, 3, 4), n=0, quota=30):

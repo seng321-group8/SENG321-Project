@@ -103,4 +103,4 @@ def build_ics(
             f"TRIGGER:-PT{int(alarm_minutes)}M", "END:VALARM",
         ]
     lines += ["END:VEVENT", "END:VCALENDAR"]
-    return CRLF.join(fold_line(l) for l in lines) + CRLF
+    return CRLF.join(fold_line(line) for line in lines) + CRLF

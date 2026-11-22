@@ -52,8 +52,8 @@ class IcsTests(unittest.TestCase):
         s = build_ics(**KW, method="REQUEST", organizer=("Dr. Ayşe Yılmaz", "ayse.yilmaz@ankarabilim.edu.tr"),
                       attendees=[("Ali Veli", "200101001@ankarabilim.edu.tr")], location="https://meet.google.com/abc-defg-hij")
         lines = unfold(s)
-        self.assertTrue(any(l.startswith("ORGANIZER;CN=\"Dr. Ayşe Yılmaz\":mailto:ayse.yilmaz@") for l in lines))
-        self.assertTrue(any("PARTSTAT=NEEDS-ACTION:mailto:200101001@" in l for l in lines))
+        self.assertTrue(any(line.startswith("ORGANIZER;CN=\"Dr. Ayşe Yılmaz\":mailto:ayse.yilmaz@") for line in lines))
+        self.assertTrue(any("PARTSTAT=NEEDS-ACTION:mailto:200101001@" in line for line in lines))
         self.assertIn("TRIGGER:-PT30M", lines)
 
     def test_publish_has_no_attendee(self):

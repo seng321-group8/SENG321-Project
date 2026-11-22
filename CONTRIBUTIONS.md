@@ -139,9 +139,9 @@ Counts were taken from GitHub on November 24, 2026, and are updated before the `
 | Designed the student screens in Figma (desktop and mobile) | Issue [#63](https://github.com/seng321-group8/SENG321-Project/issues/63) · PR [#77](https://github.com/seng321-group8/SENG321-Project/pull/77) · `docs/ux/student-screens.md` |
 | Documented how the advisor data was prepared and recorded decision D-28 | Issue [#72](https://github.com/seng321-group8/SENG321-Project/issues/72) · PR [#82](https://github.com/seng321-group8/SENG321-Project/pull/82) · `docs/data/advisor-seed-data.md` |
 | Filled in the faculty form for four advisors | Issue [#72](https://github.com/seng321-group8/SENG321-Project/issues/72) (comment) |
-| Kept the Sprint 2 stand-up records and the retrospective, wrote the Sprint 2 submission section of the README | Issue [#71](https://github.com/seng321-group8/SENG321-Project/issues/71) · PR [#__](https://github.com/seng321-group8/SENG321-Project/pull/__) · `docs/standups.md`, `docs/retrospective.md`, `README.md` |
-| Opened and merged the release PR and published the `sprint-2` release | PR [#__](https://github.com/seng321-group8/SENG321-Project/pull/__) · [Release](https://github.com/seng321-group8/SENG321-Project/releases/tag/sprint-2) |
-| Reviewed teammates' pull requests | [#103](https://github.com/seng321-group8/SENG321-Project/pull/103), [#106](https://github.com/seng321-group8/SENG321-Project/pull/106), [#110](https://github.com/seng321-group8/SENG321-Project/pull/110) |
+| Kept the Sprint 2 stand-up records and the retrospective, wrote the Sprint 2 submission section of the README | Issue [#71](https://github.com/seng321-group8/SENG321-Project/issues/71) · PR [#111](https://github.com/seng321-group8/SENG321-Project/pull/111) · `docs/standups.md`, `docs/retrospective.md`, `README.md` |
+| Opened and merged the release PR and published the `sprint-2` release | PR [#112](https://github.com/seng321-group8/SENG321-Project/pull/112) · [Release](https://github.com/seng321-group8/SENG321-Project/releases/tag/sprint-2) |
+| Reviewed teammates' pull requests | [#103](https://github.com/seng321-group8/SENG321-Project/pull/103), [#106](https://github.com/seng321-group8/SENG321-Project/pull/106) |
 
 ## Fatima Zehra ÖKTEM — Lead Software Architect and Technical Lead
 - **Responsibilities:** architecture (C4), OpenAPI contract, consistency between the API and the documents, technical review.

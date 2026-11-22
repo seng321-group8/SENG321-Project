@@ -33,7 +33,7 @@
 |---|---|---|
 | BR-1 | Only @ankarabilim.edu.tr addresses can register; the account is inactive until the e-mail verification link is used. | D-14 |
 | BR-2 | Role is derived from the e-mail format: student = `s` + 9-digit student number (e.g. s230205030@ankarabilim.edu.tr); advisor = first.last or f.last. Advisor accounts are created only by the administrator. | D-14 |
-| BR-3 | Interests: at least 1 and at most a configurable maximum per user (placeholder 5 until advisors' interests are collected), chosen from one predefined, unordered list maintained by the administrator; no free text. | D-25 |
+| BR-3 | Interests: at least 1 and at most a configurable maximum per user (5, D-25), chosen from one predefined, unordered list maintained by the administrator; no free text. | D-25 |
 | BR-4 | Student profile: year 1–4, department from a list, GPA 0.00–4.00, interests. | D-25 |
 | BR-5 | Advisor profile: interests, years served (any combination of 1–4), department, short introduction text, online-meeting preference. | D-22 |
 | BR-6 | Score = 2 × shared interests + 1 (same department) + 1 (advisor serves the student's year). GPA is never used. | D-20 |
@@ -71,8 +71,8 @@
 | 2 | US-19 | System sends verification and appointment e-mails | FR-32 | P1 | Sprint 3 (MVP) | 3 | — | Yağız | Ebrar (tests) | internal (e-mail service) |
 | 3 | US-02 | User verifies e-mail; account becomes active | FR-03, FR-04 | P1 | Sprint 3 (MVP) | 3 | US-01, US-19 | Fatima | Aybüke | `verifyEmail`, `resendVerification` |
 | 4 | US-03 | Verified user signs in and sees role-based screens | FR-05, FR-06 | P1 | Sprint 3 (MVP) | 2 | US-02 | Fatima | Aybüke | `login` |
-| 5 | US-04 | Admin manages the interest list | FR-09, FR-10 | P1 | Sprint 3 (MVP) | 3 | US-03 | Emine | Nil | `listKeywords`, `createKeyword`, `updateKeyword` |
-| 6 | US-05 | Admin creates advisor accounts and sets quota | FR-07, FR-08 | P1 | Sprint 3 (MVP) | 3 | US-03 | Emine | Nil | `listAdvisors`, `createAdvisorAccount`, `updateAdvisorCapacity` |
+| 5 | US-04 | Admin manages the interest list | FR-09, FR-10 | P1 | Sprint 3 (MVP) | 3 | US-03 | Emine | Nil | `listInterests`, `createInterest`, `updateInterest` |
+| 6 | US-05 | Admin creates advisor accounts and sets quota | FR-07, FR-08 | P1 | Sprint 3 (MVP) | 3 | US-03 | Emine | Nil | `listAdvisors`, `createAdvisorAccount`, `updateAdvisorQuota` |
 | 7 | US-06 | Student completes profile | FR-10, FR-11 | P1 | Sprint 3 (MVP) | 3 | US-03, US-04 | Emine | Aybüke | `listDepartments`, `getMyStudentProfile`, `saveMyStudentProfile` |
 | 8 | US-07 | Advisor completes profile (interests, years, intro text, online preference) | FR-10, FR-12, FR-13 | P1 | Sprint 3 (MVP) | 3 | US-04, US-05 | Emine | Aybüke | `getMyAdvisorProfile`, `saveMyAdvisorProfile` |
 | 9 | US-08 | Matching round 1 and scoring rule | FR-15, FR-16, FR-17 | P1 | Sprint 3 (MVP) | 5 | US-06, US-07 | Fatima | Ebrar (tests) | internal (matching engine) |
@@ -81,8 +81,8 @@
 | 12 | US-11 | Weekly batch run, manual "run now" and run history | FR-14, FR-18, FR-19, FR-20 | P1 | Sprint 3 (MVP) | 5 | US-10 | Yağız | Nil | `runMatchingNow`, `listMatchingRuns` |
 | 13 | US-12 | Student sees assigned advisor and reason | FR-21 | P1 | Sprint 3 (MVP) | 2 | US-11 | Emine | Aybüke | `getMyAdvisor` |
 | 14 | US-13 | Admin sees students waiting for a match | FR-22 | P1 | Sprint 3 (MVP) | 2 | US-11 | Emine | Nil | `listWaitingStudents` |
-| 15 | US-14 | Advisor manages weekly office hours | FR-23 | P1 | Sprint 3 (MVP) | 3 | US-07 | Emine | Aybüke | `listMyOfficeHours`, `createOfficeHours`, `deleteOfficeHourSlot` |
-| 16 | US-15 | Student requests an appointment | FR-24, FR-25, FR-26 | P1 | Sprint 3 (MVP) | 5 | US-12, US-14 | Emine | Aybüke | `listAdvisorOfficeHours`, `requestAppointment`, `getAppointment` |
+| 15 | US-14 | Advisor manages weekly office hours | FR-23 | P1 | Sprint 3 (MVP) | 3 | US-07 | Emine | Aybüke | `listMyOfficeHours`, `createOfficeHour`, `deleteOfficeHour` |
+| 16 | US-15 | Student requests an appointment | FR-24, FR-25, FR-26 | P1 | Sprint 3 (MVP) | 5 | US-12, US-14 | Emine | Aybüke | `listAvailableSlots`, `requestAppointment`, `getAppointment` |
 | 17 | US-16 | Advisor accepts or rejects a request | FR-27 | P1 | Sprint 3 (MVP) | 3 | US-15 | Emine | Aybüke | `confirmAppointment`, `rejectAppointment` |
 | 18 | US-17 | Student or advisor cancels with a reason | FR-28, FR-29 | P1 | Sprint 3 (MVP) | 3 | US-16 | Emine | Aybüke | `cancelAppointment` |
 | 19 | US-20 | Confirmation e-mail with .ics and "Add to calendar" | FR-33 | P1 | Sprint 3 (MVP) | 2 | US-16, US-19 | Yağız | Aybüke | `downloadAppointmentCalendar` |
@@ -151,7 +151,7 @@ As an **administrator**, I want to **create advisor accounts and set each adviso
 As a **student**, I want to **enter my year, department, GPA and interests**, so that **I can be matched with a suitable advisor**.
 - **AC1 (success)** Given year 3, "Computer Engineering", GPA 3.20 and interests *Internship, Software*, when saving, then the profile is stored and the student is WAITING_FOR_MATCH until the next run.
 - **AC2 (boundary)** Given GPA 0.00 or 4.00, then the value is accepted; given 4.01 or −0.01, then the response is 400.
-- **AC3 (failure)** Given no interest, more than the configured maximum (5 in development), or an interest not in the list, then the response is 400.
+- **AC3 (failure)** Given no interest, more than the configured maximum (5), or an interest not in the list, then the response is 400.
 
 **US-07 — Advisor profile**
 *Requirements: FR-10, FR-12, FR-13*
@@ -313,9 +313,9 @@ A story enters a sprint only when:
 
 | Question | Stories | Owner | Resolution |
 |---|---|---|---|
-| Maximum number of interests and the initial interest list | US-04, US-06, US-07 | Aybüke | Faculty form (#72); recorded in D-25 |
-| Operation for entering a manual meeting link | US-22 | Fatima | Added to `openapi.yaml` in #70 |
-| The change reason "year change" is `grade_change` in `openapi.yaml` | US-25 | Fatima | Renamed or documented in #70 |
+| Maximum number of interests and the initial interest list | US-04, US-06, US-07 | Aybüke | Resolved: 44 interests, maximum 5 (D-25, `docs/interest-list.md`) |
+| Operation for entering a manual meeting link | US-22 | Fatima | Resolved in #70 (`meetingLink` in `confirmAppointment`) |
+| The change reason "year change" is `grade_change` in `openapi.yaml` | US-25 | Fatima | Resolved in #70 (`year_change`) |
 | Appointment reminders and automatic expiry of unanswered requests | US-19 | Aybüke | Deferred; not in the first release |
 
 ## 8. Sprint 3 plan (MVP)

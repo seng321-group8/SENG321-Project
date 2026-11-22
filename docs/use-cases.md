@@ -297,15 +297,15 @@ Every functional requirement in `docs/srs.md` appears at least once.
 | UC-01 Register | US-01 | `registerStudent` |
 | UC-02 Verify e-mail | US-02 | `verifyEmail`, `resendVerification` |
 | UC-03 Sign in | US-03 | `login` |
-| UC-04 Manage advisor accounts and quota | US-05 | `listAdvisors`, `createAdvisorAccount`, `updateAdvisorCapacity` |
-| UC-05 Manage interest list | US-04 | `listKeywords`, `createKeyword`, `updateKeyword` |
+| UC-04 Manage advisor accounts and quota | US-05 | `listAdvisors`, `createAdvisorAccount`, `updateAdvisorQuota` |
+| UC-05 Manage interest list | US-04 | `listInterests`, `createInterest`, `updateInterest` |
 | UC-06 Complete student profile | US-06 | `listDepartments`, `getMyStudentProfile`, `saveMyStudentProfile` |
 | UC-07 Complete advisor profile | US-07 | `getMyAdvisorProfile`, `saveMyAdvisorProfile` |
 | UC-08 Run matching | US-08 – US-11 | `runMatchingNow`, `listMatchingRuns` (scheduled run is internal) |
 | UC-09 View assigned advisor and reason | US-12 | `getMyAdvisor` |
 | UC-10 View waiting students | US-13 | `listWaitingStudents` |
-| UC-11 Manage office hours | US-14 | `listMyOfficeHours`, `createOfficeHours`, `deleteOfficeHourSlot` |
-| UC-12 Request appointment | US-15 | `listAdvisorOfficeHours`, `requestAppointment`, `getAppointment` |
+| UC-11 Manage office hours | US-14 | `listMyOfficeHours`, `createOfficeHour`, `deleteOfficeHour` |
+| UC-12 Request appointment | US-15 | `listAvailableSlots`, `requestAppointment`, `getAppointment` |
 | UC-13 Confirm or reject request | US-16, US-20 | `confirmAppointment`, `rejectAppointment`, `downloadAppointmentCalendar` |
 | UC-14 Cancel appointment | US-17 | `cancelAppointment` |
 | UC-15 Mark outcome and view students | US-18 | `listAppointments`, `markAppointmentOutcome`, `listMyStudents` |

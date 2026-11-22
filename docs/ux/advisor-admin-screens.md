@@ -70,18 +70,20 @@ Administrators manage advisor accounts (adding and deactivating accounts) and ma
 ![Accounts Interest List Mobile](6-accounts-interest-list-mobile.png)
 
 
-## Admin Screens
-
 ### Interest Area Management
-Admins can manage interest areas (add, rename, and deactivate), with a maximum limit of 5 interest areas per person.
+Admins manage the interest area list (add, rename, and deactivate interest areas), with a maximum limit of 5 interest areas per person.
 
+# Desktop
 ![Interest Area Management Desktop](interest-area-management-desktop.png)
+
+# Mobile
 ![Interest Area Management Mobile](interest-area-management-mobile.png)
 
 ### Advisor Change Requests
-Admins can review advisor change requests including the student's reason and explanation, add an admin note, and approve or reject requests.
+Admins review pending advisor change requests by viewing the student's reason and explanation, adding an admin note, and taking action with Approve or Reject buttons.
 
+# Desktop
 ![Advisor Change Requests Desktop](advisor-change-requests-desktop.png)
+
+# Mobile
 ![Advisor Change Requests Mobile](advisor-change-requests-mobile.png)
-
-

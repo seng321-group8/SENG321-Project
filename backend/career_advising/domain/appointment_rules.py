@@ -10,8 +10,14 @@ from datetime import datetime
 from typing import Optional
 
 from .errors import (
-    ActiveAppointmentExists, ActorNotAllowed, InvalidMeetingType, InvalidTransition,
-    NotYourAdvisor, ReasonRequired, SlotInPast, SlotUnavailable,
+    ActiveAppointmentExists,
+    ActorNotAllowed,
+    InvalidMeetingType,
+    InvalidTransition,
+    NotYourAdvisor,
+    ReasonRequired,
+    SlotInPast,
+    SlotUnavailable,
 )
 
 REQUESTED, CONFIRMED, REJECTED = "REQUESTED", "CONFIRMED", "REJECTED"

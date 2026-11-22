@@ -8,18 +8,30 @@ from django.utils import timezone
 
 from . import integrations, notifications
 from .domain.appointment_rules import (
-    ACTIVE_STATUSES, ADVISOR, CONFIRMED, ONLINE, STUDENT, check_can_request, next_status,
+    ACTIVE_STATUSES,
+    ADVISOR,
+    CONFIRMED,
+    ONLINE,
+    STUDENT,
+    check_can_request,
+    next_status,
 )
 from .domain.errors import (
-    ActiveAppointmentExists, ActorNotAllowed, MeetingLinkRequired, NotFound, SlotUnavailable,
+    ActiveAppointmentExists,
+    ActorNotAllowed,
+    MeetingLinkRequired,
+    NotFound,
+    SlotUnavailable,
 )
 from .models import Appointment, OfficeHourSlot, StudentProfile
 
 
 def _student_of(user):
     try:
-        return user.student_profile
-    except ObjectDoesNotExist:
+        # Always reload the profile so a matching operation performed earlier in
+        # the request cannot leave us with a stale reverse-relation cache.
+        return StudentProfile.objects.get(user=user)
+    except (ObjectDoesNotExist, StudentProfile.DoesNotExist):
         raise ActorNotAllowed("Bu işlem yalnızca öğrenciler içindir.")
 
 

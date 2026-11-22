@@ -170,9 +170,9 @@ Counts were taken from GitHub on November 24, 2026, and are updated before the `
 
 | Work | Evidence |
 |---|---|
-| Non-functional and security requirements | Issue [#60](https://github.com/seng321-group8/SENG321-Project/issues/60) · PR [#__](https://github.com/seng321-group8/SENG321-Project/pull/__) · `docs/nfr.md` |
-| Deployment view (stack per D-27) | Issue [#66](https://github.com/seng321-group8/SENG321-Project/issues/66) · PR [#__](https://github.com/seng321-group8/SENG321-Project/pull/__) · `docs/architecture/deployment.md` |
-| Sequence diagrams: registration, login and matching | Issue [#67](https://github.com/seng321-group8/SENG321-Project/issues/67) · PR [#__](https://github.com/seng321-group8/SENG321-Project/pull/__) |
+| Non-functional and security requirements | Issue [#60](https://github.com/seng321-group8/SENG321-Project/issues/60) · PR [#107](https://github.com/seng321-group8/SENG321-Project/pull/107) · `docs/nfr.md` |
+| Deployment view (stack per D-27) | Issue [#66](https://github.com/seng321-group8/SENG321-Project/issues/66) · PR [#106](https://github.com/seng321-group8/SENG321-Project/pull/106) · `docs/architecture/deployment.md` |
+| Sequence diagrams: registration, login and matching | Issue [#67](https://github.com/seng321-group8/SENG321-Project/issues/67) · PR [#108](https://github.com/seng321-group8/SENG321-Project/pull/108) |
 | Filled in the faculty form for four advisors | Issue [#72](https://github.com/seng321-group8/SENG321-Project/issues/72) (comment) |
 
 ## Emine BARAN — Implementation and Integration Engineer

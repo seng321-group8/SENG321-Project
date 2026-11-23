@@ -117,7 +117,7 @@ The system is a new, self-contained web application. Its context and boundary ar
 | FR-07 | The system shall allow the administrator to create advisor accounts with an address in the format first.last or f.last `@ankarabilim.edu.tr`; a verification e-mail shall be sent to the advisor. | Must | D-14 | US-05 | `createAdvisorAccount`, `listAdvisors` |
 | FR-08 | The system shall give each new advisor a quota of 20 students and allow the administrator to change it; a quota below the advisor's current number of students shall be rejected (409). | Must | D-17 | US-05 | `updateAdvisorQuota` |
 | FR-09 | The system shall allow the administrator to add, rename and deactivate interests; duplicate names (case-insensitive) shall be rejected (409). A deactivated interest shall not be offered for new selections but shall stay on existing profiles and still count in matching. | Must | D-25 | US-04 | `listInterests`, `createInterest`, `updateInterest` |
-| FR-10 | The system shall let the administrator configure the maximum number of interests per user (value set after the faculty form; 5 until then). | Must | D-25 | US-04, US-06, US-07 | configuration |
+| FR-10 | The system shall let the administrator configure the maximum number of interests per user (5, D-25). | Must | D-25 | US-04, US-06, US-07 | configuration |
 
 ### 3.3 Profiles
 
@@ -296,7 +296,7 @@ The full mapping from functional requirements to use cases is in `docs/use-cases
 
 | Issue | Affects | Owner | Planned resolution |
 |---|---|---|---|
-| Final maximum number of interests per user and the initial interest list | FR-09 – FR-12 | Aybüke | Faculty form (#72), recorded in D-25 |
+| Final maximum number of interests per user and the initial interest list | FR-09 – FR-12 | Aybüke | Resolved in #83 (D-25: 44 interests, maximum 5) |
 | Appointment reminders and automatic expiry of unanswered requests | FR-32 | Aybüke | Deferred; decided after the first release |
 | The change reason "year change" is named `grade_change` in `openapi.yaml` | FR-37, FR-39 | Fatima | Resolved in #70 (`year_change`) |
 | No operation for entering a manual meeting link (the appointment PATCH accepts only the outcome status) | FR-35 | Fatima | Resolved in #70 (`meetingLink` in `confirmAppointment`) |

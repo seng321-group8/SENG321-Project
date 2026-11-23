@@ -194,7 +194,7 @@ Sources: team meeting of October 27, 2026 (D-01 to D-13) and the project brief o
 - Accepted on: November 2, 2026
 - Proposed by: Team (project brief)
 - Owner: Aybüke
-- Decision: A student sends a change request to the administrator with a reason (time conflict, field mismatch, communication issue, year change, other) and an explanation of at least 20 characters. Only one pending request is allowed. The administrator approves or rejects it with a note. On approval the student is re-matched excluding the previous advisor; if no other advisor is available, the student stays with the current advisor. Moving to a new year gives the student an optional right to request a change; there is no automatic re-matching.
+- Decision: A student sends a change request to the administrator with a reason (time conflict, field mismatch, communication issue, year change, other) and an explanation of at least 20 characters. Only one pending request is allowed. The administrator approves or rejects it with a note. On approval the student is re-matched excluding the previous advisor; if no other advisor is available, the student stays with the current advisor. On approval, future appointments with the previous advisor are cancelled.Moving to a new year gives the student an optional right to request a change; there is no automatic re-matching.
 - Rationale: Fair and recorded changes without disrupting existing matches.
 - Confirmed by the Product Owner on November 3, 2026: year-change requests go to the administrator through the same flow, with the reason "year change".
 

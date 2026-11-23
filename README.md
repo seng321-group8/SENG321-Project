@@ -106,8 +106,8 @@ Release tag: [sprint-2](https://github.com/seng321-group8/SENG321-Project/releas
 ### Deliverables
 | Deliverable | File | Issue | Pull requests |
 |---|---|---|---|
-| Software requirements specification | docs/srs.md | #57 | #74 |
-| Use cases and coverage matrix | docs/use-cases.md | #58 | #75 |
+| Software requirements specification | docs/srs.md | #57 | #74, #104 |
+| Use cases and coverage matrix | docs/use-cases.md | #58 | #75, #105 |
 | Refined product backlog | docs/backlog.md | #59 | #76 |
 | Non-functional and security requirements | docs/nfr.md | #60 | #107 |
 | Quality measures | docs/quality-measures.md | #61 | #80 |

@@ -1,6 +1,6 @@
 # Advisor and Administrator Screens
 
-Figma design file: https://www.figma.com/design/YWPkjTqH5NflMmNDhqw4uu/Untitled?node-id=0-1&t=FJpGnegomFfEfPso-1
+Figma design file: https://www.figma.com/design/YWPkjTqH5NflMmNDhqw4uu/Advisor-and-Administrator-Screens?node-id=0-1&t=NmPhA2VEReo0FdlC-1
 
 Each screen is designed for two sizes:
 

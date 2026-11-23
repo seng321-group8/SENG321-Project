@@ -90,7 +90,7 @@
 | 21 | US-23 | Student uploads, replaces or deletes a CV | FR-36 | P2 | Final | 3 | US-06 | Yağız | Aybüke | `uploadMyCv`, `downloadMyCv`, `deleteMyCv` |
 | 22 | US-24 | Assigned advisor downloads a student's CV | FR-36, FR-40 | P2 | Final | 2 | US-23, US-12 | Yağız | Aybüke | `downloadStudentCv` |
 | 23 | US-21 | Advisor connects Google Calendar; Meet link created for confirmed online appointments | FR-34 | P2 | Final | 5 | US-16 | Fatima | Aybüke | `getGoogleCalendarStatus`, `startGoogleCalendarConnect`, `completeGoogleCalendarConnect`, `disconnectGoogleCalendar` |
-| 24 | US-22 | Advisor enters a meeting link manually | FR-35 | P2 | Final | 1 | US-16 | Emine | Aybüke | to be added in #70 |
+| 24 | US-22 | Advisor enters a meeting link manually | FR-35 | P2 | Final | 1 | US-16 | Emine | Aybüke | `confirmAppointment` (`meetingLink`) |
 | 25 | US-25 | Student requests an advisor change with a reason and explanation | FR-37, FR-39, FR-40 | P2 | Final | 3 | US-12 | Emine | Aybüke | `createAdvisorChangeRequest`, `listAdvisorChangeRequests` |
 | 26 | US-26 | Admin decides on a change request; approved requests are re-matched | FR-38 | P2 | Final | 5 | US-25, US-10 | Fatima | Nil | `decideAdvisorChangeRequest` |
 | | | **Total** | | | | **79** | | | | |

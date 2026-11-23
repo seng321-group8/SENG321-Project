@@ -8,8 +8,8 @@
 | Document owner (Accountable) | Aybüke BALÇIK — Product Owner and Requirements Engineer |
 | Reviewer | Fatima Zehra ÖKTEM — Lead Software Architect |
 | Related issue | #57 |
-| Version | 1.0 (Sprint 2 draft) |
-| Sources | `docs/proposal.md`, `docs/vision-boundary.md`, `docs/decision.md` (D-01 to D-27), `docs/backlog.md`, `openapi.yaml` v0.4.0 |
+| Version | 1.1 (Sprint 2 baseline, release `sprint-2`) |
+| Sources | `docs/proposal.md`, `docs/vision-boundary.md`, `docs/decision.md` (D-01 to D-28), `docs/backlog.md`, `openapi.yaml` v0.5.0 |
 
 ---
 
@@ -266,6 +266,8 @@ The business rules BR-1 to BR-18 in `docs/backlog.md` (Section 2) are part of th
 
 ## 8. Traceability
 
+The verification method and the planned tests of every FR, and the full goal → requirement → story → API → screen → architecture → test matrix, are in [`docs/traceability.md`](traceability.md).
+
 | FR | Decision | Stories | Use case (`docs/use-cases.md`) |
 |---|---|---|---|
 | FR-01 – FR-05 | D-14, D-19 | US-01, US-02, US-03 | UC-01, UC-02, UC-03 |
@@ -300,3 +302,12 @@ The full mapping from functional requirements to use cases is in `docs/use-cases
 | Appointment reminders and automatic expiry of unanswered requests | FR-32 | Aybüke | Deferred; decided after the first release |
 | The change reason "year change" is named `grade_change` in `openapi.yaml` | FR-37, FR-39 | Fatima | Resolved in #70 (`year_change`) |
 | No operation for entering a manual meeting link (the appointment PATCH accepts only the outcome status) | FR-35 | Fatima | Resolved in #70 (`meetingLink` in `confirmAppointment`) |
+
+## 10. Change history
+
+| Version | Date | Change | Pull request |
+|---|---|---|---|
+| 1.0 | November 19, 2026 | First version: FR-01 – FR-40, interfaces, data, status rules, traceability | #74 |
+| 1.0.1 | November 23, 2026 | Operation names and terms aligned with OpenAPI v0.5.0 | #104 |
+| 1.0.2 | November 23, 2026 | Interest limit marked as decided (D-25) | #114 |
+| 1.1 | November 24, 2026 | Baseline for the `sprint-2` release; verification methods and traceability moved to `docs/traceability.md` | #124 |

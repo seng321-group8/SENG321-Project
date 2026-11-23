@@ -151,7 +151,7 @@ Release tag: [sprint-2](https://github.com/seng321-group8/SENG321-Project/releas
 ### Design files
 - [User flows (FigJam)](https://www.figma.com/board/yCbRs4vPk9B99bneEDwANZ/Career-Advisor-Matching---User-Flows?node-id=0-1&t=vo9uhkk9qqeXH3nt-1)
 - [Student screens (Figma)](https://www.figma.com/design/4EBRTQr6qI3nCYrgwtjXFN/Career-Advisor-Matching---Screens?node-id=0-1&t=FTJWB3RPnHpztpoo-1)
-- [Advisor and admin screens (Figma)](https://www.figma.com/design/YWPkjTqH5NflMmNDhqw4uu/Untitled?node-id=0-1&t=FJpGnegomFfEfPso-1)
+- [Advisor and admin screens (Figma)](https://www.figma.com/design/YWPkjTqH5NflMmNDhqw4uu/Advisor-and-Administrator-Screens?node-id=0-1&t=NmPhA2VEReo0FdlC-1)
 
 ### Evidence
 - Release: [sprint-2](https://github.com/seng321-group8/SENG321-Project/releases/tag/sprint-2)

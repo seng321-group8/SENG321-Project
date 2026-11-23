@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Owner | Sümeyye Ebrar COMART — QA and Test Automation Engineer |
+| Owner | Ebrar COMART — QA and Test Automation Engineer |
 | Related issue | #17 (backlog), #16 (OpenAPI) |
 | Aligned with | `docs/backlog.md` (US-01 to US-26), `docs/decision.md` (D-01 to D-27) |
 | Status | Draft for Sprint 1 review; criteria will be executed as tests after implementation |

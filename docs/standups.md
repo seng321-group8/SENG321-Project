@@ -1,7 +1,7 @@
 # Daily Stand-up Records
 
 ## Meeting 1 – October 27, 2026
-Attendees: Aybüke BALÇIK, Şevval Nil UÇAR, Fatima Zehra ÖKTEM, Sümeyye Ebrar COMART, Yağız Efe DERE, Emine BARAN
+Attendees: Aybüke BALÇIK, Şevval Nil UÇAR, Fatima Zehra ÖKTEM, Ebrar COMART, Yağız Efe DERE, Emine BARAN
 Format: Online (Google Meet)
 
 ### Meeting Purpose
@@ -28,7 +28,7 @@ Project kick-off, role assignment, and initial product brainstorming.
 ---
 
 ## Meeting 2 – November 1, 2026
-Attendees: Aybüke BALÇIK, Şevval Nil UÇAR, Fatima Zehra ÖKTEM, Sümeyye Ebrar COMART, Yağız Efe DERE, Emine BARAN
+Attendees: Aybüke BALÇIK, Şevval Nil UÇAR, Fatima Zehra ÖKTEM, Ebrar COMART, Yağız Efe DERE, Emine BARAN
 Format: Online (Google Meet)
 
 ### Decisions and Topics
@@ -66,3 +66,26 @@ Format:  Face-to-face
 ### Notes and Decisions
 - Şevval Nil and Fatima Zehra consulted the course instructor regarding the advisor student quota (following up on the open question from Meeting 2).
 - The instructor recommended an admin-configurable quota; default 20, cannot go below the current student count (D-17).
+
+---
+
+## Informal discussions – November 17, 2026
+Participants: some team members and the course instructor (face to face)
+
+- Topic: advisor interest data. The instructor advised to take the keywords from the advisors' public web pages and Google Scholar, and to generate the other details randomly.
+- Result: 24 advisors were shared between the six team members (four each) and the form was filled in on their behalf.
+- Impediments: none.
+
+---
+
+## Sprint 2 — Asynchronous Coordination (WhatsApp)
+No face-to-face stand-up meetings were held in Sprint 2. The team coordinated in the team WhatsApp group; the main points are recorded below. Fixed weekly meetings are an action item for Sprint 3 (see `docs/retrospective.md`).
+
+| Date | Topic | Outcome |
+|---|---|---|
+| November 15, 2026 | Sprint 2 planning | The Scrum Master opened the Sprint 2 issues (#57–#71, #72 on November 16), assigned an owner and a reviewer to each and added them to the Sprint 2 view of the board. |
+| November 17, 2026 | Advisor interest data | See the informal discussion above. |
+| November 18, 2026 | Sprint 2 task list | The Product Owner shared a per-person task list. No branch or pull request existed yet; members were asked to open draft pull requests. |
+| November 19–20, 2026 | Faculty form | The 24 advisors were shared between the six members (four each) and the form was filled in from public faculty pages and CVs. The final interest list and the seed data were merged on November 20 (#83). |
+| November 22, 2026 | Status check | Review of the repository: OpenAPI v0.5.0 and the aligned diagrams were in review; the NFR, deployment and auth/matching sequence tasks (#60, #66, #67) had not started and were raised as the main risk. A list of remaining work was shared. |
+| November 23, 2026 | Final check | #60, #66 and #67 were completed; review comments on the advisor and admin screens, the C4 terms, D-21 and the SRS were fixed; the submission section was prepared. |

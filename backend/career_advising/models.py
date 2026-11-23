@@ -6,7 +6,15 @@ from django.db import models
 from django.db.models import F, Q
 
 from .domain.appointment_rules import (
-    ACTIVE_STATUSES, CANCELLED, COMPLETED, CONFIRMED, IN_PERSON, NO_SHOW, ONLINE, REJECTED, REQUESTED,
+    ACTIVE_STATUSES,
+    CANCELLED,
+    COMPLETED,
+    CONFIRMED,
+    IN_PERSON,
+    NO_SHOW,
+    ONLINE,
+    REJECTED,
+    REQUESTED,
 )
 
 SLOT_MINUTES = 30

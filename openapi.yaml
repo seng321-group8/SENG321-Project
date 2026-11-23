@@ -1,11 +1,11 @@
 openapi: 3.1.0
 info:
   title: Career Advisor Matching and Appointment System API
-  version: 0.4.0
+  version: 0.5.0
   description: |
     A student fills in a profile and, in the next weekly run, the system
     assigns a permanent career advisor using rule-based matching (no AI).
-    The student then picks one of the advisor's 30-minute office-hour slots
+    The student then picks one of the advisor's free 30-minute slots
     (online or in person) and sends an appointment REQUEST. The appointment
     becomes final when the advisor confirms it.
 
@@ -13,8 +13,12 @@ info:
     Framework.
 
     **Decision summary**
-    - Appointment length is fixed at 30 minutes. The advisor enters an
-      office-hour range and the system splits it into 30-minute slots.
+    - Appointment length is fixed at 30 minutes. The advisor enters weekly
+      office hours (for example Tuesday 14:00-16:00). The system splits each
+      range into 30-minute slots and shows a student the free ones within the
+      booking window (14 days by default, to be confirmed by the Product
+      Owner). A slot is free when no `REQUESTED` or `CONFIRMED` appointment
+      uses it.
     - Appointment flow: `REQUESTED` -> `CONFIRMED` / `REJECTED` ->
       `COMPLETED` / `NO_SHOW`. A student or advisor can cancel with a reason,
       which sets `CANCELLED`.
@@ -30,8 +34,8 @@ info:
       enters a Zoom/Meet/Teams link manually.
     - CV: PDF only, at most 2 MB. Only the student and the assigned advisor
       can access it.
-    - Advisor capacity is set by the administrator. A new advisor starts at 20
-      students. Capacity cannot be set below the advisor's current student
+    - Advisor quota is set by the administrator. A new advisor starts at 20
+      students. Quota cannot be set below the advisor's current student
       count (409).
     - Only Ankara Bilim University members can register. Student e-mail is
       `s` + 9-digit student number + `@ankarabilim.edu.tr`
@@ -46,26 +50,32 @@ info:
     - If an advisor change is approved but no other suitable advisor exists,
       the student stays with the current advisor and no appointment is
       cancelled.
-    - A student who moves up a grade may send an optional advisor change
-      request with reason `grade_change`. It goes to the administrator and
-      never changes the assignment automatically.
-    - If an advisor edits their profile (keywords, served grades, bio), the
+    - A student who moves up a year may send an optional advisor change
+      request with reason `year_change`. It goes to the administrator and
+      never changes the assignment automatically. When the administrator
+      approves a change, the system re-matches only that student (a matching
+      run with `trigger=change_request`) and future appointments with the old
+      advisor are cancelled.
+    - If an advisor edits their profile (interests, served years, bio), the
       assignments of current students are not affected.
+    - `studentNo` (9 digits) is taken from the student's e-mail address. It is
+      read-only, unique and visible to the student, their advisor and
+      administrators.
 
     **Matching (weekly batch).** Matching does not run when a profile is saved.
     It runs every Sunday at 22:00 (Europe/Istanbul) and an administrator can
     also start it manually. Waiting students are processed in order of fewest
     candidate advisors first, then registration time. Score =
-    `2 x common keywords` + `1` if same department + `1` if the advisor serves
-    the student's grade. GPA is not part of the score. Ties go to the advisor
+    `2 x common interests` + `1` if same department + `1` if the advisor serves
+    the student's year. GPA is not part of the score. Ties go to the advisor
     with fewer students (counts are updated live within a run).
-    - Round 1: advisors who serve the student's grade and share at least one
-      keyword.
-    - Round 2: the grade requirement is dropped; at least one shared keyword
+    - Round 1: advisors who serve the student's year and share at least one
+      interest.
+    - Round 2: the year requirement is dropped; at least one shared interest
       is still required.
-    - Round 3: no shared keyword needed. Same-department advisors first, then
-      the advisor with the most free capacity.
-    - If no advisor has free capacity, the student stays `waiting` and is
+    - Round 3: no shared interest needed. Same-department advisors first, then
+      the advisor with the most free quota.
+    - If no advisor has free quota, the student stays `waiting` and is
       listed for the administrator.
     The student can see why they were matched (`matchReasons`) and when the
     next assignment run happens (`nextAssignmentAt`).
@@ -88,7 +98,7 @@ servers:
 tags:
   - name: Auth
   - name: Reference
-    description: Keyword and department lists
+    description: Interest and department lists
   - name: Student
   - name: Advisor
   - name: Appointments
@@ -288,13 +298,13 @@ paths:
         '401':
           $ref: '#/components/responses/Unauthorized'
 
-  /keywords:
+  /interests:
     get:
-      operationId: listKeywords
+      operationId: listInterests
       tags: [Reference]
-      summary: List the predefined interest areas (keywords)
+      summary: List the predefined interest areas (interests)
       description: |
-        Returns only active keywords. An administrator can pass
+        Returns only active interests. An administrator can pass
         `includeInactive=true` to see deactivated ones as well.
       parameters:
         - name: includeInactive
@@ -304,13 +314,13 @@ paths:
             default: false
       responses:
         '200':
-          description: Keywords
+          description: Interests
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Keyword'
+                  $ref: '#/components/schemas/Interest'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
@@ -520,12 +530,12 @@ paths:
     put:
       operationId: saveMyAdvisorProfile
       tags: [Advisor]
-      summary: Update keywords, served grades, bio and online preference
+      summary: Update interests, served years, bio and online preference
       description: |
-        The advisor chooses which grades they serve, their interest areas, a
+        The advisor chooses which years they serve, their interest areas, a
         short self-introduction (`bio`) and whether they offer online meetings
         (`offersOnline`). These changes do not affect current students; only
-        later assignment runs use the new values. Capacity cannot be changed
+        later assignment runs use the new values. Quota cannot be changed
         here (administrator only).
       requestBody:
         required: true
@@ -661,24 +671,31 @@ paths:
     get:
       operationId: listMyOfficeHours
       tags: [Advisor]
-      summary: List my office-hour slots (booked and free)
+      summary: List my weekly office hours
+      description: |
+        Office hours are recurring weekly rules (for example Tuesday
+        14:00-16:00). The system turns each rule into 30-minute slots when a
+        student looks for a free time.
       responses:
         '200':
-          description: Slots
+          description: Weekly office hours
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/OfficeHourSlot'
+                  $ref: '#/components/schemas/OfficeHour'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
     post:
-      operationId: createOfficeHours
+      operationId: createOfficeHour
       tags: [Advisor]
-      summary: Add an office-hour range (split into 30-minute slots)
+      summary: Add a weekly office hour
+      description: |
+        The duration must be a multiple of 30 minutes. Each 30-minute part of
+        the range becomes a bookable slot every week.
       requestBody:
         required: true
         content:
@@ -687,13 +704,11 @@ paths:
               $ref: '#/components/schemas/OfficeHourInput'
       responses:
         '201':
-          description: The 30-minute slots that were created
+          description: The office hour that was created
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/OfficeHourSlot'
+                $ref: '#/components/schemas/OfficeHour'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -701,7 +716,7 @@ paths:
         '403':
           $ref: '#/components/responses/Forbidden'
         '409':
-          description: Overlaps an existing slot of the same advisor
+          description: Overlaps another office hour of the same advisor
           content:
             application/json:
               schema:
@@ -710,13 +725,13 @@ paths:
                 code: OFFICE_HOUR_OVERLAP
                 message: This time range overlaps an existing office hour.
 
-  /advisors/me/office-hours/{slotId}:
+  /advisors/me/office-hours/{officeHourId}:
     delete:
-      operationId: deleteOfficeHourSlot
+      operationId: deleteOfficeHour
       tags: [Advisor]
-      summary: Delete a free office-hour slot
+      summary: Delete a weekly office hour
       parameters:
-        - name: slotId
+        - name: officeHourId
           in: path
           required: true
           schema:
@@ -732,21 +747,27 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
         '409':
-          description: The slot has a requested or confirmed appointment; cancel it first
+          description: A future `REQUESTED` or `CONFIRMED` appointment uses this office hour; cancel it first
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
               example:
-                code: SLOT_HAS_ACTIVE_APPOINTMENT
-                message: This slot has an active appointment. Cancel it first.
+                code: OFFICE_HOUR_HAS_ACTIVE_APPOINTMENTS
+                message: A future appointment uses this office hour. Cancel it first.
 
-  /advisors/{advisorId}/office-hours:
+  /advisors/{advisorId}/available-slots:
     get:
-      operationId: listAdvisorOfficeHours
+      operationId: listAvailableSlots
       tags: [Student]
-      summary: List an advisor's office-hour slots
-      description: A student can only see their own advisor's slots (otherwise 403).
+      summary: List an advisor's free 30-minute slots
+      description: |
+        Free slots are computed from the advisor's weekly office hours, minus
+        the times that already have a `REQUESTED` or `CONFIRMED` appointment.
+        Only times in the future and within the booking window are returned
+        (the window is a setting, 14 days by default, to be confirmed by the
+        Product Owner). A student can only see their own advisor's slots
+        (otherwise 403).
       parameters:
         - $ref: '#/components/parameters/AdvisorId'
         - name: from
@@ -759,20 +780,15 @@ paths:
           schema:
             type: string
             format: date-time
-        - name: onlyAvailable
-          in: query
-          schema:
-            type: boolean
-            default: true
       responses:
         '200':
-          description: Slots
+          description: Free slots, ordered by start time
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/OfficeHourSlot'
+                  $ref: '#/components/schemas/AvailableSlot'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -808,7 +824,8 @@ paths:
       tags: [Appointments]
       summary: Send an appointment request (student)
       description: |
-        Rules: only a slot of the student's own advisor; one request or
+        Rules: send `officeHourId` and the slot's `startAt` (from
+        `listAvailableSlots`); only the student's own advisor; one request or
         appointment per slot; at most 1 active (`REQUESTED` or `CONFIRMED`)
         appointment per student; `online` is allowed only if the advisor has
         `offersOnline=true`. On success the appointment is `REQUESTED`, the
@@ -828,7 +845,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Appointment'
         '400':
-          description: Validation error, or online meeting requested but not offered
+          description: Validation error, invalid start time, or online meeting requested but not offered
           content:
             application/json:
               schema:
@@ -839,6 +856,11 @@ paths:
                   value:
                     code: VALIDATION_ERROR
                     message: The request could not be validated.
+                invalidStartTime:
+                  summary: Not a bookable time
+                  value:
+                    code: INVALID_START_TIME
+                    message: startAt is not a free 30-minute slot of this office hour (wrong day or time, in the past, or beyond the booking window).
                 onlineNotOffered:
                   summary: Advisor does not offer online meetings
                   value:
@@ -847,7 +869,7 @@ paths:
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
-          description: The slot does not belong to the student's advisor
+          description: The office hour does not belong to the student's advisor
           content:
             application/json:
               schema:
@@ -1148,7 +1170,7 @@ paths:
       summary: Send an advisor change request
       description: |
         Only 1 pending request is allowed at a time. A student who moved up a
-        grade can use reason `grade_change`; this is optional and never
+        year can use reason `year_change`; this is optional and never
         changes the assignment by itself.
       requestBody:
         required: true
@@ -1306,11 +1328,11 @@ paths:
                 code: MATCHING_RUN_IN_PROGRESS
                 message: An assignment run is already in progress.
 
-  /admin/keywords:
+  /admin/interests:
     post:
-      operationId: createKeyword
+      operationId: createInterest
       tags: [Admin]
-      summary: Add a keyword (interest area)
+      summary: Add a interest (interest area)
       requestBody:
         required: true
         content:
@@ -1329,7 +1351,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Keyword'
+                $ref: '#/components/schemas/Interest'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -1337,25 +1359,25 @@ paths:
         '403':
           $ref: '#/components/responses/Forbidden'
         '409':
-          description: The keyword already exists
+          description: The interest already exists
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
               example:
-                code: KEYWORD_ALREADY_EXISTS
-                message: This keyword already exists.
+                code: INTEREST_ALREADY_EXISTS
+                message: This interest already exists.
 
-  /admin/keywords/{keywordId}:
+  /admin/interests/{interestId}:
     patch:
-      operationId: updateKeyword
+      operationId: updateInterest
       tags: [Admin]
-      summary: Rename or deactivate/reactivate a keyword
+      summary: Rename or deactivate/reactivate a interest
       description: |
-        A deactivated keyword is hidden from selection lists but stays on
+        A deactivated interest is hidden from selection lists but stays on
         existing profiles, so earlier assignments keep their history.
       parameters:
-        - name: keywordId
+        - name: interestId
           in: path
           required: true
           schema:
@@ -1381,7 +1403,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Keyword'
+                $ref: '#/components/schemas/Interest'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -1391,14 +1413,14 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
         '409':
-          description: Another keyword already has this name
+          description: Another interest already has this name
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
               example:
-                code: KEYWORD_ALREADY_EXISTS
-                message: This keyword already exists.
+                code: INTEREST_ALREADY_EXISTS
+                message: This interest already exists.
 
   /admin/advisors:
     get:
@@ -1451,11 +1473,11 @@ paths:
                 code: EMAIL_ALREADY_REGISTERED
                 message: An account with this e-mail already exists.
 
-  /admin/advisors/{advisorId}/capacity:
+  /admin/advisors/{advisorId}/quota:
     patch:
-      operationId: updateAdvisorCapacity
+      operationId: updateAdvisorQuota
       tags: [Admin]
-      summary: Change an advisor's capacity
+      summary: Change an advisor's quota
       parameters:
         - $ref: '#/components/parameters/AdvisorId'
       requestBody:
@@ -1464,9 +1486,9 @@ paths:
           application/json:
             schema:
               type: object
-              required: [capacity]
+              required: [quota]
               properties:
-                capacity:
+                quota:
                   type: integer
                   minimum: 1
                   maximum: 500
@@ -1486,14 +1508,14 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
         '409':
-          description: The new capacity is below the advisor's current student count
+          description: The new quota is below the advisor's current student count
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
               example:
-                code: CAPACITY_BELOW_STUDENT_COUNT
-                message: Capacity cannot be lower than the advisor's current student count.
+                code: QUOTA_BELOW_STUDENT_COUNT
+                message: Quota cannot be lower than the advisor's current student count.
 
 components:
   securitySchemes:
@@ -1668,7 +1690,7 @@ components:
 
     Role:
       type: string
-      enum: [student, advisor, admin]
+      enum: [STUDENT, ADVISOR, ADMIN]
 
     User:
       type: object
@@ -1696,7 +1718,7 @@ components:
           type: string
           example: Computer Engineering
 
-    Keyword:
+    Interest:
       type: object
       required: [id, name, active]
       properties:
@@ -1708,7 +1730,7 @@ components:
           example: Internship
         active:
           type: boolean
-          description: Deactivated keywords cannot be newly selected.
+          description: Deactivated interests cannot be newly selected.
 
     MatchStatus:
       type: string
@@ -1716,9 +1738,9 @@ components:
 
     StudentProfileInput:
       type: object
-      required: [grade, departmentId, gpa, keywordIds]
+      required: [year, departmentId, gpa, interestIds]
       properties:
-        grade:
+        year:
           type: integer
           minimum: 1
           maximum: 4
@@ -1731,7 +1753,7 @@ components:
           minimum: 0.00
           maximum: 4.00
           example: 3.25
-        keywordIds:
+        interestIds:
           type: array
           description: |
             Interest areas from the predefined list (no free text), unordered.
@@ -1745,14 +1767,23 @@ components:
 
     StudentProfile:
       type: object
-      required: [studentId, fullName, grade, department, keywords, matchStatus, hasCv]
+      required: [studentId, studentNo, fullName, year, department, interests, matchStatus, hasCv]
       properties:
         studentId:
           type: string
           format: uuid
+        studentNo:
+          type: string
+          pattern: '^[0-9]{9}$'
+          readOnly: true
+          example: '230205030'
+          description: |
+            Derived from the student's e-mail address (`s` + 9 digits).
+            Read-only and unique; not sent at registration. Visible to the
+            student, their advisor and administrators.
         fullName:
           type: string
-        grade:
+        year:
           type: integer
           minimum: 1
           maximum: 4
@@ -1764,10 +1795,10 @@ components:
           minimum: 0.00
           maximum: 4.00
           description: Returned only to the student and their advisor; absent for other roles.
-        keywords:
+        interests:
           type: array
           items:
-            $ref: '#/components/schemas/Keyword'
+            $ref: '#/components/schemas/Interest'
         matchStatus:
           $ref: '#/components/schemas/MatchStatus'
         advisorId:
@@ -1797,9 +1828,9 @@ components:
 
     AdvisorProfileInput:
       type: object
-      required: [keywordIds, servedGrades]
+      required: [interestIds, servedYears]
       properties:
-        keywordIds:
+        interestIds:
           type: array
           description: At least 1; the maximum is configurable and currently 5.
           minItems: 1
@@ -1808,9 +1839,9 @@ components:
           items:
             type: string
             format: uuid
-        servedGrades:
+        servedYears:
           type: array
-          description: The grades (1-4) this advisor chooses to serve.
+          description: The years (1-4) this advisor chooses to serve.
           minItems: 1
           uniqueItems: true
           items:
@@ -1842,14 +1873,14 @@ components:
         departmentId:
           type: string
           format: uuid
-        capacity:
+        quota:
           type: integer
           minimum: 1
           default: 20
 
     Advisor:
       type: object
-      required: [id, fullName, department, keywords, servedGrades, capacity, studentCount, offersOnline]
+      required: [id, fullName, department, interests, servedYears, quota, studentCount, offersOnline]
       properties:
         id:
           type: string
@@ -1861,11 +1892,11 @@ components:
           format: email
         department:
           $ref: '#/components/schemas/Department'
-        keywords:
+        interests:
           type: array
           items:
-            $ref: '#/components/schemas/Keyword'
-        servedGrades:
+            $ref: '#/components/schemas/Interest'
+        servedYears:
           type: array
           items:
             type: integer
@@ -1877,7 +1908,7 @@ components:
           description: Short self-introduction.
         offersOnline:
           type: boolean
-        capacity:
+        quota:
           type: integer
           minimum: 1
           default: 20
@@ -1891,7 +1922,7 @@ components:
     MatchReasons:
       type: object
       description: Why the student was matched with this advisor.
-      required: [round, score, commonKeywords, sameDepartment, servesStudentGrade]
+      required: [round, score, commonInterests, sameDepartment, servesStudentYear]
       properties:
         round:
           type: integer
@@ -1901,14 +1932,14 @@ components:
         score:
           type: integer
           minimum: 0
-          description: 2 x common keywords + same department + serves grade.
-        commonKeywords:
+          description: 2 x common interests + same department + serves year.
+        commonInterests:
           type: array
           items:
-            $ref: '#/components/schemas/Keyword'
+            $ref: '#/components/schemas/Interest'
         sameDepartment:
           type: boolean
-        servesStudentGrade:
+        servesStudentYear:
           type: boolean
 
     AdvisorAssignment:
@@ -1932,11 +1963,15 @@ components:
           format: uuid
         trigger:
           type: string
-          enum: [scheduled, manual]
+          enum: [scheduled, manual, change_request]
         triggeredBy:
           type: [string, 'null']
           format: uuid
           description: Administrator who started a manual run; null for scheduled runs.
+        changeRequestId:
+          type: [string, 'null']
+          format: uuid
+          description: Set when `trigger=change_request` (single-student run after an approved change).
         status:
           type: string
           enum: [RUNNING, COMPLETED, FAILED]
@@ -1955,7 +1990,7 @@ components:
         waitingCount:
           type: integer
           minimum: 0
-          description: Students left waiting because no advisor had free capacity.
+          description: Students left waiting because no advisor had free quota.
 
     GoogleCalendarStatus:
       type: object
@@ -1972,25 +2007,33 @@ components:
 
     OfficeHourInput:
       type: object
-      required: [startsAt, endsAt]
+      required: [dayOfWeek, startTime, endTime]
       properties:
-        startsAt:
+        dayOfWeek:
+          type: integer
+          minimum: 1
+          maximum: 7
+          description: ISO weekday, 1 = Monday ... 7 = Sunday.
+        startTime:
           type: string
-          format: date-time
-        endsAt:
+          pattern: '^([01][0-9]|2[0-3]):[0-5][0-9]$'
+          example: '14:00'
+        endTime:
           type: string
-          format: date-time
+          pattern: '^([01][0-9]|2[0-3]):[0-5][0-9]$'
+          example: '16:00'
           description: |
-            Must be after `startsAt`; the duration must be a multiple of 30
-            minutes (e.g. 10:00-12:00 gives 4 slots).
+            Must be after `startTime`; the duration must be a multiple of 30
+            minutes (14:00-16:00 gives 4 slots each week).
         location:
           type: string
           example: Block B, Room 214
           description: Where in-person meetings take place.
 
-    OfficeHourSlot:
+    OfficeHour:
       type: object
-      required: [id, advisorId, startsAt, endsAt, isAvailable]
+      description: A weekly recurring office-hour rule (Europe/Istanbul time).
+      required: [id, advisorId, dayOfWeek, startTime, endTime]
       properties:
         id:
           type: string
@@ -1998,18 +2041,36 @@ components:
         advisorId:
           type: string
           format: uuid
-        startsAt:
+        dayOfWeek:
+          type: integer
+          minimum: 1
+          maximum: 7
+        startTime:
           type: string
-          format: date-time
-        endsAt:
+          example: '14:00'
+        endTime:
           type: string
-          format: date-time
-          description: Always `startsAt` + 30 minutes.
+          example: '16:00'
         location:
           type: string
-        isAvailable:
-          type: boolean
-          description: "True when there is no `REQUESTED` or `CONFIRMED` appointment."
+
+    AvailableSlot:
+      type: object
+      description: A free 30-minute slot computed from an office hour.
+      required: [officeHourId, startAt, endAt]
+      properties:
+        officeHourId:
+          type: string
+          format: uuid
+        startAt:
+          type: string
+          format: date-time
+        endAt:
+          type: string
+          format: date-time
+          description: Always `startAt` + 30 minutes.
+        location:
+          type: string
 
     MeetingType:
       type: string
@@ -2024,11 +2085,15 @@ components:
 
     AppointmentCreate:
       type: object
-      required: [slotId, meetingType]
+      required: [officeHourId, startAt, meetingType]
       properties:
-        slotId:
+        officeHourId:
           type: string
           format: uuid
+        startAt:
+          type: string
+          format: date-time
+          description: Start of the chosen 30-minute slot (taken from `listAvailableSlots`).
         meetingType:
           $ref: '#/components/schemas/MeetingType'
         note:
@@ -2037,12 +2102,12 @@ components:
 
     Appointment:
       type: object
-      required: [id, slotId, studentId, advisorId, startsAt, endsAt, meetingType, status]
+      required: [id, officeHourId, studentId, advisorId, startAt, endAt, meetingType, status]
       properties:
         id:
           type: string
           format: uuid
-        slotId:
+        officeHourId:
           type: string
           format: uuid
         studentId:
@@ -2051,10 +2116,10 @@ components:
         advisorId:
           type: string
           format: uuid
-        startsAt:
+        startAt:
           type: string
           format: date-time
-        endsAt:
+        endAt:
           type: string
           format: date-time
         meetingType:
@@ -2088,9 +2153,9 @@ components:
     ChangeReason:
       type: string
       description: |
-        `grade_change` is for a student who moved up a grade; it is optional
+        `year_change` is for a student who moved up a year; it is optional
         and never changes the assignment automatically.
-      enum: [time_conflict, field_mismatch, communication_issue, grade_change, other]
+      enum: [time_conflict, field_mismatch, communication_issue, year_change, other]
 
     ChangeRequestStatus:
       type: string

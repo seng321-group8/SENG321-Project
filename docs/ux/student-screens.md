@@ -1,6 +1,6 @@
 # Student Screens
 
-Figma design file: [LINK](https://www.figma.com/design/4EBRTQr6qI3nCYrgwtjXFN/Career-Advisor-Matching---Screens?node-id=0-1&t=FTJWB3RPnHpztpoo-1)
+Figma design file: [Career Advisor Matching – Student Screens](https://www.figma.com/design/4EBRTQr6qI3nCYrgwtjXFN/Career-Advisor-Matching---Screens?node-id=0-1&t=FTJWB3RPnHpztpoo-1)
 
 Each screen is designed for two sizes:
 

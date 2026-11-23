@@ -32,7 +32,7 @@ Detailed responsibilities per activity: [RACI matrix](docs/raci.md).
 - [Quality measures](docs/quality-measures.md)
 - UX: [user flows](docs/ux/user-flows.md), [student screens](docs/ux/student-screens.md), [advisor and admin screens](docs/ux/advisor-admin-screens.md)
 - Architecture: [C4 model](docs/architecture/c4.md), [deployment view](docs/architecture/deployment.md), [sequence diagrams: registration and matching](docs/architecture/sequence-auth-matching.md), [sequence diagrams: appointment and advisor change](docs/architecture/appointment-change.md), [class diagram](docs/architecture/class-diagram.md)
-- [Advisor seed data](docs/data/advisor-seed-data.md)
+- [Interest list](docs/interest-list.md) and [advisor seed data](docs/data/advisor-seed-data.md)
 - [Stand-up records](docs/standups.md)
 - [Retrospectives](docs/retrospective.md)
 
@@ -118,42 +118,45 @@ Repository: https://github.com/seng321-group8/SENG321-Project
 Release tag: [sprint-2](https://github.com/seng321-group8/SENG321-Project/releases/tag/sprint-2)
 
 ### Team members
-| Name | Role | GitHub | Sprint 2 work |
-|---|---|---|---|
-| Aybüke BALÇIK | Product Owner and Requirements Engineer | @aybuke9 | SRS, use cases, backlog, interest list (#57, #58, #59, #72, #74, #75, #76, #83, #105) |
-| Şevval Nil UÇAR | Scrum Master and Agile Process Coach | @niluccr | User flows, student screens, submission (#62, #63, #71, #72, #73, #77, #82, #111, #112) |
-| Fatima Zehra ÖKTEM | Lead Software Architect and Technical Lead | @fatimazhroktem | C4 model, OpenAPI (#65, #70, #78, #101, #104) |
-| Ebrar COMART | QA and Test Automation Engineer | @ebrarcomart | Quality measures, advisor and admin screens (#61, #64, #75, #80, #81) |
-| Yağız Efe DERE | DevOps and CI/CD Infrastructure Engineer | @yagizder | NFR and security, deployment view, sequence diagrams (#60, #66, #67, #106, #107, #108) |
-| Emine BARAN | Implementation and Integration Engineer | @Eminebaran | Sequence diagrams, class diagram (#68, #69, #79, #102, #103) |
+| Name | Role | GitHub | Sprint 2 work | Issues | Pull requests |
+|---|---|---|---|---|---|
+| Aybüke BALÇIK | Product Owner and Requirements Engineer | [@aybuke9](https://github.com/aybuke9) | SRS, use cases, refined backlog, interest list, decision log | [#57](https://github.com/seng321-group8/SENG321-Project/issues/57), [#58](https://github.com/seng321-group8/SENG321-Project/issues/58), [#59](https://github.com/seng321-group8/SENG321-Project/issues/59), [#72](https://github.com/seng321-group8/SENG321-Project/issues/72) | [#74](https://github.com/seng321-group8/SENG321-Project/pull/74), [#75](https://github.com/seng321-group8/SENG321-Project/pull/75), [#76](https://github.com/seng321-group8/SENG321-Project/pull/76), [#83](https://github.com/seng321-group8/SENG321-Project/pull/83), [#105](https://github.com/seng321-group8/SENG321-Project/pull/105), [#113](https://github.com/seng321-group8/SENG321-Project/pull/113), [#114](https://github.com/seng321-group8/SENG321-Project/pull/114) |
+| Şevval Nil UÇAR | Scrum Master and Agile Process Coach | [@niluccr](https://github.com/niluccr) | User flows, student screens, advisor seed data, submission and release | [#62](https://github.com/seng321-group8/SENG321-Project/issues/62), [#63](https://github.com/seng321-group8/SENG321-Project/issues/63), [#71](https://github.com/seng321-group8/SENG321-Project/issues/71), [#72](https://github.com/seng321-group8/SENG321-Project/issues/72) | [#73](https://github.com/seng321-group8/SENG321-Project/pull/73), [#77](https://github.com/seng321-group8/SENG321-Project/pull/77), [#82](https://github.com/seng321-group8/SENG321-Project/pull/82), [#111](https://github.com/seng321-group8/SENG321-Project/pull/111), [#115](https://github.com/seng321-group8/SENG321-Project/pull/115)–[#119](https://github.com/seng321-group8/SENG321-Project/pull/119), [#121](https://github.com/seng321-group8/SENG321-Project/pull/121)–[#123](https://github.com/seng321-group8/SENG321-Project/pull/123) |
+| Fatima Zehra ÖKTEM | Lead Software Architect and Technical Lead | [@fatimazhroktem](https://github.com/fatimazhroktem) | C4 model, OpenAPI contract, SRS–API alignment | [#65](https://github.com/seng321-group8/SENG321-Project/issues/65), [#70](https://github.com/seng321-group8/SENG321-Project/issues/70) | [#78](https://github.com/seng321-group8/SENG321-Project/pull/78), [#101](https://github.com/seng321-group8/SENG321-Project/pull/101), [#104](https://github.com/seng321-group8/SENG321-Project/pull/104), [#112](https://github.com/seng321-group8/SENG321-Project/pull/112) |
+| Ebrar COMART | QA and Test Automation Engineer | [@ebrarcomart](https://github.com/ebrarcomart) | Quality measures, advisor and admin screens | [#61](https://github.com/seng321-group8/SENG321-Project/issues/61), [#64](https://github.com/seng321-group8/SENG321-Project/issues/64) | [#80](https://github.com/seng321-group8/SENG321-Project/pull/80), [#81](https://github.com/seng321-group8/SENG321-Project/pull/81), [#120](https://github.com/seng321-group8/SENG321-Project/pull/120) |
+| Yağız Efe DERE | DevOps and CI/CD Infrastructure Engineer | [@yagizder](https://github.com/yagizder) | NFR and security requirements, deployment view, sequence diagrams (registration, login, matching) | [#60](https://github.com/seng321-group8/SENG321-Project/issues/60), [#66](https://github.com/seng321-group8/SENG321-Project/issues/66), [#67](https://github.com/seng321-group8/SENG321-Project/issues/67) | [#106](https://github.com/seng321-group8/SENG321-Project/pull/106), [#107](https://github.com/seng321-group8/SENG321-Project/pull/107), [#108](https://github.com/seng321-group8/SENG321-Project/pull/108) |
+| Emine BARAN | Implementation and Integration Engineer | [@Eminebaran](https://github.com/Eminebaran) | Class diagram and ER, sequence diagrams (appointment, advisor change) | [#68](https://github.com/seng321-group8/SENG321-Project/issues/68), [#69](https://github.com/seng321-group8/SENG321-Project/issues/69) | [#79](https://github.com/seng321-group8/SENG321-Project/pull/79), [#102](https://github.com/seng321-group8/SENG321-Project/pull/102), [#103](https://github.com/seng321-group8/SENG321-Project/pull/103) |
 
 ### Deliverables
 | Deliverable | File | Issue | Pull requests |
 |---|---|---|---|
-| Software requirements specification | docs/srs.md | #57 | #74, #104 |
-| Use cases and coverage matrix | docs/use-cases.md | #58 | #75, #105 |
-| Refined product backlog | docs/backlog.md | #59 | #76 |
-| Non-functional and security requirements | docs/nfr.md | #60 | #107 |
-| Quality measures | docs/quality-measures.md | #61 | #80 |
-| User flows | docs/ux/user-flows.md | #62 | #73 |
-| Student screens | docs/ux/student-screens.md | #63 | #77 |
-| Advisor and admin screens | docs/ux/advisor-admin-screens.md | #64 | #81 |
-| C4 model | docs/architecture/c4.md | #65 | #78 |
-| Deployment view | docs/architecture/deployment.md | #66 | #106 |
-| Sequence diagrams: registration, login, matching | docs/architecture/sequence-auth-matching.md | #67 | #108 |
-| Sequence diagrams: appointment, advisor change | docs/architecture/appointment-change.md | #68 | #79, #103 |
-| Class diagram and database schema | docs/architecture/class-diagram.md | #69 | #79, #102 |
-| OpenAPI contract | openapi.yaml | #70 | #101 |
-| Advisor interest list and seed data | docs/decision.md, docs/data/advisor-seed-data.md, docs/interest-list.md, docs/data/advisor-seed.json | #72 | #82, #83 |
-| Submission, stand-ups, retrospective | README.md, CONTRIBUTIONS.md, docs/standups.md, docs/retrospective.md | #71 | #111 |
+| Software requirements specification | [`docs/srs.md`](docs/srs.md) | [#57](https://github.com/seng321-group8/SENG321-Project/issues/57) | [#74](https://github.com/seng321-group8/SENG321-Project/pull/74), [#104](https://github.com/seng321-group8/SENG321-Project/pull/104), [#114](https://github.com/seng321-group8/SENG321-Project/pull/114) |
+| Use cases and coverage matrix | [`docs/use-cases.md`](docs/use-cases.md) | [#58](https://github.com/seng321-group8/SENG321-Project/issues/58) | [#75](https://github.com/seng321-group8/SENG321-Project/pull/75), [#105](https://github.com/seng321-group8/SENG321-Project/pull/105) |
+| Refined product backlog | [`docs/backlog.md`](docs/backlog.md) | [#59](https://github.com/seng321-group8/SENG321-Project/issues/59) | [#76](https://github.com/seng321-group8/SENG321-Project/pull/76) |
+| Non-functional and security requirements | [`docs/nfr.md`](docs/nfr.md) | [#60](https://github.com/seng321-group8/SENG321-Project/issues/60) | [#107](https://github.com/seng321-group8/SENG321-Project/pull/107) |
+| Quality measures | [`docs/quality-measures.md`](docs/quality-measures.md) | [#61](https://github.com/seng321-group8/SENG321-Project/issues/61) | [#80](https://github.com/seng321-group8/SENG321-Project/pull/80) |
+| User flows | [`docs/ux/user-flows.md`](docs/ux/user-flows.md) | [#62](https://github.com/seng321-group8/SENG321-Project/issues/62) | [#73](https://github.com/seng321-group8/SENG321-Project/pull/73) |
+| Student screens | [`docs/ux/student-screens.md`](docs/ux/student-screens.md) | [#63](https://github.com/seng321-group8/SENG321-Project/issues/63) | [#77](https://github.com/seng321-group8/SENG321-Project/pull/77) |
+| Advisor and admin screens | [`docs/ux/advisor-admin-screens.md`](docs/ux/advisor-admin-screens.md) | [#64](https://github.com/seng321-group8/SENG321-Project/issues/64) | [#81](https://github.com/seng321-group8/SENG321-Project/pull/81), [#120](https://github.com/seng321-group8/SENG321-Project/pull/120) |
+| C4 model | [`docs/architecture/c4.md`](docs/architecture/c4.md) | [#65](https://github.com/seng321-group8/SENG321-Project/issues/65) | [#78](https://github.com/seng321-group8/SENG321-Project/pull/78), [#112](https://github.com/seng321-group8/SENG321-Project/pull/112) |
+| Deployment view | [`docs/architecture/deployment.md`](docs/architecture/deployment.md) | [#66](https://github.com/seng321-group8/SENG321-Project/issues/66) | [#106](https://github.com/seng321-group8/SENG321-Project/pull/106) |
+| Sequence diagrams: registration, login, matching | [`docs/architecture/sequence-auth-matching.md`](docs/architecture/sequence-auth-matching.md) | [#67](https://github.com/seng321-group8/SENG321-Project/issues/67) | [#108](https://github.com/seng321-group8/SENG321-Project/pull/108) |
+| Sequence diagrams: appointment, advisor change | [`docs/architecture/appointment-change.md`](docs/architecture/appointment-change.md) | [#68](https://github.com/seng321-group8/SENG321-Project/issues/68) | [#79](https://github.com/seng321-group8/SENG321-Project/pull/79), [#103](https://github.com/seng321-group8/SENG321-Project/pull/103) |
+| Class diagram and database schema | [`docs/architecture/class-diagram.md`](docs/architecture/class-diagram.md) | [#69](https://github.com/seng321-group8/SENG321-Project/issues/69) | [#79](https://github.com/seng321-group8/SENG321-Project/pull/79), [#102](https://github.com/seng321-group8/SENG321-Project/pull/102) |
+| OpenAPI contract | [`openapi.yaml`](openapi.yaml) | [#70](https://github.com/seng321-group8/SENG321-Project/issues/70) | [#101](https://github.com/seng321-group8/SENG321-Project/pull/101) |
+| Advisor interest list and seed data | [`docs/interest-list.md`](docs/interest-list.md), [`docs/data/advisor-seed.json`](docs/data/advisor-seed.json), [`docs/data/advisor-seed-data.md`](docs/data/advisor-seed-data.md) | [#72](https://github.com/seng321-group8/SENG321-Project/issues/72) | [#82](https://github.com/seng321-group8/SENG321-Project/pull/82), [#83](https://github.com/seng321-group8/SENG321-Project/pull/83) |
+| Decision log updates (D-21, D-25, D-28) | [`docs/decision.md`](docs/decision.md) | [#72](https://github.com/seng321-group8/SENG321-Project/issues/72) | [#83](https://github.com/seng321-group8/SENG321-Project/pull/83), [#113](https://github.com/seng321-group8/SENG321-Project/pull/113) |
+| Submission, stand-ups, retrospective | [`README.md`](README.md), [`CONTRIBUTIONS.md`](CONTRIBUTIONS.md), [`docs/standups.md`](docs/standups.md), [`docs/retrospective.md`](docs/retrospective.md) | [#71](https://github.com/seng321-group8/SENG321-Project/issues/71) | [#111](https://github.com/seng321-group8/SENG321-Project/pull/111), [#115](https://github.com/seng321-group8/SENG321-Project/pull/115)–[#119](https://github.com/seng321-group8/SENG321-Project/pull/119), [#121](https://github.com/seng321-group8/SENG321-Project/pull/121)–[#123](https://github.com/seng321-group8/SENG321-Project/pull/123) |
 
 ### Design files
 - [User flows (FigJam)](https://www.figma.com/board/yCbRs4vPk9B99bneEDwANZ/Career-Advisor-Matching---User-Flows?node-id=0-1&t=vo9uhkk9qqeXH3nt-1)
 - [Student screens (Figma)](https://www.figma.com/design/4EBRTQr6qI3nCYrgwtjXFN/Career-Advisor-Matching---Screens?node-id=0-1&t=FTJWB3RPnHpztpoo-1)
-- [Advisor and admin screens (Figma)](https://www.figma.com/design/YWPkjTqH5NflMmNDhqw4uu/Untitled?node-id=0-1&t=FJpGnegomFfEfPso-1)
+- [Advisor and admin screens (Figma)](https://www.figma.com/design/YWPkjTqH5NflMmNDhqw4uu/Advisor-and-Administrator-Screens?node-id=0-1&t=NmPhA2VEReo0FdlC-1)
 
 ### Evidence
-- Release tag: `sprint-2`
+- Release: [sprint-2](https://github.com/seng321-group8/SENG321-Project/releases/tag/sprint-2)
+- Milestone: [Sprint 2](https://github.com/seng321-group8/SENG321-Project/milestone/1?closed=1)
+- Individual contributions: [CONTRIBUTIONS.md](CONTRIBUTIONS.md)
 - Project board: [GitHub Project](https://github.com/orgs/seng321-group8/projects/4) (view "Sprint 2")
 - Issues: [GitHub Issues](https://github.com/seng321-group8/SENG321-Project/issues)
 - Pull requests: [GitHub Pull Requests](https://github.com/seng321-group8/SENG321-Project/pulls?q=is%3Apr)

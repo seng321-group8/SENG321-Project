@@ -104,12 +104,12 @@ This section lists what each member did in Sprint 2 (November 5–24, 2026): req
 
 | Member | GitHub | Role | Merged PRs | Open PRs | Reviews |
 |---|---|---|---|---|---|
-| Aybüke BALÇIK | [aybuke9](https://github.com/aybuke9) | Product Owner and Requirements Engineer | 4 | 1 | 4 |
-| Şevval Nil UÇAR | [niluccr](https://github.com/niluccr) | Scrum Master and Agile Process Coach | 3 | 0 | 3 |
-| Fatima Zehra ÖKTEM | [fatimazhroktem](https://github.com/fatimazhroktem) | Lead Software Architect and Technical Lead | 1 | 2 | 5 |
-| Ebrar COMART | [ebrarcomart](https://github.com/ebrarcomart) | QA and Test Automation Engineer | 0 | 2 | 1 |
-| Yağız Efe DERE | [yagizder](https://github.com/yagizder) | DevOps and CI/CD Infrastructure Engineer | 0 | 0 | 0 |
-| Emine BARAN | [Eminebaran](https://github.com/Eminebaran) | Implementation and Integration Engineer | 1 | 2 | 1 |
+| Aybüke BALÇIK | [aybuke9](https://github.com/aybuke9) | Product Owner and Requirements Engineer | 5 | 0 | 5 |
+| Şevval Nil UÇAR | [niluccr](https://github.com/niluccr) | Scrum Master and Agile Process Coach | 5 | 0 | 2 |
+| Fatima Zehra ÖKTEM | [fatimazhroktem](https://github.com/fatimazhroktem) | Lead Software Architect and Technical Lead | 3 | 0 | 7 |
+| Ebrar COMART | [ebrarcomart](https://github.com/ebrarcomart) | QA and Test Automation Engineer | 2 | 0 | 5 |
+| Yağız Efe DERE | [yagizder](https://github.com/yagizder) | DevOps and CI/CD Infrastructure Engineer | 3 | 0 | 2 |
+| Emine BARAN | [Eminebaran](https://github.com/Eminebaran) | Implementation and Integration Engineer | 3 | 0 | 3 |
 
 Counts were taken from GitHub on November 24, 2026, and are updated before the `sprint-2` release. "Reviews" = pull requests of other members that the member approved or commented on.
 
@@ -123,11 +123,11 @@ Counts were taken from GitHub on November 24, 2026, and are updated before the `
 | Work | Evidence |
 |---|---|
 | Wrote the SRS: scope, roles, 40 functional requirements (FR-01 to FR-40) with priority, source decision, user stories and OpenAPI operations; interfaces, data entities, appointment status rules and traceability | Issue [#57](https://github.com/seng321-group8/SENG321-Project/issues/57) · PR [#74](https://github.com/seng321-group8/SENG321-Project/pull/74) · `docs/srs.md` |
-| Wrote the use cases: actors, UML use case diagram, UC-01 to UC-19 (four fully dressed), FR-to-use-case coverage matrix; later aligned the operation names with OpenAPI v0.5.0 | Issue [#58](https://github.com/seng321-group8/SENG321-Project/issues/58) · PRs [#75](https://github.com/seng321-group8/SENG321-Project/pull/75), [#105](https://github.com/seng321-group8/SENG321-Project/pull/105) · `docs/use-cases.md` |
+| Wrote the use cases with Ebrar: actors, UML use case diagram, UC-01 to UC-19 (four fully dressed), FR-to-use-case coverage matrix; later aligned the operation names with OpenAPI v0.5.0 | Issue [#58](https://github.com/seng321-group8/SENG321-Project/issues/58) · PRs [#75](https://github.com/seng321-group8/SENG321-Project/pull/75), [#105](https://github.com/seng321-group8/SENG321-Project/pull/105) · `docs/use-cases.md` |
 | Refined the product backlog: FR and operationId for every story, Sprint column, Sprint 3 MVP plan (20 stories, 60 points), fixed the outdated API note from peer review | Issue [#59](https://github.com/seng321-group8/SENG321-Project/issues/59) · PR [#76](https://github.com/seng321-group8/SENG321-Project/pull/76) · `docs/backlog.md` |
 | Prepared the faculty form questions, filled in the form for four advisors, merged all answers into the final interest list (44 interests, maximum 5 per user) and the advisor seed data file; finalized D-25 and accepted D-28 | Issue [#72](https://github.com/seng321-group8/SENG321-Project/issues/72) · PR [#83](https://github.com/seng321-group8/SENG321-Project/pull/83) · `docs/interest-list.md`, `docs/data/advisor-seed.json`, `docs/decision.md` |
 | Prepared the Sprint 2 task list for the team | Shared with the team on November 18 |
-| Reviewed teammates' pull requests | [#73](https://github.com/seng321-group8/SENG321-Project/pull/73), [#77](https://github.com/seng321-group8/SENG321-Project/pull/77), [#78](https://github.com/seng321-group8/SENG321-Project/pull/78), [#104](https://github.com/seng321-group8/SENG321-Project/pull/104) |
+| Reviewed teammates' pull requests | [#73](https://github.com/seng321-group8/SENG321-Project/pull/73), [#77](https://github.com/seng321-group8/SENG321-Project/pull/77), [#78](https://github.com/seng321-group8/SENG321-Project/pull/78), [#81](https://github.com/seng321-group8/SENG321-Project/pull/81), [#104](https://github.com/seng321-group8/SENG321-Project/pull/104) |
 
 ## Şevval Nil UÇAR — Scrum Master and Agile Process Coach
 - **Responsibilities:** sprint planning and tracking, user flows, student screens, stand-up and retrospective records, submission and release.
@@ -149,21 +149,22 @@ Counts were taken from GitHub on November 24, 2026, and are updated before the `
 | Work | Evidence |
 |---|---|
 | Wrote the C4 model: context, container and component views with Mermaid diagrams | Issue [#65](https://github.com/seng321-group8/SENG321-Project/issues/65) · PR [#78](https://github.com/seng321-group8/SENG321-Project/pull/78) · `docs/architecture/c4.md` |
-| Updated the OpenAPI contract to v0.5.0 so it matches the SRS, use cases and class diagram (weekly office hours with computed slots, booking with `officeHourId` and `startAt`, `year`, `interest`, `quota`, `year_change`, manual meeting link) | Issue [#70](https://github.com/seng321-group8/SENG321-Project/issues/70) · PR [#101](https://github.com/seng321-group8/SENG321-Project/pull/101) · `openapi.yaml` |
+| Updated the OpenAPI contract to v0.5.0 with Emine so it matches the SRS, use cases and class diagram (weekly office hours with computed slots, booking with `officeHourId` and `startAt`, `year`, `interest`, `quota`, `year_change`, manual meeting link) | Issue [#70](https://github.com/seng321-group8/SENG321-Project/issues/70) · PR [#101](https://github.com/seng321-group8/SENG321-Project/pull/101) · `openapi.yaml` |
 | Validated `openapi.yaml` v0.5.0 in Swagger Editor and checked that all 40 FRs are covered by an operation | Comments on PR [#101](https://github.com/seng321-group8/SENG321-Project/pull/101) |
 | Aligned the operation names and terms in the SRS with OpenAPI v0.5.0 | PR [#104](https://github.com/seng321-group8/SENG321-Project/pull/104) · `docs/srs.md` |
 | Filled in the faculty form for four advisors | Issue [#72](https://github.com/seng321-group8/SENG321-Project/issues/72) (comment) |
-| Reviewed teammates' pull requests | [#74](https://github.com/seng321-group8/SENG321-Project/pull/74), [#79](https://github.com/seng321-group8/SENG321-Project/pull/79), [#82](https://github.com/seng321-group8/SENG321-Project/pull/82), [#83](https://github.com/seng321-group8/SENG321-Project/pull/83), [#105](https://github.com/seng321-group8/SENG321-Project/pull/105) |
+| Reviewed teammates' pull requests | [#74](https://github.com/seng321-group8/SENG321-Project/pull/74), [#79](https://github.com/seng321-group8/SENG321-Project/pull/79), [#82](https://github.com/seng321-group8/SENG321-Project/pull/82), [#83](https://github.com/seng321-group8/SENG321-Project/pull/83), [#105](https://github.com/seng321-group8/SENG321-Project/pull/105), [#108](https://github.com/seng321-group8/SENG321-Project/pull/108), [#111](https://github.com/seng321-group8/SENG321-Project/pull/111) |
 
 ## Ebrar COMART — QA and Test Automation Engineer
-- **Responsibilities:** quality measures and test mapping, advisor and administrator screens, use-case review.
+- **Responsibilities:** quality measures and test mapping, advisor and administrator screens, use-case contribution.
 
 | Work | Evidence |
 |---|---|
 | Defined the quality measures: metrics, tools, thresholds (Locust response time, 50% unit-test coverage) and the NFR-to-test mapping | Issue [#61](https://github.com/seng321-group8/SENG321-Project/issues/61) · PR [#80](https://github.com/seng321-group8/SENG321-Project/pull/80) · `docs/quality-measures.md` |
-| Designed the advisor and administrator screens in Figma (desktop and mobile) | Issue [#64](https://github.com/seng321-group8/SENG321-Project/issues/64) · PR [#81](https://github.com/seng321-group8/SENG321-Project/pull/81) · `docs/ux/advisor-admin-screens.md` |
-| Reviewed the use cases with the Product Owner | PR [#75](https://github.com/seng321-group8/SENG321-Project/pull/75) (comment) |
+| Designed the advisor and administrator screens in Figma with Emine (desktop and mobile) | Issue [#64](https://github.com/seng321-group8/SENG321-Project/issues/64) · PR [#81](https://github.com/seng321-group8/SENG321-Project/pull/81) · `docs/ux/advisor-admin-screens.md` |
+| Co-authored the use cases and coverage matrix with the Product Owner | Issue [#58](https://github.com/seng321-group8/SENG321-Project/issues/58) · PR [#75](https://github.com/seng321-group8/SENG321-Project/pull/75) · `docs/use-cases.md` |
 | Filled in the faculty form for four advisors | Issue [#72](https://github.com/seng321-group8/SENG321-Project/issues/72) (comment) |
+| Reviewed teammates' pull requests | [#75](https://github.com/seng321-group8/SENG321-Project/pull/75), [#101](https://github.com/seng321-group8/SENG321-Project/pull/101), [#102](https://github.com/seng321-group8/SENG321-Project/pull/102), [#103](https://github.com/seng321-group8/SENG321-Project/pull/103), [#107](https://github.com/seng321-group8/SENG321-Project/pull/107) |
 
 ## Yağız Efe DERE — DevOps and CI/CD Infrastructure Engineer
 - **Responsibilities:** non-functional and security requirements, deployment view, sequence diagrams for registration, login and matching.
@@ -172,8 +173,9 @@ Counts were taken from GitHub on November 24, 2026, and are updated before the `
 |---|---|
 | Non-functional and security requirements | Issue [#60](https://github.com/seng321-group8/SENG321-Project/issues/60) · PR [#107](https://github.com/seng321-group8/SENG321-Project/pull/107) · `docs/nfr.md` |
 | Deployment view (stack per D-27) | Issue [#66](https://github.com/seng321-group8/SENG321-Project/issues/66) · PR [#106](https://github.com/seng321-group8/SENG321-Project/pull/106) · `docs/architecture/deployment.md` |
-| Sequence diagrams: registration, login and matching | Issue [#67](https://github.com/seng321-group8/SENG321-Project/issues/67) · PR [#108](https://github.com/seng321-group8/SENG321-Project/pull/108) |
+| Sequence diagrams: registration, login and matching | Issue [#67](https://github.com/seng321-group8/SENG321-Project/issues/67) · PR [#108](https://github.com/seng321-group8/SENG321-Project/pull/108) · `docs/architecture/sequence-auth-matching.md` |
 | Filled in the faculty form for four advisors | Issue [#72](https://github.com/seng321-group8/SENG321-Project/issues/72) (comment) |
+| Reviewed teammates' pull requests | [#80](https://github.com/seng321-group8/SENG321-Project/pull/80), [#111](https://github.com/seng321-group8/SENG321-Project/pull/111) |
 
 ## Emine BARAN — Implementation and Integration Engineer
 - **Responsibilities:** class diagram and database schema, sequence diagrams for appointments and advisor change, implementation feasibility.
@@ -181,7 +183,8 @@ Counts were taken from GitHub on November 24, 2026, and are updated before the `
 | Work | Evidence |
 |---|---|
 | Drew the class diagram, the ER diagram and the appointment and advisor-change sequence diagrams | Issues [#68](https://github.com/seng321-group8/SENG321-Project/issues/68), [#69](https://github.com/seng321-group8/SENG321-Project/issues/69) · PR [#79](https://github.com/seng321-group8/SENG321-Project/pull/79) · `docs/architecture/class-diagram.md`, `docs/architecture/appointment-change.md` |
-| Aligned the class diagram and ER with OpenAPI v0.5.0 (quota, served years, GPA, match status, meeting and cancellation fields, weekly office hours) and translated the document to English | PR [#102](https://github.com/seng321-group8/SENG321-Project/pull/102) |
-| Aligned the sequence and state diagrams with OpenAPI v0.5.0 (booking, confirm/reject, 30-minute cancellation lock, change-request approval) and translated the document to English | PR [#103](https://github.com/seng321-group8/SENG321-Project/pull/103) |
+| Aligned the class diagram and ER with OpenAPI v0.5.0 (quota, served years, GPA, match status, meeting and cancellation fields, weekly office hours) and translated the document to English | PR [#102](https://github.com/seng321-group8/SENG321-Project/pull/102) · `docs/architecture/class-diagram.md` |
+| Aligned the sequence and state diagrams with OpenAPI v0.5.0 (booking, confirm/reject, 30-minute cancellation lock, change-request approval) and translated the document to English | PR [#103](https://github.com/seng321-group8/SENG321-Project/pull/103) · `docs/architecture/appointment-change.md` |
+| Co-designed the advisor and administrator screens and contributed to the OpenAPI v0.5.0 alignment | Issues [#64](https://github.com/seng321-group8/SENG321-Project/issues/64), [#70](https://github.com/seng321-group8/SENG321-Project/issues/70) · PRs [#81](https://github.com/seng321-group8/SENG321-Project/pull/81), [#101](https://github.com/seng321-group8/SENG321-Project/pull/101) |
 | Filled in the faculty form for four advisors | Issue [#72](https://github.com/seng321-group8/SENG321-Project/issues/72) (comment) |
-| Reviewed the use cases | PR [#75](https://github.com/seng321-group8/SENG321-Project/pull/75) |
+| Reviewed teammates' pull requests | [#75](https://github.com/seng321-group8/SENG321-Project/pull/75), [#76](https://github.com/seng321-group8/SENG321-Project/pull/76), [#81](https://github.com/seng321-group8/SENG321-Project/pull/81) |

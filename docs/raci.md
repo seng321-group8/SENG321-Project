@@ -12,7 +12,7 @@ A/R = Accountable and also performs the work
 | Product Owner and Requirements Engineer | Aybüke BALÇIK |
 | Scrum Master and Agile Process Coach | Şevval Nil UÇAR |
 | Lead Software Architect and Technical Lead | Fatima Zehra ÖKTEM |
-| QA and Test Automation Engineer | Sümeyye Ebrar COMART |
+| QA and Test Automation Engineer | Ebrar COMART |
 | DevOps and CI/CD Infrastructure Engineer | Yağız Efe DERE |
 | Implementation and Integration Engineer | Emine BARAN |
 

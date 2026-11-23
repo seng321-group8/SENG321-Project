@@ -104,14 +104,14 @@ This section lists what each member did in Sprint 2 (November 5–24, 2026): req
 
 | Member | GitHub | Role | Merged PRs | Open PRs | Reviews |
 |---|---|---|---|---|---|
-| Aybüke BALÇIK | [aybuke9](https://github.com/aybuke9) | Product Owner and Requirements Engineer | 7 | 0 | 7 |
+| Aybüke BALÇIK | [aybuke9](https://github.com/aybuke9) | Product Owner and Requirements Engineer | 8 | 0 | 7 |
 | Şevval Nil UÇAR | [niluccr](https://github.com/niluccr) | Scrum Master and Agile Process Coach | 12 | 0 | 2 |
 | Fatima Zehra ÖKTEM | [fatimazhroktem](https://github.com/fatimazhroktem) | Lead Software Architect and Technical Lead | 4 | 0 | 17 |
 | Ebrar COMART | [ebrarcomart](https://github.com/ebrarcomart) | QA and Test Automation Engineer | 3 | 0 | 6 |
 | Yağız Efe DERE | [yagizder](https://github.com/yagizder) | DevOps and CI/CD Infrastructure Engineer | 3 | 0 | 1 |
 | Emine BARAN | [Eminebaran](https://github.com/Eminebaran) | Implementation and Integration Engineer | 3 | 0 | 2 |
 
-Counts were taken from GitHub on November 23, 2026, and cover the Sprint 2 pull requests #73–#123 (the code skeleton and CI pull requests #109 and #110 belong to Sprint 3). "Reviews" = pull requests of other members that the member approved or commented on.
+Counts were taken from GitHub on November 23, 2026, and cover the Sprint 2 pull requests #73–#124 (the code skeleton and CI pull requests #109 and #110 belong to Sprint 3). "Reviews" = pull requests of other members that the member approved or commented on.
 
 **Shared task — advisor data (D-28):** the advisors did not fill in the faculty form themselves. Following the instructor's guidance, each member filled in the form for the advisors assigned to them using public faculty pages and CVs (see the comment on issue [#72](https://github.com/seng321-group8/SENG321-Project/issues/72)). Names and e-mail addresses are not stored in the repository.
 
@@ -128,6 +128,7 @@ Counts were taken from GitHub on November 23, 2026, and cover the Sprint 2 pull 
 | Prepared the faculty form questions, filled in the form for four advisors, merged all answers into the final interest list (44 interests, maximum 5 per user) and the advisor seed data file; finalized D-25 and accepted D-28 | Issue [#72](https://github.com/seng321-group8/SENG321-Project/issues/72) · PR [#83](https://github.com/seng321-group8/SENG321-Project/pull/83) · `docs/interest-list.md`, `docs/data/advisor-seed.json`, `docs/decision.md` |
 | Prepared the Sprint 2 task list for the team | Shared with the team on November 18 |
 | Updated the decision log (D-21: future appointments with the previous advisor are cancelled on approval) and marked the interest limit as decided in the SRS | PRs [#113](https://github.com/seng321-group8/SENG321-Project/pull/113), [#114](https://github.com/seng321-group8/SENG321-Project/pull/114) · `docs/decision.md`, `docs/srs.md` |
+| Wrote the requirements traceability and consistency review: goal → FR → story → API → screen → C4 → UML → test matrix, the verification method of every FR, screen annotations and a consistency check of one normal and two failure paths; set the SRS baseline 1.1 with change history | Issue [#57](https://github.com/seng321-group8/SENG321-Project/issues/57) · PR [#124](https://github.com/seng321-group8/SENG321-Project/pull/124) · `docs/traceability.md`, `docs/srs.md` |
 | Reviewed teammates' pull requests | [#73](https://github.com/seng321-group8/SENG321-Project/pull/73), [#77](https://github.com/seng321-group8/SENG321-Project/pull/77), [#78](https://github.com/seng321-group8/SENG321-Project/pull/78), [#81](https://github.com/seng321-group8/SENG321-Project/pull/81), [#104](https://github.com/seng321-group8/SENG321-Project/pull/104), [#112](https://github.com/seng321-group8/SENG321-Project/pull/112), [#120](https://github.com/seng321-group8/SENG321-Project/pull/120) |
 
 ## Şevval Nil UÇAR — Scrum Master and Agile Process Coach

@@ -2,7 +2,7 @@
 
 Date: November 3, 2026
 Facilitator: Şevval Nil UÇAR (Scrum Master)
-Attendees: Aybüke BALÇIK, Şevval Nil UÇAR, Fatima Zehra ÖKTEM, Sümeyye Ebrar COMART, Yağız Efe DERE, Emine BARAN
+Attendees: Aybüke BALÇIK, Şevval Nil UÇAR, Fatima Zehra ÖKTEM, Ebrar COMART, Yağız Efe DERE, Emine BARAN
 
 ## What went well
 - The repository, the `develop` branch, the issues, and the project board were set up in the first days, and the first change (RACI, PR #10) went through the full pull request flow.
@@ -36,7 +36,7 @@ Attendees: Aybüke BALÇIK, Şevval Nil UÇAR, Fatima Zehra ÖKTEM, Sümeyye Ebr
 
 Date: November 23, 2026
 Facilitator: Şevval Nil UÇAR (Scrum Master)
-Attendees: Aybüke BALÇIK, Şevval Nil UÇAR, Fatima Zehra ÖKTEM, Sümeyye Ebrar COMART, Yağız Efe DERE, Emine BARAN
+Attendees: Aybüke BALÇIK, Şevval Nil UÇAR, Fatima Zehra ÖKTEM, Ebrar COMART, Yağız Efe DERE, Emine BARAN
 
 ## Follow-up of the Sprint 1 action items
 | Action | Result |
@@ -61,7 +61,7 @@ Attendees: Aybüke BALÇIK, Şevval Nil UÇAR, Fatima Zehra ÖKTEM, Sümeyye Ebr
 - The plan to collect interests from the advisors with a form failed and was replaced late in the sprint.
 - Some pull requests needed changes after review because they did not follow the checklist of their issue.
 - Dates and names were not consistent across documents (for example the weekly assignment date, file names and NFR numbers), so a consistency check was needed at the end.
-- The plan to collect interests from the advisors with a form did not work, because the advisors did not have time. After the instructor's advice, the team prepared the data from public sources.
+- We did not hold live stand-up meetings during Sprint 2 and coordinated asynchronously via WhatsApp, which made tracking late-stage risks harder.
 
 ## Action items for Sprint 3
 - Open a draft pull request within two days after starting a task. Owner: all

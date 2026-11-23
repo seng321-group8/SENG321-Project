@@ -43,19 +43,19 @@ This document specifies measurable system-wide requirements. `NFR-*` requirement
 
 ## 3. Traceability
 
-| Requirement group | Main source | Related quality measure |
+| Requirement group | Main source | Quality measure (`docs/quality-measures.md`) |
 |---|---|---|
-| NFR-01, NFR-02 | SRS Sections 3.4 and 6; D-20 | API latency and weekly matching metrics |
-| NFR-03, NFR-04 | SRS FR-32, FR-34 and data-integrity rules | Integration-failure and state-transition tests |
-| NFR-05 | SRS Section 4.1; D-01 | Mobile/desktop responsive checks |
-| NFR-06 | Sprint 3 coverage requirement | Coverage and lint gate |
-| NFR-07, NFR-08 | SRS Section 2.3; D-27 | Docker Compose startup and persistence checks |
-| NFR-09 | Security, operations and external integrations | Log and failure-observability checks |
-| SEC-01 to SEC-04 | SRS FR-01 to FR-10; OpenAPI bearer authentication | Authentication and authorization tests |
-| SEC-05 | SRS FR-40; D-26 | Privacy/access-control tests |
-| SEC-06, SEC-07 | SRS FR-36 and functional boundaries | File and input-validation tests |
-| SEC-08 | SRS FR-04 | Rate-limit and enumeration tests |
-| SEC-09, SEC-10 | D-27 and `docs/architecture/deployment.md` | Deployment and secret-management checks |
+| NFR-01, NFR-02 | SRS Sections 3.4 and 6; D-20 | QM-01 API response time, QM-02 weekly matching run |
+| NFR-03, NFR-04 | SRS FR-32, FR-34 and data-integrity rules | QM-10 reliability, QM-05 appointment state integrity |
+| NFR-05 | SRS Section 4.1; D-01 | QM-08 usability |
+| NFR-06 | Sprint 3 coverage requirement | Unit test coverage target (50%, CI gate) |
+| NFR-07, NFR-08 | SRS Section 2.3; D-27 | QM-09 portability |
+| NFR-09 | Security, operations and external integrations | QM-10 reliability (failure logging) |
+| SEC-01 to SEC-04 | SRS FR-01 to FR-10; OpenAPI bearer authentication | QM-06 security |
+| SEC-05 | SRS FR-40; D-26 | QM-07 privacy (KVKK) |
+| SEC-06, SEC-07 | SRS FR-36 and functional boundaries | QM-04 input and file validation, QM-03 cancellation lock |
+| SEC-08 | SRS FR-04 | QM-06 security (rate-limit and enumeration tests) |
+| SEC-09, SEC-10 | D-27 and `docs/architecture/deployment.md` | QM-09 portability (deployment and secret checks) |
 
 ## 4. Acceptance evidence
 

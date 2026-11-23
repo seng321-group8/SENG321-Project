@@ -11,7 +11,7 @@ A web system that matches students with suitable career advisors and lets them b
 | Aybüke BALÇIK | Product Owner and Requirements Engineer | Requirements engineering and product vision: user stories, acceptance criteria, product backlog, prioritization |
 | Şevval Nil UÇAR | Scrum Master and Agile Process Coach | Agile process management and communication: RACI matrix, stand-up and retrospective records, impediment tracking, project board |
 | Fatima Zehra ÖKTEM | Lead Software Architect and Technical Lead | System and software architecture: C4 and UML diagrams, API-first decisions, code review leadership |
-| Sümeyye Ebrar COMART | QA and Test Automation Engineer | Quality assurance: test plans, unit, integration and end-to-end tests, defect tracking, coverage monitoring |
+| Ebrar COMART | QA and Test Automation Engineer | Quality assurance: test plans, unit, integration and end-to-end tests, defect tracking, coverage monitoring |
 | Yağız Efe DERE | DevOps and CI/CD Infrastructure Engineer | Infrastructure and deployment: GitHub Actions pipeline, Docker configuration, docker-compose |
 | Emine BARAN | Implementation and Integration Engineer | Feature implementation, cross-component integration, API and UI coordination, integration defect resolution |
 
@@ -60,7 +60,7 @@ Release tag: [sprint-1](https://github.com/seng321-group8/SENG321-Project/releas
 | Aybüke BALÇIK | Product Owner and Requirements Engineer | [@aybuke9](https://github.com/aybuke9) |
 | Şevval Nil UÇAR | Scrum Master and Agile Process Coach | [@niluccr](https://github.com/niluccr) |
 | Fatima Zehra ÖKTEM | Lead Software Architect and Technical Lead | [@fatimazhroktem](https://github.com/fatimazhroktem) |
-| Sümeyye Ebrar COMART | QA and Test Automation Engineer | [@ebrarcomart](https://github.com/ebrarcomart) |
+| Ebrar COMART | QA and Test Automation Engineer | [@ebrarcomart](https://github.com/ebrarcomart) |
 | Yağız Efe DERE | DevOps and CI/CD Infrastructure Engineer | [@yagizder](https://github.com/yagizder) |
 | Emine BARAN | Implementation and Integration Engineer | [@Eminebaran](https://github.com/Eminebaran) |
 
@@ -99,7 +99,7 @@ Release tag: [sprint-2](https://github.com/seng321-group8/SENG321-Project/releas
 | Aybüke BALÇIK | Product Owner and Requirements Engineer | @aybuke9 | SRS, use cases, backlog, interest list (#57, #58, #59, #72, #74, #75, #76, #83, #105) |
 | Şevval Nil UÇAR | Scrum Master and Agile Process Coach | @niluccr | User flows, student screens, submission (#62, #63, #71, #72, #73, #77, #82, #111, #112) |
 | Fatima Zehra ÖKTEM | Lead Software Architect and Technical Lead | @fatimazhroktem | C4 model, OpenAPI (#65, #70, #78, #101, #104) |
-| Sümeyye Ebrar COMART | QA and Test Automation Engineer | @ebrarcomart | Quality measures, advisor and admin screens (#61, #64, #75, #80, #81) |
+| Ebrar COMART | QA and Test Automation Engineer | @ebrarcomart | Quality measures, advisor and admin screens (#61, #64, #75, #80, #81) |
 | Yağız Efe DERE | DevOps and CI/CD Infrastructure Engineer | @yagizder | NFR and security, deployment view, sequence diagrams (#60, #66, #67, #106, #107, #108) |
 | Emine BARAN | Implementation and Integration Engineer | @Eminebaran | Sequence diagrams, class diagram (#68, #69, #79, #102, #103) |
 

@@ -105,13 +105,13 @@ This section lists what each member did in Sprint 2 (November 5–24, 2026): req
 | Member | GitHub | Role | Merged PRs | Open PRs | Reviews |
 |---|---|---|---|---|---|
 | Aybüke BALÇIK | [aybuke9](https://github.com/aybuke9) | Product Owner and Requirements Engineer | 8 | 0 | 7 |
-| Şevval Nil UÇAR | [niluccr](https://github.com/niluccr) | Scrum Master and Agile Process Coach | 12 | 0 | 2 |
+| Şevval Nil UÇAR | [niluccr](https://github.com/niluccr) | Scrum Master and Agile Process Coach | 13 | 0 | 2 |
 | Fatima Zehra ÖKTEM | [fatimazhroktem](https://github.com/fatimazhroktem) | Lead Software Architect and Technical Lead | 4 | 0 | 17 |
-| Ebrar COMART | [ebrarcomart](https://github.com/ebrarcomart) | QA and Test Automation Engineer | 3 | 0 | 6 |
+| Ebrar COMART | [ebrarcomart](https://github.com/ebrarcomart) | QA and Test Automation Engineer | 4 | 0 | 6 |
 | Yağız Efe DERE | [yagizder](https://github.com/yagizder) | DevOps and CI/CD Infrastructure Engineer | 3 | 0 | 1 |
 | Emine BARAN | [Eminebaran](https://github.com/Eminebaran) | Implementation and Integration Engineer | 3 | 0 | 2 |
 
-Counts were taken from GitHub on November 23, 2026, and cover the Sprint 2 pull requests #73–#124 (the code skeleton and CI pull requests #109 and #110 belong to Sprint 3). "Reviews" = pull requests of other members that the member approved or commented on.
+Counts were taken from GitHub on November 23, 2026, and cover the Sprint 2 pull requests #73–#126 (the code skeleton and CI pull requests #109 and #110 belong to Sprint 3). "Reviews" = pull requests of other members that the member approved or commented on.
 
 **Shared task — advisor data (D-28):** the advisors did not fill in the faculty form themselves. Following the instructor's guidance, each member filled in the form for the advisors assigned to them using public faculty pages and CVs (see the comment on issue [#72](https://github.com/seng321-group8/SENG321-Project/issues/72)). Names and e-mail addresses are not stored in the repository.
 
@@ -142,7 +142,7 @@ Counts were taken from GitHub on November 23, 2026, and cover the Sprint 2 pull 
 | Documented how the advisor data was prepared and recorded decision D-28 | Issue [#72](https://github.com/seng321-group8/SENG321-Project/issues/72) · PR [#82](https://github.com/seng321-group8/SENG321-Project/pull/82) · `docs/data/advisor-seed-data.md` |
 | Filled in the faculty form for four advisors | Issue [#72](https://github.com/seng321-group8/SENG321-Project/issues/72) (comment) |
 | Kept the Sprint 2 stand-up records and the retrospective, standardized teammate names across process/QA docs, and wrote the Sprint 2 submission section of the README | Issue [#71](https://github.com/seng321-group8/SENG321-Project/issues/71) · PRs [#111](https://github.com/seng321-group8/SENG321-Project/pull/111), [#115](https://github.com/seng321-group8/SENG321-Project/pull/115)–[#119](https://github.com/seng321-group8/SENG321-Project/pull/119), [#121](https://github.com/seng321-group8/SENG321-Project/pull/121), [#122](https://github.com/seng321-group8/SENG321-Project/pull/122) · `docs/standups.md`, `docs/retrospective.md`, `docs/raci.md`, `docs/test-scenario-matrix.md`, `docs/acceptance-criteria-draft.md`, `CONTRIBUTIONS.md`, `README.md` |
-| Opened and merged the release PR and published the `sprint-2` release | PR [#123](https://github.com/seng321-group8/SENG321-Project/pull/123) · [Release](https://github.com/seng321-group8/SENG321-Project/releases/tag/sprint-2) |
+| Opened and merged the release PR and published the `sprint-2` release | PRs [#123](https://github.com/seng321-group8/SENG321-Project/pull/123), [#125](https://github.com/seng321-group8/SENG321-Project/pull/125) · [Release](https://github.com/seng321-group8/SENG321-Project/releases/tag/sprint-2) |
 | Reviewed teammates' pull requests | [#103](https://github.com/seng321-group8/SENG321-Project/pull/103), [#106](https://github.com/seng321-group8/SENG321-Project/pull/106) |
 
 ## Fatima Zehra ÖKTEM — Lead Software Architect and Technical Lead
@@ -165,6 +165,7 @@ Counts were taken from GitHub on November 23, 2026, and cover the Sprint 2 pull 
 |---|---|
 | Defined the quality measures: metrics, tools, thresholds (Locust response time, 50% unit-test coverage) and the NFR-to-test mapping | Issue [#61](https://github.com/seng321-group8/SENG321-Project/issues/61) · PR [#80](https://github.com/seng321-group8/SENG321-Project/pull/80) · `docs/quality-measures.md` |
 | Designed the advisor and administrator screens in Figma with Emine (desktop and mobile) | Issue [#64](https://github.com/seng321-group8/SENG321-Project/issues/64) · PRs [#81](https://github.com/seng321-group8/SENG321-Project/pull/81), [#120](https://github.com/seng321-group8/SENG321-Project/pull/120) · `docs/ux/advisor-admin-screens.md` |
+| Corrected the advisor and administrator screens after the consistency review (automatic matching only, cancellation reason and 30-minute lock, navigation), added the advisor accounts screen and annotated every screen with FR, story and API identifiers | Issue [#64](https://github.com/seng321-group8/SENG321-Project/issues/64) · PR [#126](https://github.com/seng321-group8/SENG321-Project/pull/126) · `docs/ux/advisor-admin-screens.md`, `docs/traceability.md` |
 | Co-authored the use cases and coverage matrix with the Product Owner | Issue [#58](https://github.com/seng321-group8/SENG321-Project/issues/58) · PR [#75](https://github.com/seng321-group8/SENG321-Project/pull/75) · `docs/use-cases.md` |
 | Filled in the faculty form for four advisors | Issue [#72](https://github.com/seng321-group8/SENG321-Project/issues/72) (comment) |
 | Reviewed teammates' pull requests | [#75](https://github.com/seng321-group8/SENG321-Project/pull/75), [#101](https://github.com/seng321-group8/SENG321-Project/pull/101), [#102](https://github.com/seng321-group8/SENG321-Project/pull/102), [#103](https://github.com/seng321-group8/SENG321-Project/pull/103), [#104](https://github.com/seng321-group8/SENG321-Project/pull/104), [#107](https://github.com/seng321-group8/SENG321-Project/pull/107) |

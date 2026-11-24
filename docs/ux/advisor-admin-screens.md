@@ -1,6 +1,6 @@
 # Advisor and Administrator Screens
 
-Figma design file: https://www.figma.com/design/YWPkjTqH5NflMmNDhqw4uu/Advisor-and-Administrator-Screens?node-id=0-1&t=NmPhA2VEReo0FdlC-1
+Figma design file: [Advisor and Administrator Screens](https://www.figma.com/design/YWPkjTqH5NflMmNDhqw4uu/Advisor-and-Administrator-Screens?node-id=0-1&t=NmPhA2VEReo0FdlC-1)
 
 Each screen is designed for two sizes:
 
@@ -9,21 +9,37 @@ Each screen is designed for two sizes:
 | Desktop | 1440 x 1024 px |
 | Phone (iPhone 14 & 15 Pro) | 393 x 852 px |
 
-The screens follow the advisor and administrator flows in [user-flows.md](user-flows.md) and align with system rules and API endpoints.
+The screens follow the advisor and administrator flows in [user-flows.md](user-flows.md) and use the same layout as the [student screens](student-screens.md). Each screen lists the requirements (SRS), stories (backlog) and API operations (`openapi.yaml`) it covers; the full matrix is in [`docs/traceability.md`](../traceability.md). Names and numbers on the screens are sample data.
+
+Navigation:
+- Advisor: **Profile | Requests | Advisees**
+- Administrator: **Quotas & Matching | Interests | Change Requests | Accounts**
 
 ## Advisor Screens
 
-### 1. Advisor Login, Profile, and Office Hours
-Advisors sign in with their administrator-created account and manage their profile including `bio`, `interests`, `years served`, and `online preference` (per-advisor preference). Advisors add recurring 30-minute office hour slots, delete free slots, optionally connect Google Calendar for automatic Google Meet links (or enter a meeting link manually), and view incoming appointment requests.
+### A1. Profile and Office Hours
+| Requirements | Stories | API operations |
+|---|---|---|
+| FR-12, FR-13, FR-23, FR-34, FR-35 | US-07, US-14, US-21, US-22 | `saveMyAdvisorProfile`, `createOfficeHour`, `deleteOfficeHour`, `startGoogleCalendarConnect` |
+
+The advisor edits the short introduction, the student years served, the meeting mode (online and/or in person) and the interests (at least 1, at most 5). Weekly office hours are entered as 30-minute slots. **Connect Google Calendar** enables automatic Google Meet links; if it is not connected, the advisor adds a meeting link when approving a request.
 
 #### Desktop (1440x1024)
-![Advisor Profile & Office Hours Desktop](./advisor-profile-office-hours-desktop.png)
+![Advisor Profile & Office Hours Desktop](advisor-profile-office-hours-desktop.png)
 
 #### Mobile (393x852)
-![Advisor Profile & Office Hours Mobile](./advisor-profile-office-hours-mobile.png)
+![Advisor Profile & Office Hours Mobile](advisor-profile-office-hours-mobile.png)
 
-### 2. Appointment Requests, Schedule, and Post-Meeting Outcomes
-Advisors review appointment requests (`REQUESTED`) and either confirm (`CONFIRMED`, triggering `.ics` delivery and automatic Google Meet link when Google Calendar is connected, or manual link entry) or reject (`REJECTED`) them. Advisors can cancel an appointment with a reason more than 30 minutes before the start time (`> 30 minutes` lock applies to both students and advisors; cancellations within 30 minutes are blocked). After a session takes place, the advisor marks the post-meeting outcome as `COMPLETED` or `NO_SHOW` (rather than treating `CONFIRMED` as a final outcome) and views assigned advisees and their GPA.
+### A2. Requests and Schedule
+| Requirements | Stories | API operations |
+|---|---|---|
+| FR-27, FR-28, FR-29, FR-30, FR-35 | US-16, US-17, US-18, US-22 | `confirmAppointment`, `rejectAppointment`, `cancelAppointment`, `markAppointmentOutcome` |
+
+**Incoming Requests** lists `REQUESTED` appointments with **Approve** (→ `CONFIRMED`, `.ics` e-mail, Meet link) and **Reject** (→ `REJECTED`). **Scheduled Appointments** lists confirmed meetings with the Meet link or the room. After the start time the advisor marks **Completed** or **No-Show**.
+
+States shown:
+- **Cancel** requires a written reason ("Reason for cancellation (required)", FR-28).
+- Within 30 minutes of the start, the button is disabled and reads **Cancel locked (< 30 min)** (FR-29, API 409 `CANCELLATION_WINDOW_CLOSED`).
 
 #### Desktop (1440x1024)
 ![Appointment Requests Desktop](appointment-requests-schedule-desktop.png)
@@ -31,8 +47,12 @@ Advisors review appointment requests (`REQUESTED`) and either confirm (`CONFIRME
 #### Mobile (393x852)
 ![Appointment Requests Mobile](appointment-requests-schedule-mobile.png)
 
-### 3. Assigned Advisees and Student CVs
-Advisors view the students assigned to them and download uploaded student CVs (PDF).
+### A3. Assigned Advisees and Student CVs
+| Requirements | Stories | API operations |
+|---|---|---|
+| FR-31, FR-36, FR-40 | US-18, US-24 | `listMyStudents`, `downloadStudentCv` |
+
+The advisor sees the assigned students with their school e-mail and interests, previews a CV (year and GPA are visible only to the assigned advisor) and downloads it as PDF.
 
 #### Desktop (1440x1024)
 ![Assigned Advisees Desktop](assigned-advisees-student-cvs-desktop.png)
@@ -42,8 +62,12 @@ Advisors view the students assigned to them and download uploaded student CVs (P
 
 ## Administrator Screens
 
-### 4. Advisor Quotas, Waiting Students, and Matching Runs
-Administrators create advisor accounts with a default quota of `20` and update advisor quotas without setting a quota below the current assigned student count. Administrators view students waiting for a match, trigger matching manually ("Run matching now"), and inspect matching run history.
+### B1. Quotas and Matching
+| Requirements | Stories | API operations |
+|---|---|---|
+| FR-08, FR-14, FR-20, FR-22 | US-05, US-11, US-13 | `listAdvisors`, `updateAdvisorQuota`, `listWaitingStudents`, `runMatchingNow` |
+
+The administrator sees each advisor's students / quota and edits the quota (a quota below the current number of students is rejected, API 409). Students who could not be matched are listed as **Waiting**. Matching is automatic: the weekly run is shown as **Next scheduled run: Sunday 22:00**, and **Run Matching Now** starts the same 3-round matching immediately. There is no manual assignment of a student to an advisor (FR-16).
 
 #### Desktop (1440x1024)
 ![Quotas Matching Desktop](quotas-waiting-students-matching-desktop.png)
@@ -51,20 +75,41 @@ Administrators create advisor accounts with a default quota of `20` and update a
 #### Mobile (393x852)
 ![Quotas Matching Mobile](quotas-waiting-students-matching-mobile.png)
 
-### 5. Advisor Change Requests
-Administrators review pending advisor change requests. The written explanation is visible only to the student and the administrator. When approving a request, the system re-matches the student excluding the previous advisor (keeping the current advisor if no alternative is available). When rejecting a request, a written reason is required.
+### B2. Advisor Change Requests
+| Requirements | Stories | API operations |
+|---|---|---|
+| FR-38, FR-40 | US-26 | `listAdvisorChangeRequests`, `decideAdvisorChangeRequest` |
 
-#### Desktop
+The administrator reviews a pending request with the reason and the explanation (visible only to the student and administrators), writes a note and approves or rejects it. On approval the student is re-matched without the previous advisor and future appointments with the previous advisor are cancelled; if no other advisor has free quota, the student keeps the current advisor (D-21).
+
+#### Desktop (1440x1024)
 ![Advisor Change Requests Desktop](advisor-change-requests-desktop.png)
 
-#### Mobile
+#### Mobile (393x852)
 ![Advisor Change Requests Mobile](advisor-change-requests-mobile.png)
 
-### 6. Advisor Accounts and Interest List Management
-Administrators manage advisor accounts (adding and deactivating accounts) and manage the interest list (adding, renaming, and deactivating interests).
+### B3. Interest List
+| Requirements | Stories | API operations |
+|---|---|---|
+| FR-09, FR-10 | US-04 | `listInterests`, `createInterest`, `updateInterest` |
 
-#### Desktop
+The administrator adds, renames, deactivates and reactivates interests. The limit of **5 interests per person** (D-25) is shown at the top. A deactivated interest is not offered for new selections.
+
+#### Desktop (1440x1024)
 ![Interest Area Management Desktop](interest-area-management-desktop.png)
 
-#### Mobile
+#### Mobile (393x852)
 ![Interest Area Management Mobile](interest-area-management-mobile.png)
+
+### B4. Advisor Accounts
+| Requirements | Stories | API operations |
+|---|---|---|
+| FR-07, FR-08 | US-05 | `createAdvisorAccount`, `listAdvisors` |
+
+The administrator creates an advisor account with full name, school e-mail (`first.last@ankarabilim.edu.tr`), department and quota (default 20); a verification e-mail is sent. The list shows each advisor's department, students / quota and status (**Active** or **Verification pending**). Students are not created here; they register themselves.
+
+#### Desktop (1440x1024)
+![Advisor Accounts Desktop](advisor-accounts-desktop.png)
+
+#### Mobile (393x852)
+![Advisor Accounts Mobile](advisor-accounts-mobile.png)

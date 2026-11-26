@@ -2,14 +2,14 @@ import { getSession } from "../auth/session.js";
 
 export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api/v1";
 
-// Errors follow the problem format of openapi.yaml (title, status, code, detail).
+// Errors follow the Error schema of openapi.yaml (code, message, details).
 export class ApiError extends Error {
   constructor(status, problem) {
-    super(problem?.title || `Request failed with status ${status}`);
+    super(problem?.message || problem?.title || `Request failed with status ${status}`);
     this.name = "ApiError";
     this.status = status;
     this.code = problem?.code ?? null;
-    this.detail = problem?.detail ?? null;
+    this.details = problem?.details ?? problem?.detail ?? null;
   }
 }
 
@@ -30,21 +30,27 @@ export async function apiRequest(
 ) {
   const headers = { Accept: "application/json" };
   const session = getSession();
-  // Adjust to the securitySchemes of openapi.yaml.
   if (session?.token) headers.Authorization = `Bearer ${session.token}`;
-  if (body !== undefined) headers["Content-Type"] = "application/json";
+
+  const isFormData = typeof FormData !== "undefined" && body instanceof FormData;
+  if (body !== undefined && !isFormData) {
+    headers["Content-Type"] = "application/json";
+  }
 
   const response = await fetch(buildUrl(baseUrl, path, query), {
     method,
     headers,
     signal,
-    body: body !== undefined ? JSON.stringify(body) : undefined,
+    body: body === undefined ? undefined : isFormData ? body : JSON.stringify(body),
   });
 
   if (response.status === 204) return null;
 
-  const isJson = (response.headers.get("content-type") || "").includes("json");
+  const contentType = response.headers.get("content-type") || "";
+  const isJson = contentType.includes("json");
   const data = isJson ? await response.json().catch(() => null) : null;
+
   if (!response.ok) throw new ApiError(response.status, data);
+  if (!isJson) return response.blob();
   return data;
 }

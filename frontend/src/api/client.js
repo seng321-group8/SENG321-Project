@@ -51,6 +51,9 @@ export async function apiRequest(
   const data = isJson ? await response.json().catch(() => null) : null;
 
   if (!response.ok) throw new ApiError(response.status, data);
-  if (!isJson) return response.blob();
+    if (!isJson) {
+    const file = await response.blob();
+    return file.size > 0 ? file : null;
+  }
   return data;
 }

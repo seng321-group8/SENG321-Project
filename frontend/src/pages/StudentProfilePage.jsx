@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
 
 import { ApiError } from "../api/client.js";
 import {
@@ -11,7 +10,6 @@ import {
   saveMyStudentProfile,
   uploadMyCv,
 } from "../api/endpoints.js";
-import { getSession } from "../auth/session.js";
 import {
   MAX_INTERESTS,
   validateCvFile,
@@ -25,25 +23,7 @@ const YEAR_OPTIONS = [
   { value: 4, label: "4th Year" },
 ];
 
-function formatDateTime(isoString) {
-  if (!isoString) return "Sunday at 22:00";
-  const date = new Date(isoString);
-  if (Number.isNaN(date.getTime())) return isoString;
-  return new Intl.DateTimeFormat("en-GB", {
-    dateStyle: "medium",
-    timeStyle: "short",
-  }).format(date);
-}
-
-function formatBytes(bytes) {
-  if (!bytes && bytes !== 0) return "";
-  if (bytes < 1024) return `${bytes} B`;
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-  return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
-}
-
 export default function StudentProfilePage() {
-  const session = getSession();
   const fileInputRef = useRef(null);
 
   const [loading, setLoading] = useState(true);
@@ -56,6 +36,7 @@ export default function StudentProfilePage() {
   const [departmentId, setDepartmentId] = useState("");
   const [gpa, setGpa] = useState("");
   const [interestIds, setInterestIds] = useState([]);
+  const [pickerOpen, setPickerOpen] = useState(false);
 
   const [fieldErrors, setFieldErrors] = useState({});
   const [saveError, setSaveError] = useState("");
@@ -120,8 +101,7 @@ export default function StudentProfilePage() {
     return () => controller.abort();
   }, []);
 
-  // Merge active interests with any deactivated interest already stored on the student's profile.
-  const availableInterests = (() => {
+  const allInterests = (() => {
     const byId = new Map(interests.map((item) => [item.id, item]));
     if (Array.isArray(profileMeta?.interests)) {
       profileMeta.interests.forEach((item) => {
@@ -131,13 +111,27 @@ export default function StudentProfilePage() {
     return [...byId.values()];
   })();
 
-  function toggleInterest(id) {
+  const selectedInterests = interestIds
+    .map((id) => allInterests.find((item) => item.id === id))
+    .filter(Boolean);
+
+  const unselectedInterests = allInterests.filter(
+    (item) => !interestIds.includes(item.id) && item.active !== false,
+  );
+
+  function addInterest(id) {
     setFieldErrors((prev) => ({ ...prev, interestIds: undefined }));
     setInterestIds((prev) => {
-      if (prev.includes(id)) return prev.filter((item) => item !== id);
-      if (prev.length >= MAX_INTERESTS) return prev;
-      return [...prev, id];
+      if (prev.includes(id) || prev.length >= MAX_INTERESTS) return prev;
+      const next = [...prev, id];
+      if (next.length >= MAX_INTERESTS) setPickerOpen(false);
+      return next;
     });
+  }
+
+  function removeInterest(id) {
+    setFieldErrors((prev) => ({ ...prev, interestIds: undefined }));
+    setInterestIds((prev) => prev.filter((item) => item !== id));
   }
 
   async function handleProfileSubmit(event) {
@@ -163,8 +157,8 @@ export default function StudentProfilePage() {
       setGpa(typeof updated.gpa === "number" ? updated.gpa.toFixed(2) : cleanGpa.toFixed(2));
       setSaveSuccess(
         updated.matchStatus === "matched"
-          ? "Profile updated. Your current advisor assignment stays unchanged."
-          : `Profile saved. You are queued for the next matching run (${formatDateTime(updated.nextAssignmentAt)}).`,
+          ? "Profile saved. Your current advisor assignment remains unchanged."
+          : "Profile saved. You are queued for the next weekly matching run (Sunday 22:00).",
       );
     } catch (err) {
       if (err instanceof ApiError) {
@@ -255,38 +249,21 @@ export default function StudentProfilePage() {
 
   if (loading) {
     return (
-      <section className="card">
-        <h1>Student profile</h1>
-        <p className="muted">Loading your profile...</p>
-      </section>
+      <div className="profile-center">
+        <section className="card profile-card">
+          <h1 className="profile-card__title">Student Profile</h1>
+          <p className="muted" style={{ textAlign: "center" }}>
+            Loading your profile...
+          </p>
+        </section>
+      </div>
     );
   }
 
-  const displayName = profileMeta?.fullName || session?.name || "Student";
-  const matchStatus = profileMeta?.matchStatus || "waiting";
-
   return (
-    <div className="profile-layout">
-      <section className="card">
-        <div className="profile-header">
-          <div>
-            <span className="eyebrow">Student Profile</span>
-            <h1>{displayName}</h1>
-            {profileMeta?.studentNo && (
-              <p className="muted">
-                Student ID: <strong>{profileMeta.studentNo}</strong>
-              </p>
-            )}
-          </div>
-          <span className={`badge ${matchStatus === "matched" ? "badge--matched" : "badge--waiting"}`}>
-            {matchStatus === "matched" ? "Advisor assigned" : "Waiting for match"}
-          </span>
-        </div>
-
-        <p className="muted">
-          Complete your academic details and select 1 to {MAX_INTERESTS} career interests. Matching
-          runs every Sunday at 22:00.
-        </p>
+    <div className="profile-center">
+      <section className="card profile-card">
+        <h1 className="profile-card__title">Student Profile</h1>
 
         {loadError && (
           <div className="alert alert--error" role="alert">
@@ -307,49 +284,26 @@ export default function StudentProfilePage() {
         )}
 
         <form className="form" onSubmit={handleProfileSubmit} noValidate>
-          <div className="form-row">
-            <div className="field">
-              <label className="field__label" htmlFor="profile-year">
-                Year
-              </label>
-              <select
-                id="profile-year"
-                name="year"
-                className={`field__input ${fieldErrors.year ? "field__input--error" : ""}`}
-                value={year}
-                onChange={(e) => setYear(e.target.value)}
-                aria-invalid={Boolean(fieldErrors.year)}
-              >
-                <option value="">Select year</option>
-                {YEAR_OPTIONS.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-              {fieldErrors.year && <span className="field__error">{fieldErrors.year}</span>}
-            </div>
-
-            <div className="field">
-              <label className="field__label" htmlFor="profile-gpa">
-                GPA (0.00 – 4.00)
-              </label>
-              <input
-                id="profile-gpa"
-                name="gpa"
-                type="number"
-                inputMode="decimal"
-                step="0.01"
-                min="0"
-                max="4"
-                placeholder="3.25"
-                className={`field__input ${fieldErrors.gpa ? "field__input--error" : ""}`}
-                value={gpa}
-                onChange={(e) => setGpa(e.target.value)}
-                aria-invalid={Boolean(fieldErrors.gpa)}
-              />
-              {fieldErrors.gpa && <span className="field__error">{fieldErrors.gpa}</span>}
-            </div>
+          <div className="field">
+            <label className="field__label" htmlFor="profile-year">
+              Year
+            </label>
+            <select
+              id="profile-year"
+              name="year"
+              className={`field__input ${fieldErrors.year ? "field__input--error" : ""}`}
+              value={year}
+              onChange={(e) => setYear(e.target.value)}
+              aria-invalid={Boolean(fieldErrors.year)}
+            >
+              <option value="">Select year</option>
+              {YEAR_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+            {fieldErrors.year && <span className="field__error">{fieldErrors.year}</span>}
           </div>
 
           <div className="field">
@@ -377,142 +331,143 @@ export default function StudentProfilePage() {
           </div>
 
           <div className="field">
-            <div className="field__label-row">
-              <span className="field__label">Career interests</span>
-              <span className="field__hint">
-                {interestIds.length} / {MAX_INTERESTS} selected
-              </span>
+            <label className="field__label" htmlFor="profile-gpa">
+              GPA
+            </label>
+            <input
+              id="profile-gpa"
+              name="gpa"
+              type="number"
+              inputMode="decimal"
+              step="0.01"
+              min="0"
+              max="4"
+              placeholder="3.45"
+              className={`field__input ${fieldErrors.gpa ? "field__input--error" : ""}`}
+              value={gpa}
+              onChange={(e) => setGpa(e.target.value)}
+              aria-invalid={Boolean(fieldErrors.gpa)}
+            />
+            {fieldErrors.gpa && <span className="field__error">{fieldErrors.gpa}</span>}
+          </div>
+
+          <div className="field">
+            <span className="field__label">Interests</span>
+            <div className="interest-row">
+              {selectedInterests.map((interest) => (
+                <button
+                  key={interest.id}
+                  type="button"
+                  className="interest-pill"
+                  onClick={() => removeInterest(interest.id)}
+                  aria-label={`Remove ${interest.name}`}
+                >
+                  <span>{interest.name}</span>
+                  <span aria-hidden="true">×</span>
+                </button>
+              ))}
+
+              {interestIds.length < MAX_INTERESTS && (
+                <button
+                  type="button"
+                  className="interest-add-btn"
+                  onClick={() => setPickerOpen((prev) => !prev)}
+                  aria-expanded={pickerOpen}
+                >
+                  + Add Interest
+                </button>
+              )}
             </div>
 
-            {availableInterests.length === 0 ? (
-              <p className="muted">No interest areas available.</p>
-            ) : (
-              <div className="chip-grid" role="group" aria-label="Career interests">
-                {availableInterests.map((interest) => {
-                  const selected = interestIds.includes(interest.id);
-                  const disabled =
-                    (!selected && interestIds.length >= MAX_INTERESTS) ||
-                    (!selected && interest.active === false);
-                  return (
+            {pickerOpen && (
+              <div className="interest-picker" role="listbox" aria-label="Available interests">
+                {unselectedInterests.length === 0 ? (
+                  <span className="field__hint">No more interest areas available.</span>
+                ) : (
+                  unselectedInterests.map((interest) => (
                     <button
                       key={interest.id}
                       type="button"
-                      className={`chip ${selected ? "chip--selected" : ""}`}
-                      onClick={() => toggleInterest(interest.id)}
-                      disabled={disabled}
-                      aria-pressed={selected}
+                      className="interest-picker__item"
+                      onClick={() => addInterest(interest.id)}
                     >
                       {interest.name}
-                      {interest.active === false ? " (inactive)" : ""}
                     </button>
-                  );
-                })}
+                  ))
+                )}
               </div>
             )}
+
+            <span className="field__hint">
+              Select at least 1 interest ({interestIds.length}/{MAX_INTERESTS})
+            </span>
             {fieldErrors.interestIds && (
               <span className="field__error">{fieldErrors.interestIds}</span>
             )}
           </div>
 
-          <button type="submit" className="button button--primary" disabled={saving}>
-            {saving ? "Saving..." : "Save profile"}
+          <div className="field">
+            <span className="field__label">CV (Optional)</span>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="application/pdf,.pdf"
+              className="sr-only"
+              onChange={handleCvSelect}
+            />
+
+            {!hasCv ? (
+              <button
+                type="button"
+                className="cv-picker"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={cvBusy}
+              >
+                {cvBusy ? "Uploading PDF..." : "Upload PDF (max 2 MB, optional)"}
+              </button>
+            ) : (
+              <div className="cv-uploaded">
+                <span className="cv-uploaded__name">
+                  {cvInfo?.fileName || "Uploaded CV (PDF)"}
+                </span>
+                <div className="cv-uploaded__actions">
+                  <button
+                    type="button"
+                    className="button button--small"
+                    onClick={handleCvDownload}
+                    disabled={cvBusy}
+                  >
+                    Download
+                  </button>
+                  <button
+                    type="button"
+                    className="button button--small"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={cvBusy}
+                  >
+                    Replace
+                  </button>
+                  <button
+                    type="button"
+                    className="button button--danger button--small"
+                    onClick={handleCvDelete}
+                    disabled={cvBusy}
+                  >
+                    Remove
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {cvError && <span className="field__error">{cvError}</span>}
+            {cvSuccess && <span className="field__success">{cvSuccess}</span>}
+          </div>
+
+          <button type="submit" className="button button--primary button--full" disabled={saving}>
+            {saving ? "Saving..." : "Save Profile"}
           </button>
         </form>
       </section>
-
-      <aside className="profile-side">
-        <section className="card">
-          <h2>CV (Optional)</h2>
-          <p className="muted">
-            Upload your CV in PDF format (max 2 MB). Only you and your assigned advisor can view it.
-          </p>
-
-          {cvError && (
-            <div className="alert alert--error" role="alert">
-              {cvError}
-            </div>
-          )}
-
-          {cvSuccess && (
-            <div className="alert alert--success" role="status">
-              {cvSuccess}
-            </div>
-          )}
-
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="application/pdf,.pdf"
-            className="sr-only"
-            onChange={handleCvSelect}
-          />
-
-          {hasCv ? (
-            <div className="cv-box">
-              <div className="cv-box__meta">
-                <strong>{cvInfo?.fileName || "Uploaded CV (PDF)"}</strong>
-                {cvInfo?.sizeBytes != null && (
-                  <span className="muted">
-                    {formatBytes(cvInfo.sizeBytes)} • Uploaded {formatDateTime(cvInfo.uploadedAt)}
-                  </span>
-                )}
-              </div>
-              <div className="button-row">
-                <button
-                  type="button"
-                  className="button button--primary button--small"
-                  onClick={handleCvDownload}
-                  disabled={cvBusy}
-                >
-                  Download PDF
-                </button>
-                <button
-                  type="button"
-                  className="button button--small"
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={cvBusy}
-                >
-                  Replace
-                </button>
-                <button
-                  type="button"
-                  className="button button--danger button--small"
-                  onClick={handleCvDelete}
-                  disabled={cvBusy}
-                >
-                  Delete
-                </button>
-              </div>
-            </div>
-          ) : (
-            <button
-              type="button"
-              className="button button--full"
-              onClick={() => fileInputRef.current?.click()}
-              disabled={cvBusy}
-            >
-              {cvBusy ? "Uploading..." : "Upload CV (PDF, max 2 MB)"}
-            </button>
-          )}
-        </section>
-
-        <section className="card">
-          <h2>Matching status</h2>
-          {matchStatus === "matched" ? (
-            <>
-              <p className="muted">You have an assigned career advisor.</p>
-              <Link to="/student/advisor" className="button button--full">
-                View my advisor
-              </Link>
-            </>
-          ) : (
-            <p className="muted">
-              Next weekly assignment run:{" "}
-              <strong>{formatDateTime(profileMeta?.nextAssignmentAt)}</strong>
-            </p>
-          )}
-        </section>
-      </aside>
     </div>
   );
 }

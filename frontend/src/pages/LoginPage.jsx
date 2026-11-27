@@ -11,7 +11,6 @@ export default function LoginPage() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
   const [fieldErrors, setFieldErrors] = useState({});
   const [formError, setFormError] = useState("");
   const [unverifiedEmail, setUnverifiedEmail] = useState("");
@@ -65,11 +64,14 @@ export default function LoginPage() {
 
   return (
     <section className="card auth-card">
-      <div className="auth-card__header">
-        <span className="eyebrow">Career Advisor System</span>
-        <h1>Log in</h1>
-        <p className="muted">Sign in with your Ankara Bilim University e-mail address.</p>
-      </div>
+      <h1 className="auth-card__title">Career Advisor Matching</h1>
+
+      <nav className="auth-tabs" aria-label="Authentication mode">
+        <span className="auth-tab auth-tab--active">Log In</span>
+        <Link to="/register" className="auth-tab">
+          Register
+        </Link>
+      </nav>
 
       {formError && (
         <div className="alert alert--error" role="alert">
@@ -96,7 +98,7 @@ export default function LoginPage() {
       <form className="form" onSubmit={handleSubmit} noValidate>
         <div className="field">
           <label className="field__label" htmlFor="login-email">
-            University e-mail
+            School Email
           </label>
           <input
             id="login-email"
@@ -116,36 +118,30 @@ export default function LoginPage() {
           <label className="field__label" htmlFor="login-password">
             Password
           </label>
-          <div className="password-wrap">
-            <input
-              id="login-password"
-              name="password"
-              type={showPassword ? "text" : "password"}
-              autoComplete="current-password"
-              placeholder="Enter your password"
-              className={`field__input ${fieldErrors.password ? "field__input--error" : ""}`}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              aria-invalid={Boolean(fieldErrors.password)}
-            />
-            <button
-              type="button"
-              className="password-toggle"
-              onClick={() => setShowPassword((prev) => !prev)}
-            >
-              {showPassword ? "Hide" : "Show"}
-            </button>
-          </div>
+          <input
+            id="login-password"
+            name="password"
+            type="password"
+            autoComplete="current-password"
+            placeholder="••••••••"
+            className={`field__input ${fieldErrors.password ? "field__input--error" : ""}`}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            aria-invalid={Boolean(fieldErrors.password)}
+          />
           {fieldErrors.password && <span className="field__error">{fieldErrors.password}</span>}
         </div>
 
-        <button type="submit" className="button button--primary button--full" disabled={submitting}>
-          {submitting ? "Signing in..." : "Log in"}
-        </button>
+        <div className="auth-card__submit">
+          <button type="submit" className="button button--primary button--auth" disabled={submitting}>
+            {submitting ? "Signing in..." : "Log In"}
+          </button>
+        </div>
       </form>
 
-      <p className="auth-card__footer muted">
-        New student? <Link to="/register">Register</Link>
+      <p className="auth-card__note">
+        New students: Switch to Register with your s+9 email and click the verification link sent to
+        your inbox.
       </p>
     </section>
   );
